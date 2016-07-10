@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "license": "MIT",
   "description": "Compose to create stamps",
-  "repository": "https://github.com/stampit-org/stamp/packages/compose",
+  "repository": "https://github.com/stampit-org/stamp/tree/master/packages/compose",
   "keywords": [
     "compose",
     "object",

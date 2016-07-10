@@ -3,5 +3,5 @@
   "version": "0.1.0",
   "license": "MIT",
   "description": "Various checking functions used with stamps",
-  "repository": "https://github.com/stampit-org/stamp/packages/is"
+  "repository": "https://github.com/stampit-org/stamp/tree/master/packages/is"
 }

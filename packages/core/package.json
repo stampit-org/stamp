@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "license": "MIT",
   "description": "Core functions for creating stamps",
-  "repository": "https://github.com/stampit-org/stamp/packages/core",
+  "repository": "https://github.com/stampit-org/stamp/tree/master/packages/core",
   "dependencies": {
     "@stamp/is": "^0.1.0"
   }
