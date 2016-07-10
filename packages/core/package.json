@@ -1,0 +1,10 @@
+{
+  "name": "@stamp/core",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Core functions for creating stamps",
+  "repository": "https://github.com/stampit-org/stamp/packages/core",
+  "dependencies": {
+    "@stamp/is": "0.0.1"
+  }
+}

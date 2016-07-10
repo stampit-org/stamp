@@ -1,0 +1,24 @@
+{
+  "name": "@stamp/compose",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Compose to create stamps",
+  "repository": "https://github.com/stampit-org/stamp/packages/compose",
+  "keywords": [
+    "compose",
+    "object",
+    "prototype",
+    "object oriented",
+    "browser",
+    "inheritance",
+    "oop",
+    "node",
+    "factory",
+    "class",
+    "stamp"
+  ],
+  "dependencies": {
+    "@stamp/is": "0.0.1",
+    "@stamp/core": "0.0.1"
+  }
+}
