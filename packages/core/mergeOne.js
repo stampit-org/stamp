@@ -15,12 +15,12 @@ export default function mergeOne(dst, src, shallow) {
   const keys = Object.keys(src);
   if (!dst) dst = {};
 
-  for (let i = 0; i < keys.length; i++) {
+  for (let i = 0; i < keys.length; i += 1) {
     const key = keys[i];
     const srcValue = src[key];
-    if (srcValue === undefined) continue;
-
-    dst[key] = shallow ? src[key] : mergeOne(dst[key], srcValue, shallow);
+    if (srcValue !== undefined) {
+      dst[key] = shallow ? src[key] : mergeOne(dst[key], srcValue, shallow);
+    }
   }
 
   return dst;
