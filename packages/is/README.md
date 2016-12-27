@@ -3,11 +3,8 @@
 _Various checking functions used with stamps_
 
 ```js
-import {
-  isStamp,
-  isDescriptor,
-  isComposable
-} from '@stamp/is';
+import {isStamp, isDescriptor, isComposable} from '@stamp/is';
+const {isStamp, isDescriptor, isComposable} = require('@stamp/is');
 ```
 
 ### isStamp(arg)

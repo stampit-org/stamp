@@ -1,2 +1,1 @@
-import isObject from './object';
-export default isObject;
+module.exports = require('./object');

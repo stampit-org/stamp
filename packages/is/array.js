@@ -1,1 +1,1 @@
-export default Array.isArray;
+module.exports = Array.isArray;

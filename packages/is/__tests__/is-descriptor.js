@@ -9,12 +9,12 @@ function getStamp(obj) {
 
 describe('isDescriptor', function () {
   it('with objects', function () {
-    var emptyStamp = getStamp();
+    var emptyStampDescriptor = getStamp().compose;
     var rawObject = {};
     var rawFunction = function () {};
     var regExp = /x/;
 
-    expect(isDescriptor(emptyStamp)).toBeTruthy();
+    expect(isDescriptor(emptyStampDescriptor)).toBeTruthy();
     expect(isDescriptor(rawObject)).toBeTruthy();
     expect(isDescriptor(rawFunction)).toBeTruthy();
     expect(isDescriptor(regExp)).toBeTruthy();

@@ -1,3 +1,3 @@
-export default function isFunction(arg) {
+module.exports = function isFunction(arg) {
   return typeof arg === 'function';
-}
+};
