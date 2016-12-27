@@ -15,6 +15,7 @@
     "url": "git@github.com:stampit-org/stamp.git"
   },
   "scripts": {
+    "ci": "npm run test",
     "test": "jest && npm run lint",
     "prepublish": "npm run bootstrap",
     "bootstrap": "lerna bootstrap",
