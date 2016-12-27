@@ -1,4 +1,5 @@
-import {isObject, isPlainObject, isArray} from '@stamp/is';
+var isPlainObject = require('@stamp/is/plain-object');
+var isArray = require('@stamp/is/array');
 
 /**
  * The 'src' argument plays the command role.
@@ -20,18 +21,18 @@ function mergeOne(dst, src) {
 
   // See if 'dst' is allowed to be mutated.
   // If not - it's overridden with a new plain object.
-  const returnValue = isObject(dst) ? dst : {};
+  var returnValue = isObject(dst) ? dst : {};
 
-  const keys = Object.keys(src);
-  for (let i = 0; i < keys.length; i += 1) {
-    const key = keys[i];
+  var keys = Object.keys(src);
+  for (var i = 0; i < keys.length; i += 1) {
+    var key = keys[i];
 
-    const srcValue = src[key];
+    var srcValue = src[key];
     // Do not merge properties with the 'undefined' value.
     if (srcValue !== undefined) {
-      const dstValue = returnValue[key];
+      var dstValue = returnValue[key];
       // Recursive calls to mergeOne() must allow only plain objects or arrays in dst
-      const newDst = isPlainObject(dstValue) || isArray(srcValue) ? dstValue : {};
+      var newDst = isPlainObject(dstValue) || isArray(srcValue) ? dstValue : {};
 
       // deep merge each property. Recursion!
       returnValue[key] = mergeOne(newDst, srcValue);
@@ -41,6 +42,9 @@ function mergeOne(dst, src) {
   return returnValue;
 }
 
-export default function (dst, ...srcs) {
-  return srcs.reduce(mergeOne, dst);
-}
+module.exports = function (dst) {
+  for (var i = 1; i < arguments.length; i++) {
+    dst = mergeOne(dst, arguments[i]);
+  }
+  return dst;
+};

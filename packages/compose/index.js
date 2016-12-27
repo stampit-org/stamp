@@ -1,5 +1,12 @@
-import {isArray, isFunction, isObject, isComposable} from '@stamp/is';
-import {merge, assign} from '@stamp/core';
+var isArray = require('@stamp/is/array');
+var isFunction = require('@stamp/is/function');
+var isObject = require('@stamp/is/object');
+var isComposable = require('@stamp/is/composable');
+
+var assign = require('@stamp/core/assign');
+var merge = require('@stamp/core/merge');
+
+var splice = Array.prototype.splice;
 
 /**
  * Creates new factory instance.
@@ -7,9 +14,9 @@ import {merge, assign} from '@stamp/core';
  * @returns {Function} The new factory function.
  */
 function createFactory(descriptor) {
-  return function Stamp(options, ...args) {
+  return function Stamp(options) {
     // Next line was optimized for most JS VMs. Please, be careful here!
-    let obj = Object.create(descriptor.methods || null);
+    var obj = Object.create(descriptor.methods || null);
 
     merge(obj, descriptor.deepProperties);
     assign(obj, descriptor.properties);
@@ -18,13 +25,13 @@ function createFactory(descriptor) {
     if (!descriptor.initializers || descriptor.initializers.length === 0) return obj;
 
     if (options === undefined) options = {};
-    const inits = descriptor.initializers;
-    const length = inits.length;
-    for (let i = 0; i < length; i += 1) {
-      const initializer = inits[i];
+    var inits = descriptor.initializers;
+    var length = inits.length;
+    for (var i = 0; i < length; i += 1) {
+      var initializer = inits[i];
       if (isFunction(initializer)) {
-        const returnedValue = initializer.call(obj, options,
-          {instance: obj, stamp: Stamp, args: [options].concat(args)});
+        var returnedValue = initializer.call(obj, options,
+          {instance: obj, stamp: Stamp, args: splice.apply(arguments)});
         obj = returnedValue === undefined ? obj : returnedValue;
       }
     }
@@ -40,15 +47,15 @@ function createFactory(descriptor) {
  * @returns {Stamp}
  */
 function createStamp(descriptor, composeFunction) {
-  const Stamp = createFactory(descriptor);
+  var Stamp = createFactory(descriptor);
 
   merge(Stamp, descriptor.staticDeepProperties);
   assign(Stamp, descriptor.staticProperties);
   Object.defineProperties(Stamp, descriptor.staticPropertyDescriptors || {});
 
-  const composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
-  Stamp.compose = function _compose(...args) {
-    return composeImplementation.apply(this, args);
+  var composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
+  Stamp.compose = function _compose() {
+    return composeImplementation.apply(this, arguments);
   };
   assign(Stamp.compose, descriptor);
 
@@ -58,11 +65,11 @@ function createStamp(descriptor, composeFunction) {
 function concatAssignFunctions(dstObject, srcArray, propName) {
   if (!isArray(srcArray)) return;
 
-  const length = srcArray.length;
-  const dstArray = dstObject[propName] || [];
+  var length = srcArray.length;
+  var dstArray = dstObject[propName] || [];
   dstObject[propName] = dstArray;
-  for (let i = 0; i < length; i += 1) {
-    const fn = srcArray[i];
+  for (var i = 0; i < length; i += 1) {
+    var fn = srcArray[i];
     if (isFunction(fn) && dstArray.indexOf(fn) < 0) {
       dstArray.push(fn);
     }
@@ -91,7 +98,7 @@ function mergeAssign(dstObject, srcObject, propName) {
  * @returns {Descriptor} Returns the dstDescriptor argument.
  */
 function mergeComposable(dstDescriptor, srcComposable) {
-  const srcDescriptor = (srcComposable && srcComposable.compose) || srcComposable;
+  var srcDescriptor = (srcComposable && srcComposable.compose) || srcComposable;
   if (!isComposable(srcDescriptor)) return dstDescriptor;
 
   mergeAssign(dstDescriptor, srcDescriptor, 'methods');
@@ -112,16 +119,16 @@ function mergeComposable(dstDescriptor, srcComposable) {
  * Given the list of composables (stamp descriptors and stamps) returns
  * a new stamp (composable factory function).
  * @typedef {Function} Compose
- * @param {...(Composable)} [composables] The list of composables.
+ * @param {...(Composable)} [arguments] The list of composables.
  * @returns {Stamp} A new stamp (aka composable factory function)
  */
-export default function compose(...composables) {
-  const descriptor = [this]
-    .concat(composables)
+module.exports = function compose() {
+  var descriptor = [this]
+    .concat(arguments)
     .filter(isObject)
     .reduce(mergeComposable, {});
   return createStamp(descriptor, compose);
-}
+};
 
 
 /**
