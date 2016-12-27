@@ -15,6 +15,7 @@
     "url": "git@github.com:stampit-org/stamp.git"
   },
   "scripts": {
+    "test": "jest",
     "prepublish": "npm run bootstrap",
     "bootstrap": "lerna bootstrap",
     "publish": "lerna publish -i",
@@ -28,6 +29,7 @@
     "eslint": "2.13.1",
     "eslint-config-airbnb": "9.0.1",
     "eslint-plugin-import": "1.10.2",
-    "lerna": "2.0.0-beta.24"
+    "jest": "^18.0.0",
+    "lerna": "^2.0.0-beta.31"
   }
 }
