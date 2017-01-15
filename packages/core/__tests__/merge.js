@@ -1,5 +1,3 @@
-var _ = require('lodash');
-
 var merge = require('../merge');
 
 describe('Deep merge', function () {
@@ -96,6 +94,10 @@ describe('Deep merge', function () {
 
 
   describe('array', function () {
+
+    var noop = function () {};
+    var _ = function () {};
+    _.a = 42;
 
     it('array replaces object', function () {
       var a = {
@@ -306,9 +308,9 @@ describe('Deep merge', function () {
     it('array replaces undefined', function () {
       var a = {};
       var b = {
-        foo: [1, _, _.noop]
+        foo: [1, _, noop]
       };
-      var expected = [1, _, _.noop];
+      var expected = [1, _, noop];
 
       var actual = merge(a, b).foo;
       var expectedMsg = 'result expected  : ' + JSON.stringify(expected);
@@ -318,12 +320,12 @@ describe('Deep merge', function () {
 
     it('undefined does not replace array', function () {
       var a = {
-        foo: [1, _, _.noop]
+        foo: [1, _, noop]
       };
       var b = {
         foo: undefined
       };
-      var expected = [1, _, _.noop];
+      var expected = [1, _, noop];
 
       var actual = merge(a, b).foo;
       var expectedMsg = 'result expected  : ' + JSON.stringify(expected);
