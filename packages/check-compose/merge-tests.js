@@ -89,7 +89,7 @@ module.exports = function (compose) {
   });
 
 
-  test('Deep array merge', function (nest) {
+  test('Function merge', function (nest) {
     // Loop over each property that is merged and ensure
     // that merge implemented correctly.
     mergeProps.forEach(function (prop) {
