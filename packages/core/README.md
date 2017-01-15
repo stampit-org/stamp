@@ -3,12 +3,9 @@
 _Core functions for creating stamps_
 
 ```js
-import {
-  assign,
-  merge,
-  slice,
-  values,
-} from '@stamp/core';
+const {assign, merge} = require('@stamp/core');
+// or
+import {assign, merge} from '@stamp/core';
 ```
 
 ### assign(dst, ...sources)
@@ -19,14 +16,8 @@ Mutates destination object with shallow assign of passed source objects. Returns
 ### merge(dst, ...sources)
 _`@stamp/core/merge`_
 
-Mutates destination object by deeply merging passed source objects. Arrays are concatenated, not overwritten. Returns destination object.
+* Mutates destination object by deeply merging passed source objects.
+* Arrays are concatenated, not overwritten.
+* Everything else but plain objects are copied by reference.
 
-### slice(array)
-_`@stamp/core/slice`_
-
-Common function found in `Array.prototype.slice`.
-
-### values(object)
-_`@stamp/core/values`_
-
-Uses `Object.values` if available, otherwise own implementation with same functionality is used.
+Returns destination object/array or a new object/array in case it was not.

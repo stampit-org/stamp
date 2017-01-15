@@ -1,5 +1,5 @@
-import isFunction from './function';
+var isFunction = require('./function');
 
-export default function isStamp(arg) {
+module.exports = function isStamp(arg) {
   return isFunction(arg) && isFunction(arg.compose);
-}
+};

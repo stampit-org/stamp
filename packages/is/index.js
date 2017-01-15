@@ -1,5 +1,12 @@
-export {isFunction} from './function';
-export {isObject} from './object';
-export {isStamp} from './stamp';
-export {isComposable} from './composable';
-export {isDescriptor} from './composable';
+module.exports = {
+  // Public API
+  isStamp: require('./stamp'),
+  isComposable: require('./composable'),
+  isDescriptor: require('./descriptor'),
+
+  // The below are private for @stamp.
+  isFunction: require('./function'),
+  isObject: require('./object'),
+  isPlainObject: require('./plain-object'),
+  isArray: require('./array')
+};

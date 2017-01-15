@@ -1,4 +1,4 @@
-export default function isObject(arg) {
-  const type = typeof arg;
+module.exports = function isObject(arg) {
+  var type = typeof arg;
   return Boolean(arg) && (type === 'object' || type === 'function');
-}
+};

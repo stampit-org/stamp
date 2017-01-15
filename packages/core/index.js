@@ -1,4 +1,4 @@
-export {assign} from './assign';
-export {merge} from './merge';
-export {slice} from './slice';
-export {values} from './values';
+module.exports = {
+  assign: require('./assign'),
+  merge: require('./merge')
+};
