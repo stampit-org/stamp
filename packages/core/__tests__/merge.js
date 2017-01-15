@@ -2,6 +2,15 @@ var merge = require('../merge');
 
 describe('Deep merge', function () {
 
+  it('returns first argument', function () {
+    var obj = {};
+    var actual = merge(obj);
+    var expected = obj;
+
+    expect(actual).toBe(expected,
+      'should return the first argument');
+  });
+
   describe('objects', function () {
 
     var build = function (num) {

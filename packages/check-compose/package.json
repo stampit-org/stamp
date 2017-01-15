@@ -11,8 +11,5 @@
     "bluebird": "^3.4.7",
     "lodash": "^4.17.4",
     "tape": "^4.6.3"
-  },
-  "devDependencies": {
-    "@stamp/compose": "^0.1.0"
   }
 }

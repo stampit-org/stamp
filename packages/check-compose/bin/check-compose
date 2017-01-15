@@ -43,6 +43,7 @@
             return JSON.stringify(f);
           }).join('\n');
           console.error(errorString);
+          process.exit(1);
         }
       });
   });

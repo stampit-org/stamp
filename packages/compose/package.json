@@ -20,5 +20,8 @@
   "dependencies": {
     "@stamp/is": "^0.1.0",
     "@stamp/core": "^0.1.0"
+  },
+  "devDependencies": {
+    "@stamp/check-compose": "^0.1.0"
   }
 }
