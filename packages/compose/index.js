@@ -6,7 +6,7 @@ var isComposable = require('@stamp/is/composable');
 var assign = require('@stamp/core/assign');
 var merge = require('@stamp/core/merge');
 
-var splice = Array.prototype.splice;
+var slice = Array.prototype.slice;
 
 /**
  * Creates new factory instance.
@@ -31,7 +31,7 @@ function createFactory(descriptor) {
       var initializer = inits[i];
       if (isFunction(initializer)) {
         var returnedValue = initializer.call(obj, options,
-          {instance: obj, stamp: Stamp, args: splice.apply(arguments)});
+          {instance: obj, stamp: Stamp, args: slice.apply(arguments)});
         obj = returnedValue === undefined ? obj : returnedValue;
       }
     }
@@ -95,11 +95,10 @@ function mergeAssign(dstObject, srcObject, propName) {
  * @param {Descriptor} dstDescriptor The descriptor object to merge into.
  * @param {Composable} [srcComposable] The composable
  * (either descriptor or stamp) to merge data form.
- * @returns {Descriptor} Returns the dstDescriptor argument.
  */
 function mergeComposable(dstDescriptor, srcComposable) {
   var srcDescriptor = (srcComposable && srcComposable.compose) || srcComposable;
-  if (!isComposable(srcDescriptor)) return dstDescriptor;
+  if (!isComposable(srcDescriptor)) return;
 
   mergeAssign(dstDescriptor, srcDescriptor, 'methods');
   mergeAssign(dstDescriptor, srcDescriptor, 'properties');
@@ -111,8 +110,6 @@ function mergeComposable(dstDescriptor, srcComposable) {
   mergeAssign(dstDescriptor, srcDescriptor, 'configuration');
   deepMergeAssign(dstDescriptor, srcDescriptor, 'deepConfiguration');
   concatAssignFunctions(dstDescriptor, srcDescriptor.initializers, 'initializers');
-
-  return dstDescriptor;
 }
 
 /**
@@ -123,10 +120,15 @@ function mergeComposable(dstDescriptor, srcComposable) {
  * @returns {Stamp} A new stamp (aka composable factory function)
  */
 module.exports = function compose() {
-  var descriptor = [this]
-    .concat(arguments)
-    .filter(isObject)
-    .reduce(mergeComposable, {});
+  'use strict'; // to make sure `this` is not pointing to `global` or `window`
+  var descriptor = {};
+  if (isComposable(this)) mergeComposable(descriptor, this);
+
+  for (var i = 0; i < arguments.length; i++) {
+    var arg = arguments[i];
+    if (isComposable(arg)) mergeComposable(descriptor, arg);
+  }
+
   return createStamp(descriptor, compose);
 };
 

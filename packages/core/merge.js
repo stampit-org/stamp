@@ -1,4 +1,5 @@
 var isPlainObject = require('@stamp/is/plain-object');
+var isObject = require('@stamp/is/object');
 var isArray = require('@stamp/is/array');
 
 /**

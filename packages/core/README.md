@@ -3,10 +3,9 @@
 _Core functions for creating stamps_
 
 ```js
-import {
-  assign,
-  merge
-} from '@stamp/core';
+const {assign, merge} = require('@stamp/core');
+// or
+import {assign, merge} from '@stamp/core';
 ```
 
 ### assign(dst, ...sources)
@@ -17,4 +16,8 @@ Mutates destination object with shallow assign of passed source objects. Returns
 ### merge(dst, ...sources)
 _`@stamp/core/merge`_
 
-Mutates destination object by deeply merging passed source objects. Arrays are concatenated, not overwritten. Returns destination object/array or a new object/array in case it was not.
+* Mutates destination object by deeply merging passed source objects.
+* Arrays are concatenated, not overwritten.
+* Everything else but plain objects are copied by reference.
+
+Returns destination object/array or a new object/array in case it was not.

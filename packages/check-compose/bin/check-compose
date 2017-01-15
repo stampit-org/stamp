@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+(function () {
+  var path = require('path');
+  var composeImplementationFiles = process.argv.slice(2);
+  if (!composeImplementationFiles.length) {
+    console.log('usage: ' + path.basename(process.argv[1]) + ' COMPOSE_FILE_NAMES...');
+    process.exit(1);
+    return;
+  }
+
+  var importedImplementations = composeImplementationFiles.map(function (file) {
+    try {
+      return require(file);
+    }
+    catch (_err) {
+      try {
+        file = path.resolve(process.cwd(), file);
+        return require(file);
+      } catch (err) {
+        console.error(err + '\nFailed to read JavaScript file ' + file);
+        process.exit(1);
+      }
+    }
+
+  });
+
+  importedImplementations.forEach(function (imported, index) {
+    var compose = typeof imported === 'function' ? imported :
+      typeof imported.default === 'function' ? imported.default :
+        typeof imported.compose === 'function' ? imported.compose :
+          undefined;
+    if (!compose) {
+      console.error('The file ' + composeImplementationFiles[index] + ' should export the "compose" function.');
+      process.exit(1);
+      return;
+    }
+
+    require('../')(compose)
+      .then(function (result) {
+        var failures = result.failures;
+        if (failures && failures.length > 0) {
+          var errorString = failures.map(function (f) {
+            return JSON.stringify(f);
+          }).join('\n');
+          console.error(errorString);
+        }
+      });
+  });
+}());

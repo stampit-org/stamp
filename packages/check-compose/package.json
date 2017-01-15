@@ -1,0 +1,18 @@
+{
+  "name": "@stamp/check-compose",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Command line tool to test your 'compose' function implementation",
+  "repository": "https://github.com/stampit-org/stamp/tree/master/packages/check-compose",
+  "bin": {
+    "check-compose": "./bin/check-compose"
+  },
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "lodash": "^4.17.4",
+    "tape": "^4.6.3"
+  },
+  "devDependencies": {
+    "@stamp/compose": "^0.1.0"
+  }
+}

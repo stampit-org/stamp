@@ -4,6 +4,7 @@ _Various checking functions used with stamps_
 
 ```js
 import {isStamp, isDescriptor, isComposable} from '@stamp/is';
+// or
 const {isStamp, isDescriptor, isComposable} = require('@stamp/is');
 ```
 
