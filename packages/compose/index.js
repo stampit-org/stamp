@@ -1,6 +1,7 @@
 var isArray = require('@stamp/is/array');
 var isFunction = require('@stamp/is/function');
 var isObject = require('@stamp/is/object');
+var isStamp = require('@stamp/is/stamp');
 var isComposable = require('@stamp/is/composable');
 
 var assign = require('@stamp/core/assign');
@@ -110,6 +111,7 @@ function mergeComposable(dstDescriptor, srcComposable) {
   mergeAssign(dstDescriptor, srcDescriptor, 'configuration');
   deepMergeAssign(dstDescriptor, srcDescriptor, 'deepConfiguration');
   concatAssignFunctions(dstDescriptor, srcDescriptor.initializers, 'initializers');
+  concatAssignFunctions(dstDescriptor, srcDescriptor.composers, 'composers');
 }
 
 /**
@@ -122,14 +124,32 @@ function mergeComposable(dstDescriptor, srcComposable) {
 module.exports = function compose() {
   'use strict'; // to make sure `this` is not pointing to `global` or `window`
   var descriptor = {};
-  if (isComposable(this)) mergeComposable(descriptor, this);
+  var composables = [];
+  if (isComposable(this)) {
+    mergeComposable(descriptor, this);
+    composables.push(this);
+  }
 
   for (var i = 0; i < arguments.length; i++) {
     var arg = arguments[i];
-    if (isComposable(arg)) mergeComposable(descriptor, arg);
+    if (isComposable(arg)) {
+      mergeComposable(descriptor, arg);
+      composables.push(arg);
+    }
   }
 
-  return createStamp(descriptor, compose);
+  var stamp = createStamp(descriptor, compose);
+
+  var composers = descriptor.composers;
+  if (isArray(composers) && composers.length > 0) {
+    for (var j = 0; j < composers.length; j += 1) {
+      var composer = composers[j];
+      var returnedValue = composer({stamp: stamp, composables: composables});
+      stamp = isStamp(returnedValue) ? returnedValue : stamp;
+    }
+  }
+
+  return stamp;
 };
 
 
@@ -139,6 +159,7 @@ module.exports = function compose() {
  * @returns {Stamp} A new stamp based on this Stamp
  * @property {Object} [methods] Methods or other data used as object instances' prototype
  * @property {Array<Function>} [initializers] List of initializers called for each object instance
+ * @property {Array<Function>} [composers] List of callbacks called each time a composition happens
  * @property {Object} [properties] Shallow assigned properties of object instances
  * @property {Object} [deepProperties] Deeply merged properties of object instances
  * @property {Object} [staticProperties] Shallow assigned properties of Stamps
