@@ -2,7 +2,7 @@
 
 _Makes all properties and optional methods private_
 
-Inspired by the [`private-class`](https://github.com/parro-it/private-class) module.
+Inspired by the [`private-class`](https://github.com/parro-it/private-class) module. NOTE! Requires WeakMap, thus won't work in IE10.
 
 This stamp (aka behavior) will create a proxy object. Its methods would delegate all the calls to the original object instance.
 
