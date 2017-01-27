@@ -2,7 +2,7 @@
 
 _Mono repository for stamp related packages._
 
-![Greenkeeper Badge](https://badges.greenkeeper.io/stampit-org/stamp.svg)
+[![Greenkeeper badge](https://badges.greenkeeper.io/stampit-org/stamp.svg)](https://greenkeeper.io/)
 
 ## Development
 
