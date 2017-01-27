@@ -1,0 +1,16 @@
+{
+  "name": "@stamp/collision",
+  "version": "0.0.1",
+  "description": "Detect and manipulate method collisions",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stampit-org/stamp/tree/master/packages/collision"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@stamp/compose": "^0.1.1",
+    "@stamp/is": "^0.1.1"
+  }
+}
