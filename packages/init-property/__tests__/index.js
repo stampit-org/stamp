@@ -1,7 +1,7 @@
 var compose = require('@stamp/compose');
-var InitPropertyStamp = require('..');
+var InitProperty = require('..');
 
-describe('@stamp/InitPropertyStamp', function () {
+describe('@stamp/InitProperty', function () {
   it('creates sub instance from stamps assigned to properties', function () {
     var SubStamp1 = compose({
       properties: {subStamp1: true}
@@ -9,7 +9,7 @@ describe('@stamp/InitPropertyStamp', function () {
     var SubStamp2 = compose({
       properties: {subStamp2: true}
     });
-    var MainStamp = InitPropertyStamp.compose({
+    var MainStamp = InitProperty.compose({
       properties: {
         prop1: SubStamp1,
         prop2: SubStamp2
@@ -35,7 +35,7 @@ describe('@stamp/InitPropertyStamp', function () {
         opts2 = opts;
       }]
     });
-    var MainStamp = InitPropertyStamp.compose({
+    var MainStamp = InitProperty.compose({
       properties: {
         prop1: SubStamp1,
         prop2: SubStamp2
@@ -61,7 +61,7 @@ describe('@stamp/InitPropertyStamp', function () {
         args2 = ref.args;
       }]
     });
-    var MainStamp = InitPropertyStamp.compose({
+    var MainStamp = InitProperty.compose({
       properties: {
         prop1: SubStamp1,
         prop2: SubStamp2
@@ -84,8 +84,8 @@ describe('@stamp/InitPropertyStamp', function () {
     var Stamp2 = compose({
       initializers: [function () {}]
     });
-    var Stamp = compose(Stamp1, InitPropertyStamp, Stamp2);
+    var Stamp = compose(Stamp1, InitProperty, Stamp2);
 
-    expect(Stamp.compose.initializers[0]).toBe(InitPropertyStamp.compose.initializers[0]);
+    expect(Stamp.compose.initializers[0]).toBe(InitProperty.compose.initializers[0]);
   });
 });

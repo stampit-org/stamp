@@ -1,4 +1,4 @@
-# @stamp/init-property-stamp
+# @stamp/init-property
 
 _Replaces properties which reference stamps with objects created from the stamps_
 
@@ -14,7 +14,7 @@ const StampA = compose({
         foo: StampB
     }
 })
-.compose(InitPropertyStamp);
+.compose(InitProperty);
 
 // StampB will receive initializer argument `{bar: 'baz'}`
 StampA({foo: {bar: 'baz'}});
@@ -24,11 +24,11 @@ StampA({foo: {bar: 'baz'}});
 ## Example
 
 ```js
-import InitPropertyStamp from '@stamp/init-property-stamp';
+import InitProperty from '@stamp/init-property';
 
 import Oauth2 from './stamps/oauth2';
 
-const GravatarClient = compose(InitPropertyStamp, {
+const GravatarClient = compose(InitProperty, {
   properties: {
     auth: Oauth2 // the 'auth' property is expected to be passed to the stamp
   },
