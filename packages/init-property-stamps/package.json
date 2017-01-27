@@ -1,0 +1,16 @@
+{
+  "name": "@stamp/init-property-stamp",
+  "version": "0.0.1",
+  "description": "Replaces properties which reference stamps with objects created from the stamps",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stampit-org/stamp/tree/master/packages/init-property-stamp"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@stamp/compose": "^0.1.1",
+    "@stamp/is": "^0.1.1"
+  }
+}
