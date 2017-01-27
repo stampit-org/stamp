@@ -21,28 +21,28 @@ const AuthWithPrivatePropertiesAndMethod = Auth.compose(Privatize).privatizeMeth
 
 ## Example
 ```js
-let accessFoo, accessBar;
+let accessPassword, accessSetPassword;
 const Original = compose({
-  properties: {foo: 1},
+  properties: {password: '123'},
   methods: {
-    bar() {},
+    setPassword(value) { this.password = value; },
     checkAccess() {
-      accessFoo = this.foo;
-      accessBar = this.bar;
+      accessPassword = this.password;
+      accessSetPassword = this.setPassword;
     }
   }
 });
 
-// Add Privitize behavior, additionally protect the 'bar' method 
-const Stamp = Original.compose(Privatize).privatizeMethods('bar');
+// Add Privatize behavior, additionally protect the 'setPassword' method 
+const Stamp = Original.compose(Privatize).privatizeMethods('setPassword');
 
-// The properties and the method 'bar' are undefined
+// All properties and the method 'setPassword' are undefined
 const instance = Stamp();
-expect(instance.foo).toBeUndefined();
-expect(instance.bar).toBeUndefined();
+expect(instance.password).toBeUndefined();
+expect(instance.setPassword).toBeUndefined();
 
-// But the 'checkAccess' method have access to the properties and 'bar'
+// But the 'checkAccess' method have access to the properties and 'setPassword'
 instance.checkAccess();
-expect(accessFoo).toBe(1);
-expect(accessBar).toBe(Original.compose.methods.bar);
+expect(accessPassword).toBe('123');
+expect(accessSetPassword).toBe(Original.compose.methods.setPassword);
 ```
