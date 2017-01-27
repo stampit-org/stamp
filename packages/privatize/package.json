@@ -1,5 +1,5 @@
 {
-  "name": "privatize",
+  "name": "@stamp/privatize",
   "version": "0.0.1",
   "description": "Protect private properties",
   "main": "index.js",

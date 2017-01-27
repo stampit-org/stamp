@@ -24,7 +24,7 @@ describe('@stamp/privatize', function () {
     expect(accessBar).toBe(orig.compose.methods.bar);
   });
 
-  it('should push the initalizer to the end of the list', function () {
+  it('should push the initializer to the end of the list', function () {
     var Stamp1 = compose({
       initializers: [function () {}]
     });
