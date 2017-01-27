@@ -14,4 +14,4 @@ Run `npm install` as usual followed by `npm run bootstrap` which creates local r
 
 The `npm test` will execute [Jest](https://github.com/facebook/jest) tests, and then [JSHint](https://github.com/jshint/jshint).
 
-The `jest --watch` will watch file changes and execute tests as needed.
+The `npm test -- --watch` will watch file changes and execute tests as needed.
