@@ -35,6 +35,33 @@ module.exports = function (compose) {
 
       assert.end();
     });
+
+    nest.test('...with broken descriptor', function (assert) {
+      var stamp = compose();
+      stamp.compose = null;
+
+      var expected = {};
+      var actual = stamp();
+
+      assert.deepEqual(actual, expected,
+        'should ignore non function initializers');
+
+      assert.end();
+    });
+
+    nest.test('should allow late descriptor edition', function (assert) {
+      var stamp = compose();
+      stamp.compose.properties = {foo: 'exists'};
+
+      var expected = {foo: 'exists'};
+      var actual = stamp();
+
+      assert.deepEqual(actual, expected,
+        'should allow late addition of metadata');
+
+      assert.end();
+    });
+
   });
 
   test('Stamp assignments', function (nest) {
