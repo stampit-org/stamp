@@ -11,11 +11,11 @@ var slice = Array.prototype.slice;
 
 /**
  * Creates new factory instance.
- * @param {Descriptor} descriptor The information about the object the factory will be creating.
  * @returns {Function} The new factory function.
  */
-function createFactory(descriptor) {
+function createFactory() {
   return function Stamp(options) {
+    var descriptor = Stamp.compose || {};
     // Next line was optimized for most JS VMs. Please, be careful here!
     var obj = Object.create(descriptor.methods || null);
 
@@ -48,7 +48,7 @@ function createFactory(descriptor) {
  * @returns {Stamp}
  */
 function createStamp(descriptor, composeFunction) {
-  var Stamp = createFactory(descriptor);
+  var Stamp = createFactory();
 
   merge(Stamp, descriptor.staticDeepProperties);
   assign(Stamp, descriptor.staticProperties);
@@ -99,7 +99,6 @@ function mergeAssign(dstObject, srcObject, propName) {
  */
 function mergeComposable(dstDescriptor, srcComposable) {
   var srcDescriptor = (srcComposable && srcComposable.compose) || srcComposable;
-  if (!isComposable(srcDescriptor)) return;
 
   mergeAssign(dstDescriptor, srcDescriptor, 'methods');
   mergeAssign(dstDescriptor, srcDescriptor, 'properties');

@@ -7,8 +7,8 @@ describe('@stamp/privatize', function () {
     var orig = compose({
       properties: {foo: 1},
       methods: {
-        bar: function() {},
-        checkAccess: function() {
+        bar: function () {},
+        checkAccess: function () {
           accessFoo = this.foo;
           accessBar = this.bar;
         }
@@ -34,5 +34,15 @@ describe('@stamp/privatize', function () {
     var Stamp = compose(Stamp1, Privatize, Stamp2);
 
     expect(Stamp.compose.initializers[2]).toBe(Privatize.compose.initializers[0]);
+  });
+
+  it('should allow rubbish to the .privatizeMethods()', function () {
+    var Stamp = compose(
+      {methods: {bar: function () {}}},
+      Privatize
+    ).privatizeMethods(null, {}, [], 1, 'bar', NaN, /a/, undefined);
+    var instance = Stamp();
+
+    expect(instance.bar).toBeUndefined();
   });
 });
