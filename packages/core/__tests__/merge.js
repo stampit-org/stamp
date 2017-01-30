@@ -2,13 +2,34 @@ var merge = require('../merge');
 
 describe('Deep merge', function () {
 
-  it('returns first argument', function () {
-    var obj = {};
-    var actual = merge(obj);
-    var expected = obj;
+  describe('argument safety', function () {
 
-    expect(actual).toBe(expected,
-      'should return the first argument');
+    it('returns first argument', function () {
+      var obj = {};
+      var actual = merge(obj, {});
+      var expected = obj;
+
+      expect(actual).toBe(expected,
+        'should return the first argument');
+    });
+
+    it('makes first argument an object if any', function () {
+      var NULL = null;
+      var actual = typeof merge(NULL, {});
+      var expected = 'object';
+
+      expect(actual).toBe(expected,
+        'should return object if first argument is not');
+    });
+
+    it('should work fine if source is undefined', function () {
+      var obj = {};
+      var actual = merge(obj, undefined);
+      var expected = {};
+
+      expect(actual).toEqual(expected,
+        'should return object if first argument is not');
+    });
   });
 
   describe('objects', function () {
