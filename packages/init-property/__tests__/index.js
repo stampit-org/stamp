@@ -23,6 +23,21 @@ describe('@stamp/InitProperty', function () {
     expect(instance.prop2).toEqual({subStamp2: true});
   });
 
+  it('should ignore non stamp properties', function () {
+    var MainStamp = InitProperty.compose({
+      properties: {
+        prop1: 'whatever',
+        prop2: 42
+      }
+    });
+
+    var opts = {prop1: {}, prop2: {}};
+    var instance = MainStamp(opts);
+
+    expect(instance.prop1).toBe('whatever');
+    expect(instance.prop2).toBe(42);
+  });
+
   it('passes same named value from opts', function () {
     var opts1, opts2;
     var SubStamp1 = compose({
