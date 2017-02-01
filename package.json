@@ -50,5 +50,10 @@
       "xit": false,
       "xtest": false
     }
+  },
+  "jest": {
+    "coverageReporters": [
+      "html", "text"
+    ]
   }
 }

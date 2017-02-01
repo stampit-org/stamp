@@ -1,6 +1,6 @@
 {
   "name": "@stamp/compose",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "description": "Compose function implementation to create stamps",
   "repository": "https://github.com/stampit-org/stamp/tree/master/packages/compose",
@@ -18,10 +18,10 @@
     "stamp"
   ],
   "dependencies": {
-    "@stamp/is": "^0.1.1",
-    "@stamp/core": "^0.1.1"
+    "@stamp/is": "^0.1.2",
+    "@stamp/core": "^0.1.2"
   },
   "devDependencies": {
-    "@stamp/check-compose": "^0.1.1"
+    "@stamp/check-compose": "^0.1.2"
   }
 }

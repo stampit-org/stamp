@@ -1,4 +1,4 @@
-var isDescriptor = require('../descriptor');
+var isComposable = require('../composable');
 
 function getStamp(obj) {
   var stamp = function () {};
@@ -7,17 +7,17 @@ function getStamp(obj) {
   return stamp;
 }
 
-describe('isDescriptor', function () {
+describe('isComposable', function () {
   it('with objects', function () {
     var emptyStamp = getStamp();
     var rawObject = {};
     var rawFunction = function () {};
     var regExp = /x/;
 
-    expect(isDescriptor(emptyStamp)).toBeTruthy();
-    expect(isDescriptor(rawObject)).toBeTruthy();
-    expect(isDescriptor(rawFunction)).toBeTruthy();
-    expect(isDescriptor(regExp)).toBeTruthy();
+    expect(isComposable(emptyStamp)).toBeTruthy();
+    expect(isComposable(rawObject)).toBeTruthy();
+    expect(isComposable(rawFunction)).toBeTruthy();
+    expect(isComposable(regExp)).toBeTruthy();
   });
 
   it('with non-objects', function () {
@@ -26,9 +26,9 @@ describe('isDescriptor', function () {
     var number = 42;
     var string = 's';
 
-    expect(isDescriptor(undef)).toBeFalsy();
-    expect(isDescriptor(NULL)).toBeFalsy();
-    expect(isDescriptor(number)).toBeFalsy();
-    expect(isDescriptor(string)).toBeFalsy();
+    expect(isComposable(undef)).toBeFalsy();
+    expect(isComposable(NULL)).toBeFalsy();
+    expect(isComposable(number)).toBeFalsy();
+    expect(isComposable(string)).toBeFalsy();
   });
 });
