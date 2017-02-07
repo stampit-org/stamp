@@ -53,46 +53,45 @@ function defersCollision(descriptor, methodName) {
 module.exports = compose({
   deepConfiguration: {Collision: {defer: [], forbid: []}},
   staticProperties: {
-    setupCollision: function (opts) {
+    collisionSetup: function (opts) {
       return this.compose({deepConfiguration: {Collision: opts}});
     },
-    resetCollisionSettings: function () {
-      return this.setupCollision(null);
+    collisionSettingsReset: function () {
+      return this.collisionSetup(null);
     },
-    protectFromAnyCollisions: function () {
-      return this.setupCollision({forbidAll: true});
+    collisionsProtectAnyMethod: function () {
+      return this.collisionSetup({forbidAll: true});
     }
   },
   composers: [function (opts) {
     var descriptor = opts.stamp.compose;
     var settings = getCollisionSettings(descriptor);
+    if (!isObject(settings)) return;
 
     var i, methodName;
-    if (settings) {
-      // Deduping is an important part of the logic
-      if (isArray(settings.defer)) {
-        settings.defer = dedupe(settings.defer);
-      }
-      if (isArray(settings.forbid)) {
-        settings.forbid = dedupe(settings.forbid);
-      }
+    // Deduping is an important part of the logic
+    if (isArray(settings.defer)) {
+      settings.defer = dedupe(settings.defer);
+    }
+    if (isArray(settings.forbid)) {
+      settings.forbid = dedupe(settings.forbid);
+    }
 
-      // Make sure settings are not ambiguous
-      if (isArray(settings.defer) && isArray(settings.forbid)) {
-        for (i = 0; i < settings.forbid.length; i++) {
-          methodName = settings.forbid[i];
-          if (settings.defer.indexOf(methodName) >= 0) {
-            throw new Error('Ambiguous Collision settings. The `' + methodName +
-              '` is both deferred and forbidden');
-          }
+    // Make sure settings are not ambiguous
+    if (isArray(settings.defer) && isArray(settings.forbid)) {
+      for (i = 0; i < settings.forbid.length; i++) {
+        methodName = settings.forbid[i];
+        if (settings.defer.indexOf(methodName) >= 0) {
+          throw new Error('Ambiguous Collision settings. The `' + methodName +
+            '` is both deferred and forbidden');
         }
       }
     }
 
-    if (settings && (
-        isArray(settings.defer) && settings.defer.length > 0 ||
-        isArray(settings.forbid) && settings.forbid.length > 0
-      )) {
+    if (settings.forbidAll ||
+      isArray(settings.defer) && settings.defer.length > 0 ||
+      isArray(settings.forbid) && settings.forbid.length > 0
+    ) {
       var d, j, oneMetadata;
 
       var methodsMetadata = {}; // methods aggregation
@@ -108,22 +107,30 @@ module.exports = compose({
           var method = d.methods[methodName];
           if (!method) continue;
 
-          oneMetadata = methodsMetadata[methodName];
-          if (!oneMetadata) {
-            methodsMetadata[methodName] = method;
-            continue;
-          }
+          var existingMetadata = methodsMetadata[methodName];
 
-          if (forbidsCollision(descriptor, methodName)) {
+          // Process Collision.forbid
+          if (existingMetadata && forbidsCollision(descriptor, methodName)) {
             throw new Error('Collision of method `' + methodName +
               '` is forbidden');
           }
 
+          // Process Collision.defer
           if (defersCollision(d, methodName)) {
-            var arr = isArray(oneMetadata) ? oneMetadata : [oneMetadata];
+            if (existingMetadata && !isArray(existingMetadata)) {
+              throw new Error('Ambiguous Collision settings. The `' +
+                methodName + '` is both deferred and regular');
+            }
+            var arr = existingMetadata || [];
             arr.push(method);
             methodsMetadata[methodName] = arr;
             continue;
+          }
+
+          // Process no Collision settings
+          if (isArray(existingMetadata)) {
+            throw new Error('Ambiguous Collision settings. The `' +
+              methodName + '` is both deferred and regular');
           }
 
           methodsMetadata[methodName] = method;
@@ -135,10 +142,14 @@ module.exports = compose({
       for (i = 0; i < allMetadataMethods.length; i++) {
         methodName = allMetadataMethods[i];
         oneMetadata = methodsMetadata[methodName];
-        if (isArray(oneMetadata) && oneMetadata.length > 1) {
-          // Some collisions aggregated to a single method
-          // Mutating the resulting stamp
-          methods[methodName] = makeProxyFunction(oneMetadata, methodName);
+        if (isArray(oneMetadata)) {
+          if (oneMetadata.length === 1) {
+            methods[methodName] = oneMetadata[0];
+          } else {
+            // Some collisions aggregated to a single method
+            // Mutating the resulting stamp
+            methods[methodName] = makeProxyFunction(oneMetadata, methodName);
+          }
         } else {
           methods[methodName] = oneMetadata;
         }
