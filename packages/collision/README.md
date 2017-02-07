@@ -19,6 +19,22 @@ const component = UiComponent();
 component.draw(); // will draw() all three primitives
 ```
 
+## API
+
+### Static methods
+
+#### collisionSetup
+Forbid or Defer an exclusive method
+`stamp.collisionSetup({forbid: ['methodName1'], defer: ['methodName2']}) -> Stamp`
+
+#### collisionsProtectAnyMethod
+Forbid any collisions
+`stamp.collisionsProtectAnyMethod() -> Stamp`
+
+#### collisionSettingsReset
+Remove any Collision settings from the stamp
+`stamp.collisionSettingsReset() -> Stamp`
+
 ## Example
 
 See the comments in the code:
