@@ -16,7 +16,7 @@ function makeProxyFunction(functions, name) {
   function deferredFn() {
     'use strict';
     for (var i = 0; i < functions.length; i++) {
-      functions[i].apply(this, arguments);
+      functions[i].apply(this, arguments); // jshint ignore:line
     }
   }
 
