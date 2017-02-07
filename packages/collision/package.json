@@ -1,6 +1,6 @@
 {
   "name": "@stamp/collision",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Detect and manipulate method collisions",
   "main": "index.js",
   "repository": {
