@@ -59,7 +59,7 @@ module.exports = compose({
     collisionSettingsReset: function () {
       return this.collisionSetup(null);
     },
-    collisionsProtectAnyMethod: function () {
+    collisionProtectAnyMethod: function () {
       return this.collisionSetup({forbidAll: true});
     }
   },

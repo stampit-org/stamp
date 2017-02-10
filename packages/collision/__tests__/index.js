@@ -88,28 +88,28 @@ describe('@stamp/collision', function () {
     expect(function () {compose(Regular, Forbid)}).toThrow();
   });
 
-  it('collisionsProtectAnyMethod', function () {
+  it('collisionProtectAnyMethod', function () {
     var FooBar = compose({
         methods: {
           foo: function () {},
           bar: function () {}
         }
       },
-      Collision.collisionsProtectAnyMethod()
+      Collision.collisionProtectAnyMethod()
     );
     var Foo = compose({
         methods: {
           foo: function () {}
         }
       },
-      Collision.collisionsProtectAnyMethod()
+      Collision.collisionProtectAnyMethod()
     );
     var Bar = compose({
         methods: {
           bar: function () {}
         }
       },
-      Collision.collisionsProtectAnyMethod()
+      Collision.collisionProtectAnyMethod()
     );
 
     expect(function () {compose(FooBar, Foo)}).toThrow();

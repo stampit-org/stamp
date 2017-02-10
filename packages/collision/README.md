@@ -27,9 +27,9 @@ component.draw(); // will draw() all three primitives
 Forbid or Defer an exclusive method
 `stamp.collisionSetup({forbid: ['methodName1'], defer: ['methodName2']}) -> Stamp`
 
-#### collisionsProtectAnyMethod
+#### collisionProtectAnyMethod
 Forbid any collisions
-`stamp.collisionsProtectAnyMethod() -> Stamp`
+`stamp.collisionProtectAnyMethod() -> Stamp`
 
 #### collisionSettingsReset
 Remove any Collision settings from the stamp

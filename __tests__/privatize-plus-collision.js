@@ -13,7 +13,7 @@ describe('Collision + Privatize', function () {
         }
       }
     )
-      .collisionsProtectAnyMethod()
+      .collisionProtectAnyMethod()
       .privatizeMethods('privateMethod');
 
     var obj = Stamp();
