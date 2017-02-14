@@ -1,6 +1,6 @@
 {
   "name": "@stamp/shortcut",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Adds handy shortcuts for stamp composition",
   "main": "index.js",
   "repository": {
