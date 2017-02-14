@@ -1,7 +1,7 @@
 var compose = require('@stamp/compose');
 var InitProperty = require('..');
 
-describe('@stamp/InitProperty', function () {
+describe('@stamp/init-property', function () {
   it('creates sub instance from stamps assigned to properties', function () {
     var SubStamp1 = compose({
       properties: {subStamp1: true}

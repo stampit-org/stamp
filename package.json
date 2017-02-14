@@ -27,7 +27,7 @@
   "devDependencies": {
     "jest": "^18.0.0",
     "jshint": "^2.9.4",
-    "lerna": "^2.0.0-beta.36"
+    "lerna": "^2.0.0-beta.37"
   },
   "jshintConfig": {
     "node": true,
