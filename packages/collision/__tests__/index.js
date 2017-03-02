@@ -120,6 +120,42 @@ describe('@stamp/collision', function () {
     expect(function () {compose(Bar, Foo)}).not.toThrow();
   });
 
+  it('collisionProtectAnyMethod + allow', function () {
+    var FooBar = compose({
+        methods: {
+          foo: function () {},
+          bar: function () {}
+        }
+      },
+      Collision.collisionProtectAnyMethod({allow: ['foo']})
+    );
+    var Foo = compose({
+        methods: {
+          foo: function () {}
+        }
+      },
+      Collision.collisionProtectAnyMethod()
+    );
+    var Bar = compose({
+        methods: {
+          bar: function () {}
+        }
+      },
+      Collision.collisionProtectAnyMethod()
+    );
+
+    expect(function () {compose(FooBar, Foo)}).not.toThrow();
+    expect(function () {compose(Foo, FooBar)}).not.toThrow();
+    expect(function () {compose(FooBar, Bar)}).toThrow();
+    expect(function () {compose(Bar, FooBar)}).toThrow();
+    expect(function () {compose(Foo, Bar)}).not.toThrow();
+    expect(function () {compose(Bar, Foo)}).not.toThrow();
+  });
+
+  it('forbid + allow', function () {
+    expect(function () {Collision.collisionSetup({allow: ['foo'], forbid: ['foo']})}).toThrow();
+  });
+
   it('forbid without conflicts', function () {
     var Forbid = compose({
         methods: {

@@ -1,4 +1,5 @@
 var compose = require('@stamp/compose');
+var assign = require('@stamp/core/assign');
 var isStamp = require('@stamp/is/stamp');
 var isObject = require('@stamp/is/object');
 var isArray = require('@stamp/is/array');
@@ -42,7 +43,9 @@ function descriptorHasSetting(descriptor, setting, methodName) {
 
 function forbidsCollision(descriptor, methodName) {
   var settings = getCollisionSettings(descriptor);
-  if (settings && settings.forbidAll) return true;
+  if (settings && settings.forbidAll) {
+    return !descriptorHasSetting(descriptor, 'allow', methodName);
+  }
   return descriptorHasSetting(descriptor, 'forbid', methodName);
 }
 
@@ -59,8 +62,8 @@ module.exports = compose({
     collisionSettingsReset: function () {
       return this.collisionSetup(null);
     },
-    collisionProtectAnyMethod: function () {
-      return this.collisionSetup({forbidAll: true});
+    collisionProtectAnyMethod: function (opts) {
+      return this.collisionSetup(assign({}, opts, {forbidAll: true}));
     }
   },
   composers: [function (opts) {
@@ -76,14 +79,25 @@ module.exports = compose({
     if (isArray(settings.forbid)) {
       settings.forbid = dedupe(settings.forbid);
     }
+    if (isArray(settings.allow)) {
+      settings.allow = dedupe(settings.allow);
+    }
 
     // Make sure settings are not ambiguous
-    if (isArray(settings.defer) && isArray(settings.forbid)) {
-      for (i = 0; i < settings.forbid.length; i++) {
-        methodName = settings.forbid[i];
-        if (settings.defer.indexOf(methodName) >= 0) {
-          throw new Error('Ambiguous Collision settings. The `' + methodName +
-            '` is both deferred and forbidden');
+    if (isArray(settings.forbid)) {
+      var checkDefer = isArray(settings.defer) && settings.defer.length > 0;
+      var checkAllow = isArray(settings.allow) && settings.allow.length > 0;
+      if (checkDefer || checkAllow) {
+        for (i = 0; i < settings.forbid.length; i++) {
+          var forbiddenMethodName = settings.forbid[i];
+          if (checkDefer && settings.defer.indexOf(forbiddenMethodName) >= 0) {
+            throw new Error('Ambiguous Collision settings. The `' +
+              forbiddenMethodName + '` is both deferred and forbidden');
+          }
+          if (checkAllow && settings.allow.indexOf(forbiddenMethodName) >= 0) {
+            throw new Error('Ambiguous Collision settings. The `' +
+              forbiddenMethodName + '` is both allowed and forbidden');
+          }
         }
       }
     }
