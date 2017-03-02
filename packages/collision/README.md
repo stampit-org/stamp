@@ -28,8 +28,8 @@ Forbid or Defer an exclusive method
 `stamp.collisionSetup({forbid: ['methodName1'], defer: ['methodName2']}) -> Stamp`
 
 #### collisionProtectAnyMethod
-Forbid any collisions
-`stamp.collisionProtectAnyMethod() -> Stamp`
+Forbid any collisions, excluding those allowed
+`stamp.collisionProtectAnyMethod({allow: ['methoName']}) -> Stamp`
 
 #### collisionSettingsReset
 Remove any Collision settings from the stamp
