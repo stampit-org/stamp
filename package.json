@@ -25,7 +25,7 @@
     "lint": "jshint packages/**/*.js"
   },
   "devDependencies": {
-    "jest": "^18.0.0",
+    "jest": "^19.0.2",
     "jshint": "^2.9.4",
     "lerna": "^2.0.0-beta.38"
   },
