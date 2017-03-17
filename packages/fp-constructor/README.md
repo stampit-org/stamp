@@ -8,7 +8,7 @@ MyStamp = MyStamp.compose(FpConstructor);
 ```
 you get the static method `.constructor`:
 ```js
-MyStamp.constructor === MyStamp
+MyStamp.constructor === MyStamp // true
 ```
 
 ## Usage
