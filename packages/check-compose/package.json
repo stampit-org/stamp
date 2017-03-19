@@ -10,6 +10,7 @@
   "dependencies": {
     "bluebird": "^3.4.7",
     "lodash": "^4.17.4",
+    "prettyjson": "^1.2.1",
     "tape": "^4.6.3"
   }
 }

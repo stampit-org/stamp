@@ -39,10 +39,7 @@
       .then(function (result) {
         var failures = result.failures;
         if (failures && failures.length > 0) {
-          var errorString = failures.map(function (f) {
-            return JSON.stringify(f);
-          }).join('\n');
-          console.error(errorString);
+          console.error(require('prettyjson').render(failures));
           process.exit(1);
         }
       });

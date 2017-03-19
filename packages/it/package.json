@@ -1,0 +1,19 @@
+{
+  "name": "@stamp/it",
+  "version": "0.1.3",
+  "description": "A nice, handy API implementation of the compose standard",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stampit-org/stamp/tree/master/packages/it"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@stamp/compose": "^0.1.2",
+    "@stamp/shortcut": "^0.1.3"
+  },
+  "devDependencies": {
+    "@stamp/check-compose": "^0.1.2"
+  }
+}
