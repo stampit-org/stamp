@@ -85,7 +85,7 @@ function stampit() {
 
 var baseStampit = Shortcut.compose({
   composers: [function(opts) {
-    opts.stamp.create = opts.stamp;
+    if (!opts.stamp.create) opts.stamp.create = opts.stamp;
   }],
   staticProperties: {
     compose: stampit // infecting
