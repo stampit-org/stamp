@@ -6,18 +6,22 @@ module.exports = function (compose) {
   test('composer arguments', function (t) {
     var executed = 0;
     var passedStamp;
+    function composer() {
+      t.equal(arguments.length, 1, 'have single argument');
+      t.ok(_.isPlainObject(arguments[0]), 'argument is an object');
+      t.ok(_.isArray(arguments[0].composables), 'composables passed');
+      var composers = arguments[0].composables.reduce(function (all, c) {
+        var descr = c.compose || c;
+        if (_.isArray(descr.composers)) return all.concat(descr.composers);
+        return all;
+      }, []);
+      t.ok(_.isArray(composers), 'have the composers list');
+      t.equal(composers[0], composer, 'composer is the one currently running');
+      executed += 1;
+      passedStamp = arguments[0].stamp;
+    }
     var stamp = compose({
-      composers: [function composers() {
-        t.equal(arguments.length, 1, 'have single argument');
-        t.ok(_.isPlainObject(arguments[0]), 'argument is an object');
-        t.ok(_.isArray(arguments[0].composables), 'composables passed');
-        t.equal(arguments[0].composables.length, 1, 'only one composable passed');
-        t.ok(_.isPlainObject(arguments[0].composables[0]), 'the composable is a descriptor');
-        t.ok(_.isArray(arguments[0].composables[0].composers),
-          'first composable have the composers list');
-        executed += 1;
-        passedStamp = arguments[0].stamp;
-      }]
+      composers: [composer]
     });
 
     t.ok(stamp.compose.composers,
@@ -149,20 +153,28 @@ module.exports = function (compose) {
   test('stamp.compose({ composers() }) passes full composables array', function (t) {
     var run = 0;
     var stamp2 = compose();
-    var stamp = compose({
-      composers: [function composers(ref) {
-        var composables = ref.composables;
+    function composer(ref) {
+      var composables = ref.composables;
 
-        run += 1;
-        if (run === 1) {
-          t.equal(composables.length, 1, 'creating stamp should pass one composable');
-        }
-        if (run === 2) {
-          t.equal(composables.length, 2, 'inheriting stamp should pass one composable');
-          t.equal(composables[0], stamp, 'first composable must be stamp itself');
-          t.equal(composables[1], stamp2, 'second composable must be passed');
-        }
-      }]
+      run += 1;
+
+      var composers = arguments[0].composables.reduce(function (all, c) {
+        var descr = c.compose || c;
+        if (_.isArray(descr.composers)) return all.concat(descr.composers);
+        return all;
+      }, []);
+
+      if (run === 1) {
+        t.equal(composers.length, 1, 'creating stamp should pass composer');
+      }
+      if (run === 2) {
+        t.equal(composers.length, 1, 'inheriting stamp should still pass composer');
+        t.ok(_.includes(composables, stamp), 'composables must contain stamp itself');
+        t.ok(_.includes(composables, stamp2), 'composables must contain second stamp too');
+      }
+    }
+    var stamp = compose({
+      composers: [composer]
     });
 
     stamp.compose(stamp2);
