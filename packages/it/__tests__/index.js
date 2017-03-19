@@ -1,6 +1,6 @@
 var checkCompose = require('@stamp/check-compose');
 
-describe('@stamp/compose', function () {
+describe('@stamp/it', function () {
   it('passes official tests', function () {
     var compose = require('..');
     return checkCompose(compose)

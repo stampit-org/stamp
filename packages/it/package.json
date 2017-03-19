@@ -11,6 +11,8 @@
   "license": "MIT",
   "dependencies": {
     "@stamp/compose": "^0.1.2",
+    "@stamp/core": "^0.1.2",
+    "@stamp/is": "^0.1.2",
     "@stamp/shortcut": "^0.1.3"
   },
   "devDependencies": {
