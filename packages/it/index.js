@@ -60,7 +60,7 @@ function standardiseDescriptor(descr) {
   if (methods) descriptor.methods = methods;
   if (p) descriptor.properties = p;
   if (ii) descriptor.initializers = ii;
-  if (ii) descriptor.initializers = cc;
+  if (cc) descriptor.composers = cc;
   if (dp) descriptor.deepProperties = dp;
   if (sp) descriptor.staticProperties = sp;
   if (sdp) descriptor.staticDeepProperties = sdp;
@@ -93,3 +93,29 @@ var baseStampit = Shortcut.compose({
 });
 
 module.exports = stampit;
+
+//
+//
+// var test = require('tape');
+// var _ = require('lodash');
+//
+// test('compose in order', function (assert) {
+//   var initOrder = [];
+//   var getInitDescriptor = function (value) {
+//     return {initializers: [function () {initOrder.push(value);}]};
+//   };
+//
+//   var stamp = stampit(
+//     stampit(getInitDescriptor(0)),
+//     stampit(getInitDescriptor(1), getInitDescriptor(2))
+//       .compose(getInitDescriptor(3), getInitDescriptor(4)),
+//     getInitDescriptor(5)
+//   );
+//   stamp();
+//   var expected = [0, 1, 2, 3, 4, 5];
+//
+//   assert.deepEqual(initOrder, expected,
+//     'should compose in proper order');
+//
+//   assert.end();
+// });

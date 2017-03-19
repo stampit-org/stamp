@@ -16,7 +16,7 @@ module.exports = function (compose) {
         return all;
       }, []);
       t.ok(_.isArray(composers), 'have the composers list');
-      t.equal(composers[0], composer, 'composer is the one currently running');
+      t.ok(_.includes(composers, composer), 'our composer is present');
       executed += 1;
       passedStamp = arguments[0].stamp;
     }
@@ -26,8 +26,8 @@ module.exports = function (compose) {
 
     t.ok(stamp.compose.composers,
       'should add .composers');
-    t.equal(stamp.compose.composers.length, 1,
-      'should be single composer');
+    t.ok(_.includes(stamp.compose.composers, composer),
+      'should include our composer');
     t.equal(executed, 1,
       'should be executed while composing');
     t.equal(passedStamp, stamp, 'stamp passed');
@@ -145,7 +145,7 @@ module.exports = function (compose) {
 
     var result = stamp.compose(stamp2).compose({}).compose(stamp);
     var composers = result.compose.composers;
-    t.equal(composers.length, 1, 'should dedupe composers');
+    t.equal(_.uniq(composers).length, composers.length, 'should dedupe composers');
 
     t.end();
   });
@@ -165,10 +165,10 @@ module.exports = function (compose) {
       }, []);
 
       if (run === 1) {
-        t.equal(composers.length, 1, 'creating stamp should pass composer');
+        t.ok(_.includes(composers, composer), 'our composer is present');
       }
       if (run === 2) {
-        t.equal(composers.length, 1, 'inheriting stamp should still pass composer');
+        t.ok(_.includes(composers, composer), 'inheriting stamp should still pass our composer');
         t.ok(_.includes(composables, stamp), 'composables must contain stamp itself');
         t.ok(_.includes(composables, stamp2), 'composables must contain second stamp too');
       }
