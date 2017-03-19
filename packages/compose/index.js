@@ -1,3 +1,4 @@
+'use strict'; // to make sure `this` is not pointing to `global` or `window`
 var isArray = require('@stamp/is/array');
 var isFunction = require('@stamp/is/function');
 var isObject = require('@stamp/is/object');
@@ -127,7 +128,6 @@ function mergeComposable(dstDescriptor, srcComposable) {
  * @returns {Stamp} A new stamp (aka composable factory function)
  */
 module.exports = function compose() {
-  'use strict'; // to make sure `this` is not pointing to `global` or `window`
   var descriptor = {};
   var composables = [];
   if (isComposable(this)) {
