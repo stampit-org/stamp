@@ -50,12 +50,19 @@ function createFactory() {
 function createStamp(descriptor, composeFunction) {
   var Stamp = createFactory();
 
-  merge(Stamp, descriptor.staticDeepProperties);
-  assign(Stamp, descriptor.staticProperties);
-  Object.defineProperties(Stamp, descriptor.staticPropertyDescriptors || {});
+  if (descriptor.staticDeepProperties) {
+    merge(Stamp, descriptor.staticDeepProperties);
+  }
+  if (descriptor.staticProperties) {
+    assign(Stamp, descriptor.staticProperties);
+  }
+  if (descriptor.staticPropertyDescriptors) {
+    Object.defineProperties(Stamp, descriptor.staticPropertyDescriptors || {});
+  }
 
   var composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
   Stamp.compose = function _compose() {
+    'use strict'; // to make sure `this` is not pointing to `global` or `window`
     return composeImplementation.apply(this, arguments);
   };
   assign(Stamp.compose, descriptor);

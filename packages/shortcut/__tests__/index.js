@@ -19,13 +19,35 @@ describe('@stamp/shortcut', function () {
     var Stamp = compose(Shortcut);
 
     expect(Stamp.methods).toBeA('function');
+
     expect(Stamp.props).toBeA('function');
+    expect(Stamp.properties).toBeA('function');
+    expect(Stamp.props).toBe(Stamp.properties);
+
     expect(Stamp.statics).toBeA('function');
+    expect(Stamp.staticProperties).toBeA('function');
+    expect(Stamp.statics).toBe(Stamp.staticProperties);
+
     expect(Stamp.conf).toBeA('function');
+    expect(Stamp.configuration).toBeA('function');
+    expect(Stamp.conf).toBe(Stamp.configuration);
+
     expect(Stamp.deepProps).toBeA('function');
+    expect(Stamp.deepProperties).toBeA('function');
+    expect(Stamp.deepProps).toBe(Stamp.deepProperties);
+
     expect(Stamp.deepStatics).toBeA('function');
+    expect(Stamp.staticDeepProperties).toBeA('function');
+    expect(Stamp.deepStatics).toBe(Stamp.staticDeepProperties);
+
     expect(Stamp.deepConf).toBeA('function');
+    expect(Stamp.deepConfiguration).toBeA('function');
+    expect(Stamp.deepConf).toBe(Stamp.deepConfiguration);
+
     expect(Stamp.init).toBeA('function');
+    expect(Stamp.initializers).toBeA('function');
+    expect(Stamp.init).toBe(Stamp.initializers);
+
     expect(Stamp.composers).toBeA('function');
   });
 

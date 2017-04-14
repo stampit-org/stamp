@@ -8,19 +8,39 @@ function createShortcut(propName) {
   };
 }
 
+var properties = createShortcut('properties');
+var staticProperties = createShortcut('staticProperties');
+var configuration = createShortcut('configuration');
+var deepProperties = createShortcut('deepProperties');
+var staticDeepProperties = createShortcut('staticDeepProperties');
+var deepConfiguration = createShortcut('deepConfiguration');
+var initializers = createShortcut('initializers');
+
 module.exports = compose({
   staticProperties: {
     methods: createShortcut('methods'),
 
-    props: createShortcut('properties'),
-    statics: createShortcut('staticProperties'),
-    conf: createShortcut('configuration'),
+    props: properties,
+    properties: properties,
 
-    deepProps: createShortcut('deepProperties'),
-    deepStatics: createShortcut('staticDeepProperties'),
-    deepConf: createShortcut('deepConfiguration'),
+    statics: staticProperties,
+    staticProperties: staticProperties,
 
-    init: createShortcut('initializers'),
+    conf: configuration,
+    configuration: configuration,
+
+    deepProps: deepProperties,
+    deepProperties: deepProperties,
+
+    deepStatics: staticDeepProperties,
+    staticDeepProperties: staticDeepProperties,
+
+    deepConf: deepConfiguration,
+    deepConfiguration: deepConfiguration,
+
+    init: initializers,
+    initializers: initializers,
+
     composers: createShortcut('composers')
   }
 });
