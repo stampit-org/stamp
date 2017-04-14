@@ -1,6 +1,6 @@
 {
   "name": "@stamp/check-compose",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Command line tool to test your 'compose' function implementation",
   "repository": "https://github.com/stampit-org/stamp/tree/master/packages/check-compose",
