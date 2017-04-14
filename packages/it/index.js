@@ -84,10 +84,8 @@ function stampit() {
 }
 
 var baseStampit = Shortcut.compose({
-  composers: [function(opts) {
-    if (!opts.stamp.create) opts.stamp.create = opts.stamp;
-  }],
   staticProperties: {
+    create: function () { return this.apply(this, arguments); },
     compose: stampit // infecting
   }
 });

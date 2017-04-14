@@ -20,10 +20,13 @@ describe('@stamp/it', function () {
     var stamp = stampit({
       methods: {
         foo: function foo() { return 'foo'; }
+      },
+      properties: {
+        bar: 'bar'
       }
     });
 
-    expect(stamp.create).toBe(stamp);
+    expect(stamp.create()).toEqual(stamp());
     expect(stamp.create().foo()).toBe('foo');
   });
 
