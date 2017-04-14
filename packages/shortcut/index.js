@@ -2,9 +2,10 @@ var compose = require('@stamp/compose');
 
 function createShortcut(propName) {
   return function (arg) {
+    'use strict';
     var param = {};
     param[propName] = arg;
-    return this.compose(param);
+    return this && this.compose ? this.compose(param) : compose(param);
   };
 }
 

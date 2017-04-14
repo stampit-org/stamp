@@ -33,6 +33,32 @@ const MyStamp = Shortcut
   .composers(({stamp, composables}) => { /* composer */ });
 ```
 
+Or you can import each individual shortcut function:
+```js
+import {
+  methods, props, deepProps, statics, deepStatics, conf, deepConf, init, composers
+} from '@stamp/shortcut';
+
+const Stamp1 = methods({
+  method1() { }
+});
+const Stamp2 = props({
+  prop2: 2
+});
+const Stamp3 = init(function () {
+  console.log(3);
+});
+// etc
+```
+
+In this case the functions will not add any static shortcut methods to your stamps, meaning that the following will throw:
+```js
+methods({ method1() {} }).props(); // Error: undefined "props" is not a function
+init(function () {}).init(); // Error: undefined "init" is not a function
+// etc
+```
+
+
 ## API
 
 ### Static methods

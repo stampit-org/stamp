@@ -90,4 +90,75 @@ describe('@stamp/shortcut', function () {
     expect(Stamp.compose.initializers).toEqual(meta.init);
     expect(Stamp.compose.composers).toEqual(meta.composers);
   });
+
+  it('unbound shortcuts add metadata', function () {
+    var methods = Shortcut.methods;
+    var props = Shortcut.props;
+    var statics = Shortcut.statics;
+    var conf = Shortcut.conf;
+    var deepProps = Shortcut.deepProps;
+    var deepStatics = Shortcut.deepStatics;
+    var deepConf = Shortcut.deepConf;
+    var init = Shortcut.init;
+    var composers = Shortcut.composers;
+    var meta = {
+      methods: {m: function () {}},
+
+      props: {p: {}},
+      statics: {s: {}},
+      conf: {c: {}},
+
+      deepProps: {dp: [1, 'a']},
+      deepStatics: {ds: [1, 'a']},
+      deepConf: {dc: [1, 'a']},
+
+      init: [function () {}],
+      composers: [function () {}]
+    };
+    var Stamp = compose(
+      methods(meta.methods),
+      props(meta.props),
+      statics(meta.statics),
+      conf(meta.conf),
+      deepProps(meta.deepProps),
+      deepStatics(meta.deepStatics),
+      deepConf(meta.deepConf),
+      init(meta.init),
+      composers(meta.composers)
+    );
+
+    expect(Stamp().m).toBe(meta.methods.m);
+
+    expect(Stamp().p).toBe(meta.props.p);
+    expect(Stamp.s).toBe(meta.statics.s);
+    expect(Stamp.compose.configuration.c).toBe(meta.conf.c);
+
+    expect(Stamp().dp).toEqual(meta.deepProps.dp);
+    expect(Stamp.ds).toEqual(meta.deepStatics.ds);
+    expect(Stamp.compose.deepConfiguration.dc).toEqual(meta.deepConf.dc);
+
+    expect(Stamp.compose.initializers).toEqual(meta.init);
+    expect(Stamp.compose.composers).toEqual(meta.composers);
+  });
+
+  it('unbound shortcuts should not add static methods', function () {
+    var methods = Shortcut.methods;
+    expect(methods({}).methods).toBeFalsy();
+    var props = Shortcut.props;
+    expect(props({}).props).toBeFalsy();
+    var statics = Shortcut.statics;
+    expect(statics({}).statics).toBeFalsy();
+    var conf = Shortcut.conf;
+    expect(conf({}).conf).toBeFalsy();
+    var deepProps = Shortcut.deepProps;
+    expect(deepProps({}).deepProps).toBeFalsy();
+    var deepStatics = Shortcut.deepStatics;
+    expect(deepStatics({}).deepStatics).toBeFalsy();
+    var deepConf = Shortcut.deepConf;
+    expect(deepConf({}).deepConf).toBeFalsy();
+    var init = Shortcut.init;
+    expect(init({}).init).toBeFalsy();
+    var composers = Shortcut.composers;
+    expect(composers({}).composers).toBeFalsy();
+  });
 });
