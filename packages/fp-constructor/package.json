@@ -1,6 +1,6 @@
 {
   "name": "@stamp/fp-constructor",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Adds the Stamp.constructor property referencing Stamp itself",
   "main": "index.js",
   "repository": {
@@ -10,6 +10,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@stamp/compose": "^0.1.2"
+    "@stamp/compose": "^0.1.3"
   }
 }
