@@ -2,7 +2,7 @@
 
 _Makes all properties and optional methods private_
 
-Inspired by the [`private-class`](https://github.com/parro-it/private-class) module. NOTE! Requires WeakMap, thus won't work in IE10.
+Inspired by the [`private-class`](https://github.com/parro-it/private-class) module. **NOTE!** Requires WeakMap, thus won't work in IE10.
 
 This stamp (aka behavior) will create a proxy object. Its methods would delegate all the calls to the original object instance.
 
@@ -18,6 +18,20 @@ const AuthWithPrivateProperties = Auth.compose(Privatize);
 
 const AuthWithPrivatePropertiesAndMethod = Auth.compose(Privatize).privatizeMethods('setPassword');
 ```
+
+## Warning!
+Every property you assign in the initializers will be private.
+```js
+const Original = compose({
+  initializers: function () {
+    this.foo = 42; // THIS WILL BE PRIVATE
+    this.bar = function () {}; // THIS WILL BE PRIVATE TOO
+  }
+});
+Original().foo === undefined; 
+Original().bar === undefined; 
+```
+This is a neat feature since you don't need to use JS closures to hide variables from external users.
 
 ## Example
 ```js
