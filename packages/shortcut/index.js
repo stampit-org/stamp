@@ -42,6 +42,10 @@ module.exports = compose({
     init: initializers,
     initializers: initializers,
 
-    composers: createShortcut('composers')
+    composers: createShortcut('composers'),
+
+    propertyDescriptors: createShortcut('propertyDescriptors'),
+
+    staticPropertyDescriptors: createShortcut('staticPropertyDescriptors')
   }
 });
