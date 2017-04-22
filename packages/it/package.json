@@ -13,9 +13,10 @@
     "@stamp/compose": "^0.1.3",
     "@stamp/core": "^0.1.2",
     "@stamp/is": "^0.1.2",
-    "@stamp/shortcut": "^0.2.0"
+    "@stamp/shortcut": "^0.3.0"
   },
   "devDependencies": {
-    "@stamp/check-compose": "^1.0.0"
+    "@stamp/check-compose": "^1.0.0",
+    "lodash": "^4.17.4"
   }
 }

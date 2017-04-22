@@ -90,4 +90,8 @@ var baseStampit = Shortcut.compose({
   }
 });
 
+var shortcuts = Shortcut.compose.staticProperties;
+for (var prop in shortcuts) stampit[prop] = shortcuts[prop].bind(baseStampit);
+stampit.compose = stampit.bind();
+
 module.exports = stampit;

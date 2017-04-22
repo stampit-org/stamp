@@ -49,6 +49,10 @@ describe('@stamp/shortcut', function () {
     expect(Stamp.init).toBe(Stamp.initializers);
 
     expect(Stamp.composers).toBeA('function');
+
+    expect(Stamp.propertyDescriptors).toBeA('function');
+
+    expect(Stamp.staticPropertyDescriptors).toBeA('function');
   });
 
   it('shortcuts add metadata', function () {
@@ -64,7 +68,10 @@ describe('@stamp/shortcut', function () {
       deepConf: {dc: [1, 'a']},
 
       init: [function () {}],
-      composers: [function () {}]
+      composers: [function () {}],
+
+      propertyDescriptors: {x: {writable: true}},
+      staticPropertyDescriptors: {y: {writable: true}}
     };
     var Stamp = compose(Shortcut)
       .methods(meta.methods)
@@ -75,7 +82,9 @@ describe('@stamp/shortcut', function () {
       .deepStatics(meta.deepStatics)
       .deepConf(meta.deepConf)
       .init(meta.init)
-      .composers(meta.composers);
+      .composers(meta.composers)
+      .propertyDescriptors(meta.propertyDescriptors)
+      .staticPropertyDescriptors(meta.staticPropertyDescriptors);
 
     expect(Stamp().m).toBe(meta.methods.m);
 
@@ -89,6 +98,9 @@ describe('@stamp/shortcut', function () {
 
     expect(Stamp.compose.initializers).toEqual(meta.init);
     expect(Stamp.compose.composers).toEqual(meta.composers);
+
+    expect(Stamp.compose.propertyDescriptors).toEqual(meta.propertyDescriptors);
+    expect(Stamp.compose.staticPropertyDescriptors).toEqual(meta.staticPropertyDescriptors);
   });
 
   it('unbound shortcuts add metadata', function () {
@@ -101,6 +113,8 @@ describe('@stamp/shortcut', function () {
     var deepConf = Shortcut.deepConf;
     var init = Shortcut.init;
     var composers = Shortcut.composers;
+    var propertyDescriptors = Shortcut.propertyDescriptors;
+    var staticPropertyDescriptors = Shortcut.staticPropertyDescriptors;
     var meta = {
       methods: {m: function () {}},
 
@@ -113,7 +127,10 @@ describe('@stamp/shortcut', function () {
       deepConf: {dc: [1, 'a']},
 
       init: [function () {}],
-      composers: [function () {}]
+      composers: [function () {}],
+
+      propertyDescriptors: {x: {writable: true}},
+      staticPropertyDescriptors: {y: {writable: true}}
     };
     var Stamp = compose(
       methods(meta.methods),
@@ -124,7 +141,9 @@ describe('@stamp/shortcut', function () {
       deepStatics(meta.deepStatics),
       deepConf(meta.deepConf),
       init(meta.init),
-      composers(meta.composers)
+      composers(meta.composers),
+      propertyDescriptors(meta.propertyDescriptors),
+      staticPropertyDescriptors(meta.staticPropertyDescriptors)
     );
 
     expect(Stamp().m).toBe(meta.methods.m);
@@ -139,6 +158,9 @@ describe('@stamp/shortcut', function () {
 
     expect(Stamp.compose.initializers).toEqual(meta.init);
     expect(Stamp.compose.composers).toEqual(meta.composers);
+
+    expect(Stamp.compose.propertyDescriptors).toEqual(meta.propertyDescriptors);
+    expect(Stamp.compose.staticPropertyDescriptors).toEqual(meta.staticPropertyDescriptors);
   });
 
   it('unbound shortcuts should not add static methods', function () {
@@ -160,5 +182,9 @@ describe('@stamp/shortcut', function () {
     expect(init({}).init).toBeFalsy();
     var composers = Shortcut.composers;
     expect(composers({}).composers).toBeFalsy();
+    var propertyDescriptors = Shortcut.propertyDescriptors;
+    expect(propertyDescriptors({}).propertyDescriptors).toBeFalsy();
+    var staticPropertyDescriptors = Shortcut.staticPropertyDescriptors;
+    expect(staticPropertyDescriptors({}).staticPropertyDescriptors).toBeFalsy();
   });
 });
