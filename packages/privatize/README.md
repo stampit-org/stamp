@@ -60,3 +60,34 @@ instance.checkAccess();
 expect(accessPassword).toBe('123');
 expect(accessSetPassword).toBe(Original.compose.methods.setPassword);
 ```
+
+## Smart use of configuration
+
+If you ever was thinking how cool if it was having `configuration` (and `deepConfiguration`) accessible in your method without explicitly exposing it through initializer, with privatize stamp you can simply do this. First make your own extension to Private stamp.
+
+```js
+import Privatize from '@stamp/privatize';
+const ConfiguredPrivatize = Privatize.compose({
+  initializers: [(_, {stamp, instance}) => {
+    instance.stampConfiguration = stamp.compose.configuration;
+    instance.stampDeepConfiguration = stamp.compose.deepConfiguration;
+  }]
+})
+export default ConfiguredPrivatize;
+```
+
+Then you can use for your other stamps and being able to access configuration within any method while still have it hidden from public sight.
+
+```js
+compose(ConfiguredPrivatize, {
+    configuration: {
+        secret: 'mykey'
+    },
+    methods: {
+        encrypt(value) {
+          const { secret } = this.stampConfiguration;
+          // run encryption with secret while it's still hidden from outside
+        }
+    }
+})
+```
