@@ -98,10 +98,11 @@ See more examples in [this blog post](https://medium.com/@koresar/fun-with-stamp
 The module exports a range of shortcut methods. 
 These are taken from the [@stamp/shortcut](https://github.com/stampit-org/stamp/blob/master/packages/shortcut/README.md) stamp.
 ```js
-import {methods, props, statics, /* etc */} from '@stamp/it';
+import {methods, props, init, statics, /* etc */} from '@stamp/it';
 ```
+Each returns a stampit-flavoured stamp. 
 
-Unlike the `@stamp/shortcut` module, all the exported functions of `@stamp/it` are stampit-flavoured. Meaning that:
+NOTE! Unlike the `@stamp/shortcut` module, all the exported functions of `@stamp/it` are stampit-flavoured. Meaning that:
 ```js
 import {methods} from '@stamp/it';
 const Stamp = methods({ foo() {} })
