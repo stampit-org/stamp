@@ -93,6 +93,23 @@ console.log(Object.getPrototypeOf(obj));
 See more examples in [this blog post](https://medium.com/@koresar/fun-with-stamps-episode-1-stamp-basics-e0627d81efe0).
 
 
+### Shortcut exported methods
+
+The module exports a range of shortcut methods. 
+These are taken from the [@stamp/shortcut](https://github.com/stampit-org/stamp/blob/master/packages/shortcut/README.md) stamp.
+```js
+import {methods, props, init, statics, /* etc */} from '@stamp/it';
+```
+Each returns a stampit-flavoured stamp. 
+
+NOTE! Unlike the `@stamp/shortcut` module, all the exported functions of `@stamp/it` are stampit-flavoured. Meaning that:
+```js
+import {methods} from '@stamp/it';
+const Stamp = methods({ foo() {} })
+.props({bar: 1})                    // THIS WILL WORK
+.statics({baz: 2})                  // AND THIS WILL WORK TOO 
+```
+
 ### Static methods
 
 #### Shortcut static methods
