@@ -12,14 +12,15 @@ console.log(MyRegularStamp.name); // 'Stamp'
 
 import Named from '@stamp/named';
 
-const MyNamedStamp = MyRegularStamp.compose(Named).name('MyRegularStamp');
-console.log(MyNamedStamp.name); // 'Foo'
+const MyNamedStamp = MyRegularStamp.compose(Named).setName('MyNamedStamp');
+console.log(MyNamedStamp.name); // 'MyNamedStamp'
 
 
-// All derived stamps will also be named 'MyRegularStamp' until changed:
+// All derived stamps will also be named 'MyNamedStamp' until changed:
 let Stamp2 = compose(..., MyNamedStamp, ...);
-console.log(Stamp2.name); // WARNING! Still 'MyRegularStamp' !!!
+console.log(Stamp2.name); // WARNING! Still 'MyNamedStamp' !!!
 
-Stamp2 = Stamp2.name('Stamp2');
+// Overwriting the name
+Stamp2 = Stamp2.setName('Stamp2');
 console.log(Stamp2.name); // 'Stamp2' :)
 ```

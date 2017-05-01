@@ -56,5 +56,8 @@
       "html",
       "text"
     ]
+  },
+  "dependencies": {
+    "@stamp/compose": "^0.1.5"
   }
 }
