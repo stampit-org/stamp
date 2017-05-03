@@ -1,15 +1,10 @@
 var compose = require('@stamp/compose');
-var EventEmitter = require('./node_modules/events').EventEmitter;
+var EventEmitter = require('events').EventEmitter;
 
 module.exports = compose({
-  composers: [
-    function (obj) {
-      var stamp = obj.stamp;
-      stamp.compose.methods = Object.assign(stamp.compose.methods || {}, {
-        getMaxListeners: function () {
-          return this._maxListeners || EventEmitter.defaultMaxListeners;
-        }
-      }, EventEmitter.prototype);
-    }
-  ]
+  staticProperties: {
+    defaultMaxListeners: EventEmitter.defaultMaxListeners,
+    listenerCount: EventEmitter.listenerCount
+  },
+  methods: EventEmitter.prototype
 });

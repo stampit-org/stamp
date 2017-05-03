@@ -7,8 +7,5 @@
   "dependencies": {
     "@stamp/compose": "^0.1.2",
     "events": "^1.1.1"
-  },
-  "devDependencies": {
-    "@stamp/it": "^0.2.0"
   }
 }
