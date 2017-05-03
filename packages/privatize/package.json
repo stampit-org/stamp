@@ -1,6 +1,6 @@
 {
   "name": "@stamp/privatize",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Protect private properties",
   "main": "index.js",
   "repository": {
@@ -10,6 +10,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@stamp/compose": "^0.1.5"
+    "@stamp/compose": "^0.1.6"
   }
 }

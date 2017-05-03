@@ -1,11 +1,11 @@
 {
   "name": "@stamp/eventemittable",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "description": "Node.js' EventEmitter as a stamp",
   "repository": "https://github.com/stampit-org/stamp/tree/master/packages/eventemittable",
   "dependencies": {
-    "@stamp/compose": "^0.1.2",
+    "@stamp/compose": "^0.1.6",
     "events": "^1.1.1"
   }
 }
