@@ -10,10 +10,13 @@ import EventEmittable from '@stamp/eventemittable';
 
 ### Example
 
-Create a Stamp which implements Node.js' `EventEmitter` API via composition:
-
+Create event emitter object:
 ```js
-import EventEmittable from '@stamp/eventemittable';
+const emitter = EventEmittable();
+```
+
+Create a Stamp which implements Node.js' `EventEmitter` API via composition:
+```js
 import stampit from '@stamp/it';
 
 const MyStamp = stampit({
@@ -25,16 +28,14 @@ const MyStamp = stampit({
 })
   .compose(EventEmittable);
 
-const myStamp = MyStamp();
-myStamp.on('foo', value => {
+const myObject = MyStamp();
+myObject.on('foo', value => {
   console.log(`value: ${value}`);
 });
-myStamp.foo(); // prints "value: bar"
+myObject.foo(); // prints "value: bar"
 ```
 
 ### Notes
 
 - For portability, this package consumes the userland `EventEmitter` implementation of the [events](https://npm.im/events) package.
 - `domain`s are not supported.
-- `EventEmittable`'s methods are given precedence in the case of name collisions during composition.  In other words, if you must re-implement `on()` or another method, do it *after* composing.
-- Any static methods of the `EventEmitter` implementation are not available.
