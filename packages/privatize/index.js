@@ -19,16 +19,22 @@ var makeProxyFunction = function (fn, name) {
 function initializer(_, opts) {
   var descriptor = opts.stamp.compose;
   var privateMethodNames = descriptor.deepConfiguration.Privatize.methods;
-  var methods = descriptor.methods;
-  var methodNames = Object.keys(methods);
+
   var newObject = {};
+  privates.set(newObject, this);
+
+  var methods = descriptor.methods;
+  if (!methods) {
+    return newObject;
+  }
+
+  var methodNames = Object.keys(methods);
   for (var i = 0; i < methodNames.length; i++) {
     var name = methodNames[i];
     if (privateMethodNames.indexOf(name) < 0) { // not private, thus wrap
       newObject[name] = makeProxyFunction(methods[name], name);
     }
   }
-  privates.set(newObject, this);
   return newObject;
 }
 
