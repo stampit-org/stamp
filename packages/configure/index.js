@@ -5,7 +5,7 @@ function configure(_, options) {
   var configuration = options.stamp.compose.configuration;
   var deepConfiguration = options.stamp.compose.deepConfiguration;
   this.config = Object.freeze(
-    Object.assign({}, configuration, deepConfiguration)
+    Object.assign({}, deepConfiguration, configuration)
   );
 }
 

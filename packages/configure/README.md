@@ -58,7 +58,7 @@ Looks good, doesn't it? But wait, all those advantages of the configuration are 
 
 Under the hood, we are using `@stamp/privatize` stamp. That allows us to access `this.config` within our methods and yet keep them hidden from outside world. Immutability is ensured by using `Object.freeze()`.
 
-The `deepConfiguration` gets assigned to the same `this.config` object as well while it has a precedence over the `configuration`. In case of name conflict, the value from `deepConfiguration` always wins.
+The `deepConfiguration` gets assigned to the same `this.config` object as well while the `configuration` has a precedence over it. In case of name conflict, the value from `configuration` always wins.
 
 ### No fan of @stamp/privatize ?
 

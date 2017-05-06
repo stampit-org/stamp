@@ -67,7 +67,7 @@ describe('Configure', function () {
     expect(objectInstance.read().test).toEqual(['foo', 'bar'])
   })
 
-  it('should take deepConfiguration over configuration when name conflict', function () {
+  it('should take configuration over deepConfiguration when name conflict', function () {
     var MyStamp = compose(Configure, {
       configuration: {
         test: 'foo',
@@ -83,7 +83,7 @@ describe('Configure', function () {
     });
 
     var objectInstance = MyStamp();
-    expect(objectInstance.read().test).toEqual(['foo', 'bar'])
+    expect(objectInstance.read().test).toEqual('foo')
   })
 
   it('should forbid any mutations to config object', function () {
@@ -170,7 +170,7 @@ describe('Configure.noPrivatize()', function () {
     expect(objectInstance.read().test).toEqual(['foo', 'bar'])
   })
 
-  it('should take deepConfiguration over configuration when name conflict', function () {
+  it('should take configuration over deepConfiguration when name conflict', function () {
     var MyStamp = compose(Configure.noPrivatize(), {
       configuration: {
         test: 'foo',
@@ -186,7 +186,7 @@ describe('Configure.noPrivatize()', function () {
     });
 
     var objectInstance = MyStamp();
-    expect(objectInstance.read().test).toEqual(['foo', 'bar'])
+    expect(objectInstance.read().test).toEqual('foo')
   })
 
   it('should forbid any mutations to config object', function () {
