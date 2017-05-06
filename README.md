@@ -1,5 +1,7 @@
 # Stamp
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/stampit-org/stamp.svg)](https://greenkeeper.io/)
+
 _Mono repository for stamp related packages._
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/stampit-org/stamp.svg)](https://greenkeeper.io/)
