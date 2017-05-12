@@ -123,6 +123,13 @@ module.exports = compose({
 
           var existingMetadata = methodsMetadata[methodName];
 
+          // Checking by reference if the method is already present
+          if (existingMetadata &&
+            (existingMetadata === method ||
+            (isArray(existingMetadata) && existingMetadata.indexOf(method) >= 0))) {
+            continue;
+          }
+
           // Process Collision.forbid
           if (existingMetadata && forbidsCollision(descriptor, methodName)) {
             throw new Error('Collision of method `' + methodName +

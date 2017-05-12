@@ -83,9 +83,10 @@ describe('@stamp/collision', function () {
     );
 
     expect(function () {compose(Forbid, Defer)}).toThrow();
-    expect(function () {compose(Forbid, Regular)}).toThrow();
     expect(function () {compose(Defer, Forbid)}).toThrow();
+
     expect(function () {compose(Regular, Forbid)}).toThrow();
+    expect(function () {compose(Forbid, Regular)}).toThrow();
   });
 
   it('collisionProtectAnyMethod', function () {
@@ -118,6 +119,25 @@ describe('@stamp/collision', function () {
     expect(function () {compose(Bar, FooBar)}).toThrow();
     expect(function () {compose(Foo, Bar)}).not.toThrow();
     expect(function () {compose(Bar, Foo)}).not.toThrow();
+  });
+
+  it('collisionProtectAnyMethod multiple times same stamp', function () {
+    var Base = compose({
+        methods: {
+          foo: function () {},
+          bar: function () {}
+        }
+      },
+      Collision.collisionProtectAnyMethod()
+    );
+    var Stamp1 = compose(Base);
+    var Stamp2 = compose(Base);
+    var Stamp3 = compose(Base);
+
+    expect(function () {compose(Stamp1, Stamp2)}).not.toThrow();
+    expect(function () {compose(Stamp1, Stamp2, Stamp3)}).not.toThrow();
+    expect(function () {compose(Stamp1).compose(Stamp2, Stamp3)}).not.toThrow();
+    expect(function () {compose(Stamp1, Stamp2).compose(Stamp3)}).not.toThrow();
   });
 
   it('collisionProtectAnyMethod + allow', function () {
