@@ -1,0 +1,15 @@
+{
+  "name": "@stamp/configure",
+  "version": "0.1.2",
+  "license": "MIT",
+  "description": "Access configuration of your stamps anywhere",
+  "repository": "https://github.com/stampit-org/stamp/tree/master/packages/configure",
+  "keywords": [
+    "compose",
+    "configure"
+  ],
+  "dependencies": {
+    "@stamp/compose": "^0.1.6",
+    "@stamp/privatize": "^0.1.7"
+  }
+}

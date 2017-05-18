@@ -45,4 +45,13 @@ describe('@stamp/privatize', function () {
 
     expect(instance.bar).toBeUndefined();
   });
+
+  it('should work without any methods defined', function () {
+    var Stamp = compose(Privatize, {
+      properties: { bar: 'foo' },
+    });
+    var instance = Stamp();
+
+    expect(instance.bar).toBeUndefined();
+  })
 });

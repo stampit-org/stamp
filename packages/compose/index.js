@@ -57,7 +57,7 @@ function createStamp(descriptor, composeFunction) {
     assign(Stamp, descriptor.staticProperties);
   }
   if (descriptor.staticPropertyDescriptors) {
-    Object.defineProperties(Stamp, descriptor.staticPropertyDescriptors || {});
+    Object.defineProperties(Stamp, descriptor.staticPropertyDescriptors);
   }
 
   var composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
