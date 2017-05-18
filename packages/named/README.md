@@ -2,7 +2,9 @@
 
 _Changes the `Stamp.name` property using the [new ES6 feature](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/name)._
 
-See supported platforms [here](http://kangax.github.io/compat-table/es6/#test-function_name_property). TL;DR: node>=6.5, iOS>=10, Edge, FF, Chrome, Safari
+Supported platforms: node>=4, iOS>=10, Edge, FF, Chrome, Safari
+
+If used in a non-supported environment (node <v4, or IE any version) then nothing will throw. But the `Stamp.name` will always be `"Stamp"`.
 
 # Example
 

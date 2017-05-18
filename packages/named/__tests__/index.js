@@ -1,19 +1,23 @@
 var compose = require('@stamp/compose');
+var Named = require('..');
 
-const F = compose();
-Object.defineProperty(F, 'name', {
-  value: 'TEST',
-  configurable: true
-});
-var supported = F.name === 'TEST';
 // Check if current environment supports function renaming
-
-if (supported) {
-  var Named = require('..');
-
-  describe('@stamp/named', function () {
-    it('aaaaa', function () {
-      expect(1).toBe(1);
-    });
+var supported = false;
+const F = compose();
+try {
+  Object.defineProperty(F, 'name', {
+    value: 'TEST'
   });
+} catch (err) {}
+supported = F.name === 'TEST';
+
+function checkFunctionName(func, name) {
+  if (supported) expect(func.name).toBe(name);
 }
+
+describe('@stamp/named', function () {
+  it('setName sets the name', function () {
+    const S = compose(Named).setName('foo');
+    checkFunctionName(S, 'foo');
+  });
+});
