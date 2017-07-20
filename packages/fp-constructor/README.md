@@ -15,7 +15,7 @@ MyStamp.of === MyStamp; // true
 and the instance method, `.constructor`:
 ```js
 instance = MyStamp(/* ...options */);
-instance.of === MyStamp; // true
+instance.constructor === MyStamp; // true
 ```
 
 ## Motivation
