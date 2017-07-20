@@ -1,4 +1,4 @@
-##### SouceLab
+##### SauceLabs
 buildconfig.env
 server.js
 sauce_connect.log
@@ -46,6 +46,7 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 .npmrc
+package-lock.json
 
 
 
