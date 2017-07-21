@@ -1,7 +1,7 @@
 {
   "name": "@stamp/fp-constructor",
   "version": "0.2.0",
-  "description": "Adds the Stamp.constructor property referencing Stamp itself",
+  "description": "Adds the Functional Programming capabilities to your stamps",
   "main": "index.js",
   "repository": {
     "type": "git",
