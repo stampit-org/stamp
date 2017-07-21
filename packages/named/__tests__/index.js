@@ -1,23 +1,22 @@
 var compose = require('@stamp/compose');
 var Named = require('..');
 
-// Check if current environment supports function renaming
-var supported = false;
-const F = compose();
-try {
-  Object.defineProperty(F, 'name', {
-    value: 'TEST'
-  });
-} catch (err) {}
-supported = F.name === 'TEST';
-
-function checkFunctionName(func, name) {
-  if (supported) expect(func.name).toBe(name);
-}
-
+// This test can be executed by Jest testing framework only.
+// Its minimal node.js supported version is 4. Same as this stamp.
+// Thus, there is no risk running these test in a non-supported platform.
 describe('@stamp/named', function () {
+  it('default name is "Stamp"', function () {
+    const S = compose();
+    expect(S.name).toBe('Stamp');
+  });
+
   it('setName sets the name', function () {
     const S = compose(Named).setName('foo');
-    checkFunctionName(S, 'foo');
+    expect(S.name).toBe('foo');
+  });
+
+  it('setName overwrites existing name', function () {
+    const S = compose(Named).setName('foo');
+    expect(S.setName('bar').name).toBe('bar');
   });
 });
