@@ -17,6 +17,47 @@ Import:
 import stampit from '@stamp/it'
 ```
 
+Or import utility functions only:
+```js
+import {
+    methods,
+    
+    props,
+    properties,
+    
+    statics,
+    staticProperties,
+    
+    conf,
+    configuration,
+    
+    deepProps,
+    deepProperties,
+    
+    deepStatics,
+    staticDeepProperties,
+    
+    deepConf,
+    deepConfiguration,
+    
+    init,
+    initializers,
+    
+    composers,
+    
+    propertyDescriptors,
+    
+    staticPropertyDescriptors
+} from '@stamp/it'
+
+const Stamp1 = methods({ foo() {} })
+const Stamp2 = props({ bar: 'my bar' })
+const Stamp3 = conf({ my: 'configuration' })
+const Stamp4 = init(function (options, {stamp, instance, args}) {
+  console.log('bla')
+})
+```
+
 ## API
 
 ### Arguments
