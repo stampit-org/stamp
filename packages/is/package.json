@@ -1,6 +1,6 @@
 {
   "name": "@stamp/is",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "license": "MIT",
   "description": "Various checking functions used with stamps",
   "repository": "https://github.com/stampit-org/stamp/tree/master/packages/is"
