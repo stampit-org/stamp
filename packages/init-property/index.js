@@ -5,10 +5,10 @@ function initializer(opts, ref) {
   var args = ref.args.slice();
   var keys = Object.keys(this);
   for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    if (isStamp(this[key])) {
+    var key = keys[i], stamp = this[key];
+    if (isStamp(stamp)) {
       args[0] = opts && opts[key];
-      this[key] = this[key].apply(undefined, args);
+      this[key] = stamp.apply(undefined, args);
     }
   }
 }

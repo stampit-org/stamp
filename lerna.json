@@ -9,5 +9,6 @@
         "*.md"
       ]
     }
-  }
+  },
+  "npmClientArgs": ["--access public"]
 }
