@@ -1,6 +1,6 @@
 {
   "name": "@stamp/fp-constructor",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Adds the Functional Programming capabilities to your stamps",
   "main": "index.js",
   "repository": {
@@ -10,6 +10,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@stamp/compose": "^0.1.6"
+    "@stamp/compose": "^1.0.0"
   }
 }

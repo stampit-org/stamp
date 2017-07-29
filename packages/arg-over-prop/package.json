@@ -1,6 +1,6 @@
 {
   "name": "@stamp/arg-over-prop",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Assign properties passed to the stamp factory",
   "main": "index.js",
   "repository": {
@@ -10,8 +10,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@stamp/compose": "^0.1.6",
-    "@stamp/core": "^0.1.2",
-    "@stamp/is": "^0.2.0"
+    "@stamp/compose": "^1.0.0",
+    "@stamp/core": "^1.0.0",
+    "@stamp/is": "^1.0.0"
   }
 }

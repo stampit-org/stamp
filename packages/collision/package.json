@@ -1,6 +1,6 @@
 {
   "name": "@stamp/collision",
-  "version": "0.2.5",
+  "version": "1.0.0",
   "description": "Detect and manipulate method collisions",
   "main": "index.js",
   "repository": {
@@ -10,8 +10,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@stamp/compose": "^0.1.6",
-    "@stamp/core": "^0.1.2",
+    "@stamp/compose": "^1.0.0",
+    "@stamp/core": "^1.0.0",
     "@stamp/is": "^0.1.1"
   }
 }
