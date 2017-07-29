@@ -8,5 +8,6 @@ module.exports = {
   isFunction: require('./function'),
   isObject: require('./object'),
   isPlainObject: require('./plain-object'),
-  isArray: require('./array')
+  isArray: require('./array'),
+  isString: require('./string')
 };

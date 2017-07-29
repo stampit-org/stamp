@@ -20,7 +20,7 @@ function initializer(_, opts) {
   var descriptor = opts.stamp.compose;
   var privateMethodNames = descriptor.deepConfiguration.Privatize.methods;
 
-  var newObject = {};
+  var newObject = {}; // our proxy object
   privates.set(newObject, this);
 
   var methods = descriptor.methods;
@@ -45,8 +45,9 @@ module.exports = compose({
     privatizeMethods: function () {
       var methodNames = [];
       for (var i = 0; i < arguments.length; i++) {
-        if (typeof arguments[i] === 'string' && arguments[i].length > 0) {
-          methodNames.push(arguments[i]);
+        var arg = arguments[i];
+        if (typeof arg === 'string' && arg.length > 0) {
+          methodNames.push(arg);
         }
       }
       return this.compose({
@@ -60,6 +61,7 @@ module.exports = compose({
   },
   composers: [function (opts) {
     var initializers = opts.stamp.compose.initializers;
+    // Keep our initializer the last to return proxy object
     initializers.splice(initializers.indexOf(initializer), 1);
     initializers.push(initializer);
   }]
