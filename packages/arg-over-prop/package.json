@@ -1,6 +1,6 @@
 {
   "name": "@stamp/arg-over-prop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Assign properties passed to the stamp factory",
   "main": "index.js",
   "repository": {

@@ -1,6 +1,6 @@
 {
   "name": "@stamp/named",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "(Re)Name a stamp factory function",
   "main": "index.js",
   "repository": {
