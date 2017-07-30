@@ -38,11 +38,12 @@ function initializer(_, opts) {
   return newObject;
 }
 
-module.exports = compose({
+var Privatize = compose({
   initializers: [initializer],
   deepConfiguration: {Privatize: {methods: []}},
   staticProperties: {
     privatizeMethods: function () {
+      'use strict';
       var methodNames = [];
       for (var i = 0; i < arguments.length; i++) {
         var arg = arguments[i];
@@ -50,7 +51,8 @@ module.exports = compose({
           methodNames.push(arg);
         }
       }
-      return this.compose({
+      var Stamp = this && this.compose ? this : Privatize;
+      return Stamp.compose({
         deepConfiguration: {
           Privatize: {
             methods: methodNames
@@ -66,3 +68,5 @@ module.exports = compose({
     initializers.push(initializer);
   }]
 });
+
+module.exports = Privatize;

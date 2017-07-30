@@ -1,6 +1,6 @@
 {
   "name": "@stamp/init-property",
-  "version": "0.1.7",
+  "version": "1.0.0",
   "description": "Replaces properties which reference stamps with objects created from the stamps",
   "main": "index.js",
   "repository": {
@@ -10,7 +10,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@stamp/compose": "^0.1.6",
+    "@stamp/compose": "^1.0.0",
     "@stamp/is": "^0.1.2"
   }
 }

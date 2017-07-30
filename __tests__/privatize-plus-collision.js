@@ -69,7 +69,7 @@ describe('Collision + Privatize', function () {
     expect(Button.compose.methods.draw).toBeCalledWith(42);
 
     // Make sure the ModalDialog throws every time on the "redraw()" collisions
-    const HaveRedraw = compose({methods: {redraw: jest.fn()}});
+    var HaveRedraw = compose({methods: {redraw: jest.fn()}});
     expect(function () {compose(ModalDialog, HaveRedraw)}).toThrow();
   });
 });

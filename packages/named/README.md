@@ -19,6 +19,16 @@ New behaviour:
 import Named from '@stamp/named';
 
 const MyNamedStamp = MyRegularStamp.compose(Named).setName('MyNamedStamp');
+```
+
+Or if you don't want to import the stamp you can import only the method:
+```js
+import {setName} from '@stamp/named';
+const MyNamedStamp = MyRegularStamp.compose(setName('MyNamedStamp'));
+```
+
+Then stamp receives a different name instead of the default "Stamp":
+```js
 console.log(MyNamedStamp.name); // 'MyNamedStamp'
 ```
 

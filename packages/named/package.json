@@ -1,6 +1,6 @@
 {
   "name": "@stamp/named",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "(Re)Name a stamp factory function",
   "main": "index.js",
   "repository": {
@@ -10,6 +10,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@stamp/compose": "^0.1.5"
+    "@stamp/compose": "^1.0.0"
   }
 }

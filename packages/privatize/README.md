@@ -19,6 +19,12 @@ const AuthWithPrivateProperties = Auth.compose(Privatize);
 const AuthWithPrivatePropertiesAndMethod = Auth.compose(Privatize).privatizeMethods('setPassword');
 ```
 
+Or if you don't want to import the stamp you can import only the method:
+```js
+import {privatizeMethods} from '@stamp/privatize';
+const AuthWithPrivatePropertiesAndMethod = Auth.compose(privatizeMethods('setPassword'));
+```
+
 ## Warning!
 Every property you assign in the initializers will be private.
 ```js

@@ -5,9 +5,9 @@
     "publish": {
       "access": "public",
       "ignore": [
-        "ignored-file",
-        "*.md"
-      ]
+        "__tests__/"
+      ],
+      "npmClientArgs": ["--access public"]
     }
   },
   "npmClientArgs": ["--access public"]

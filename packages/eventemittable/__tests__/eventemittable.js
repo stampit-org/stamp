@@ -21,8 +21,8 @@ describe('EventEmittable', function () {
     });
 
     it('should not overwrite collided methods', function () {
-      const on = jest.fn();
-      const off = jest.fn();
+      var on = jest.fn();
+      var off = jest.fn();
       var MyStamp = compose(EventEmittable, {
         methods: {on: on, off: off}
       });
