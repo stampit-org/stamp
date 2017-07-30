@@ -1,6 +1,15 @@
 var ArgOverProp = require('..');
 
 describe('@stamp/arg-over-prop', function () {
+  it('can be used as a standalone function', function () {
+    var argOverProp = ArgOverProp.argOverProp;
+    var Stamp = argOverProp('override');
+    var instance = Stamp({override: 1, dontTouch: 2});
+
+    expect(instance.override).toBe(1);
+    expect(instance).not.toHaveProperty('dontTouch');
+  });
+
   it('assigns only the requested properties', function () {
     var Stamp = ArgOverProp.argOverProp('override');
     var instance = Stamp({override: 1, dontTouch: 2});

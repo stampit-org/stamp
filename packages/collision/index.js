@@ -53,11 +53,14 @@ function defersCollision(descriptor, methodName) {
   return descriptorHasSetting(descriptor, 'defer', methodName);
 }
 
-module.exports = compose({
+var Collision = compose({
   deepConfiguration: {Collision: {defer: [], forbid: []}},
   staticProperties: {
     collisionSetup: function (opts) {
-      return this.compose({deepConfiguration: {Collision: opts}});
+      'use strict';
+      var Stamp = this && this.compose ? this : Collision;
+      return Stamp.compose({deepConfiguration: {Collision: opts}});
+
     },
     collisionSettingsReset: function () {
       return this.collisionSetup(null);
@@ -178,3 +181,5 @@ module.exports = compose({
     }
   }]
 });
+
+module.exports = Collision;

@@ -3,7 +3,7 @@ var Shortcut = require('..');
 
 expect.extend({
   toBeA: function (received, argument) {
-    const pass = typeof received === argument;
+    var pass = typeof received === argument;
     return {
       pass: pass,
       message: function () {

@@ -25,10 +25,11 @@ function dedupe(array) {
   return result;
 }
 
-module.exports = compose({
+var ArgOverProp = compose({
   staticProperties: {
     argOverProp: function () {
-      var propNames = [], defaultProps = {};
+      'use strict';
+      var propNames = [], defaultProps;
       for (var i = 0; i < arguments.length; i++) {
         var arg = arguments[i];
         if (isString(arg)) {
@@ -37,12 +38,13 @@ module.exports = compose({
         else if (isArray(arg)) {
           propNames = propNames.concat(arg.filter(isString));
         } else if (isObject(arg)) {
-          assign(defaultProps, arg);
+          defaultProps = assign(defaultProps || {}, arg);
           propNames = propNames.concat(Object.keys(arg));
         }
       }
 
-      return this.compose({
+      var Stamp = this && this.compose ? this : ArgOverProp;
+      return Stamp.compose({
         deepConfiguration: {ArgOverProp: propNames},
         properties: defaultProps // default property values
       });
@@ -62,3 +64,5 @@ module.exports = compose({
     conf.ArgOverProp = dedupe(propNames);
   }]
 });
+
+module.exports = ArgOverProp;

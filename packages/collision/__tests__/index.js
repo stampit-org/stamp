@@ -173,7 +173,12 @@ describe('@stamp/collision', function () {
   });
 
   it('forbid + allow', function () {
-    expect(function () {Collision.collisionSetup({allow: ['foo'], forbid: ['foo']})}).toThrow();
+    expect(function () {Collision.collisionSetup({allow: ['foo'], forbid: ['foo']})}).toThrow(/Collision/);
+  });
+
+  it('can be used as a standalone function', function () {
+    var collisionSetup = Collision.collisionSetup;
+    expect(function () {collisionSetup({allow: ['foo'], forbid: ['foo']})}).toThrow(/Collision/);
   });
 
   it('forbid without conflicts', function () {

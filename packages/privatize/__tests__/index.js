@@ -4,7 +4,7 @@ var Privatize = require('..');
 describe('@stamp/privatize', function () {
   it('applies access restrictions', function () {
     var accessFoo, accessBar;
-    var orig = compose({
+    var Orig = compose({
       properties: {foo: 1},
       methods: {
         bar: function () {},
@@ -14,14 +14,14 @@ describe('@stamp/privatize', function () {
         }
       }
     });
-    var Stamp = orig.compose(Privatize).privatizeMethods('bar');
+    var Stamp = Orig.compose(Privatize).privatizeMethods('bar');
     var instance = Stamp();
 
     expect(instance.foo).toBeUndefined();
     expect(instance.bar).toBeUndefined();
     instance.checkAccess();
     expect(accessFoo).toBe(1);
-    expect(accessBar).toBe(orig.compose.methods.bar);
+    expect(accessBar).toBe(Orig.compose.methods.bar);
   });
 
   it('should push the initializer to the end of the list', function () {
@@ -48,10 +48,33 @@ describe('@stamp/privatize', function () {
 
   it('should work without any methods defined', function () {
     var Stamp = compose(Privatize, {
-      properties: { bar: 'foo' },
+      properties: { bar: 'foo' }
     });
     var instance = Stamp();
 
     expect(instance.bar).toBeUndefined();
+  });
+
+  it('can be used as a standalone function', function () {
+    var privatizeMethods = Privatize.privatizeMethods;
+    var accessFoo, accessBar;
+    var Orig = compose({
+      properties: {foo: 1},
+      methods: {
+        bar: function () {},
+        checkAccess: function () {
+          accessFoo = this.foo;
+          accessBar = this.bar;
+        }
+      }
+    });
+    var Stamp = privatizeMethods('bar').compose(Orig);
+    var instance = Stamp();
+
+    expect(instance.foo).toBeUndefined();
+    expect(instance.bar).toBeUndefined();
+    instance.checkAccess();
+    expect(accessFoo).toBe(1);
+    expect(accessBar).toBe(Orig.compose.methods.bar);
   })
 });

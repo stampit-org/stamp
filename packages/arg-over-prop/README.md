@@ -23,6 +23,13 @@ A shorter but identical version of the same `StampA`:
 const StampA = ArgOverProp.argOverProp({foo: 1});
 ```
 
+Or if you don't want to import the stamp you can import only the method:
+```js
+import {argOverProp} from '@stamp/arg-over-prop';
+const StampA = argOverProp({foo: 1});
+```
+
+
 Basically, the `arg-over-prop` stamp sets properties in an initializer.
 The code below is what the `StampA` becomes.
 ```js
