@@ -4,7 +4,7 @@ var isObject = require('@stamp/is/object');
 
 function required(settings) {
   'use strict';
-  var Stamp = this && this.compose ? this : Required;
+  var Stamp = this && this.compose ? this : Required; // jshint ignore:line
   var prevSettings = Stamp.compose.deepConfiguration && Stamp.compose.deepConfiguration.Required;
 
   // filter out non stamp things

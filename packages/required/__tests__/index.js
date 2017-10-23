@@ -89,4 +89,14 @@ describe('@stamp/required', function () {
     });
     expect(function () { Stamp(); }).toThrow(/Required: There must be requireMe in this stamp staticProperties/);
   });
+
+  it('should be composable to any stamp at any palce', function () {
+    var Stamp = compose({properties: {a: 1}}).compose(Required).required({
+      methods: {
+        requireMe: required
+      }
+    });
+
+    expect(function () { Stamp(); }).toThrow(/Required: There must be requireMe in this stamp methods/);
+  });
 });

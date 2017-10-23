@@ -1,6 +1,6 @@
 {
   "name": "@stamp/required",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Insist on a method/property/staticProperty/configuration presence",
   "main": "index.js",
   "repository": {
