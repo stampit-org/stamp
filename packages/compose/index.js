@@ -17,7 +17,7 @@ function createFactory() {
   return function Stamp(options) {
     var descriptor = Stamp.compose || {};
     // Next line was optimized for most JS VMs. Please, be careful here!
-    var obj = Object.create(descriptor.methods || null);
+    var obj = {__proto__: descriptor.methods}; // jshint ignore:line
 
     merge(obj, descriptor.deepProperties);
     assign(obj, descriptor.properties);
