@@ -1,8 +1,8 @@
 var compose = require('@stamp/compose');
-var assign = require('@stamp/core/assign');
-var isStamp = require('@stamp/is/stamp');
-var isObject = require('@stamp/is/object');
-var isArray = require('@stamp/is/array');
+var assign = require('@stamp/core').assign;
+var isStamp = require('@stamp/is').isStamp;
+var isObject = require('@stamp/is').isObject;
+var isArray = require('@stamp/is').isArray;
 
 function dedupe(array) {
   var result = [];

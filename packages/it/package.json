@@ -2,7 +2,8 @@
   "name": "@stamp/it",
   "version": "1.0.1",
   "description": "A nice, handy API implementation of the compose standard",
-  "main": "index.js",
+  "main": "src/index.js",
+  "browser": "build-es5/stampit.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/it"

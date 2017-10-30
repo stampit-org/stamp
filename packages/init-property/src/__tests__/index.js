@@ -1,5 +1,5 @@
 var compose = require('@stamp/compose');
-var InitProperty = require('..');
+var InitProperty = require('../index');
 
 describe('@stamp/init-property', function () {
   it('creates sub instance from stamps assigned to properties', function () {

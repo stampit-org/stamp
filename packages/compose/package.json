@@ -4,6 +4,7 @@
   "license": "MIT",
   "description": "Compose function implementation to create stamps",
   "repository": "https://github.com/stampit-org/stamp/tree/master/packages/compose",
+  "main": "src/index.js",
   "keywords": [
     "compose",
     "object",

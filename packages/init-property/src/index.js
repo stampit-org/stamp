@@ -1,5 +1,5 @@
 var compose = require('@stamp/compose');
-var isStamp = require('@stamp/is/stamp');
+var isStamp = require('@stamp/is').isStamp;
 
 function initializer(opts, ref) {
   var args = ref.args.slice();

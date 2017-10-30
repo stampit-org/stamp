@@ -2,7 +2,7 @@
   "name": "@stamp/init-property",
   "version": "1.0.0",
   "description": "Replaces properties which reference stamps with objects created from the stamps",
-  "main": "index.js",
+  "main": "src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/init-property"

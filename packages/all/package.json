@@ -1,0 +1,30 @@
+{
+  "name": "@stamp/all",
+  "version": "1.0.1",
+  "description": "Package including all dependencies of stampit",
+  "main": "src/index.js",
+  "dist":{
+    "umd":"dist/all.js",
+    "minified":"dist/all.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stampit-org/stamp/tree/master/packages/all"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@stamp/arg-over-prop": "^1.0.0",
+    "@stamp/collision": "^1.0.0",
+    "@stamp/compose": "^1.0.0",
+    "@stamp/configure": "^1.0.0",
+    "@stamp/eventemittable": "^1.0.0",
+    "@stamp/fp-constructor": "^1.0.0",
+    "@stamp/init-property": "^1.0.0",
+    "@stamp/it": "^1.0.0",
+    "@stamp/named": "^1.0.0",
+    "@stamp/privatize": "^1.0.0",
+    "@stamp/required": "^1.0.0",
+    "@stamp/shortcut": "^1.0.0"
+  }
+}

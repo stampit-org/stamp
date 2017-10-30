@@ -1,10 +1,10 @@
 var compose = require('@stamp/compose');
 var Shortcut = require('@stamp/shortcut');
-var isStamp = require('@stamp/is/stamp');
-var isObject = require('@stamp/is/object');
-var isFunction = require('@stamp/is/function');
-var merge = require('@stamp/core/merge');
-var assign = require('@stamp/core/assign');
+var isStamp = require('@stamp/is').isStamp;
+var isObject = require('@stamp/is').isObject;
+var isFunction = require('@stamp/is').isFunction;
+var merge = require('@stamp/core').merge;
+var assign = require('@stamp/core').assign;
 
 var concat = Array.prototype.concat;
 function extractFunctions() {

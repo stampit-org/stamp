@@ -35,7 +35,7 @@
       return;
     }
 
-    require('../')(compose)
+    require('../index')(compose)
       .then(function (result) {
         var failures = result.failures;
         if (failures && failures.length > 0) {
