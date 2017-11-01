@@ -1,10 +1,10 @@
-var isArray = require('@stamp/is/array');
-var isFunction = require('@stamp/is/function');
-var isObject = require('@stamp/is/object');
-var isStamp = require('@stamp/is/stamp');
-var isComposable = require('@stamp/is/composable');
+var isArray = require('@stamp/is').isArray;
+var isFunction = require('@stamp/is').isFunction;
+var isObject = require('@stamp/is').isObject;
+var isStamp = require('@stamp/is').isStamp;
+var isComposable = require('@stamp/is').isComposable;
 
-var assign = require('@stamp/core/assign');
+var assign = require('@stamp/core').assign;
 var merge = require('@stamp/core/merge');
 
 var slice = Array.prototype.slice;

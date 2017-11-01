@@ -4,8 +4,9 @@
   "license": "MIT",
   "description": "Command line tool to test your 'compose' function implementation",
   "repository": "https://github.com/stampit-org/stamp/tree/master/packages/check-compose",
+  "main":"src/index.js",
   "bin": {
-    "check-compose": "./bin/check-compose"
+    "check-compose": "./src/bin/check-compose"
   },
   "dependencies": {
     "bluebird": "^3.4.7",

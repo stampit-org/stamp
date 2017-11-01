@@ -1,5 +1,5 @@
 var compose = require('@stamp/compose');
-var Shortcut = require('..');
+var Shortcut = require('../index');
 
 expect.extend({
   toBeA: function (received, argument) {

@@ -1,8 +1,8 @@
 var compose = require('@stamp/compose');
-var isArray = require('@stamp/is/array');
-var isObject = require('@stamp/is/object');
-var isString = require('@stamp/is/string');
-var assign = require('@stamp/core/assign');
+var isArray = require('@stamp/is').isArray;
+var isObject = require('@stamp/is').isObject;
+var isString = require('@stamp/is').isString;
+var assign = require('@stamp/core').assign;
 
 function initializer(opts, ref) {
   var conf = ref.stamp.compose.deepConfiguration;

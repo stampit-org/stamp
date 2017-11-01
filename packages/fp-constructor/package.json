@@ -2,7 +2,7 @@
   "name": "@stamp/fp-constructor",
   "version": "1.0.0",
   "description": "Adds the Functional Programming capabilities to your stamps",
-  "main": "index.js",
+  "main": "src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/fp-constructor"

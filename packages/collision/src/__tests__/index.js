@@ -1,5 +1,5 @@
 var compose = require('@stamp/compose');
-var Collision = require('..');
+var Collision = require('../index');
 
 describe('@stamp/collision', function () {
   it('defer', function () {

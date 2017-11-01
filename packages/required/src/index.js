@@ -1,6 +1,6 @@
 var compose = require('@stamp/compose');
-var assign = require('@stamp/core/assign');
-var isObject = require('@stamp/is/object');
+var assign = require('@stamp/core').assign;
+var isObject = require('@stamp/is').isObject;
 
 function required(settings) {
   'use strict';

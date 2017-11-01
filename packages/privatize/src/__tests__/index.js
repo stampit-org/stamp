@@ -1,5 +1,5 @@
 var compose = require('@stamp/compose');
-var Privatize = require('..');
+var Privatize = require('../index');
 
 describe('@stamp/privatize', function () {
   it('applies access restrictions', function () {

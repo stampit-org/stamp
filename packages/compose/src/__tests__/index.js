@@ -2,7 +2,7 @@ var checkCompose = require('@stamp/check-compose');
 
 describe('@stamp/compose', function () {
   it('passes official tests', function () {
-    var compose = require('..');
+    var compose = require('../index');
     return checkCompose(compose)
       .then(function (result) {
         var failures = result.failures;
