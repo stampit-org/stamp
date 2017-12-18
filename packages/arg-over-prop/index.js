@@ -8,6 +8,7 @@ function initializer(opts, ref) {
   var conf = ref.stamp.compose.deepConfiguration;
   var keysToAssign = conf && conf.ArgOverProp;
   if (!keysToAssign || !keysToAssign.length) return;
+  opts = opts || {};
   for (var i = 0; i < keysToAssign.length; i++) {
     var key = keysToAssign[i], incomingValue = opts[key];
     if (incomingValue !== undefined) {

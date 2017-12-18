@@ -79,4 +79,13 @@ describe('@stamp/arg-over-prop', function () {
     Stamp = Stamp.compose({deepConfiguration: {ArgOverProp: ['x']}});
     expect(Stamp.compose.deepConfiguration.ArgOverProp).toHaveLength(2);
   });
+
+  it('initializer does not crash under any circumstances', function () {
+    var badArgs = [0, 1, {}, [], NaN, function (){}, null, undefined];
+    const Stamp = ArgOverProp.argOverProp({'dontTouch': 42});
+    badArgs.forEach(function (arg) {
+      var instance = Stamp(arg);
+      expect(instance.dontTouch).toBe(42);
+    });
+  });
 });
