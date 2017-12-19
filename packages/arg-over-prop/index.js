@@ -5,10 +5,10 @@ var isString = require('@stamp/is/string');
 var assign = require('@stamp/core/assign');
 
 function initializer(opts, ref) {
+  if (!opts) return;
   var conf = ref.stamp.compose.deepConfiguration;
   var keysToAssign = conf && conf.ArgOverProp;
   if (!keysToAssign || !keysToAssign.length) return;
-  opts = opts || {};
   for (var i = 0; i < keysToAssign.length; i++) {
     var key = keysToAssign[i], incomingValue = opts[key];
     if (incomingValue !== undefined) {
