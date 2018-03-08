@@ -1,0 +1,15 @@
+{
+  "name": "@stamp/convert-class",
+  "version": "1.0.1",
+  "description": "Converts ES6 class to stamp",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stampit-org/stamp/tree/master/packages/convert-class"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@stamp/compose": "^1.0.0"
+  }
+}
