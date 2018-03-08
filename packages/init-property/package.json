@@ -11,6 +11,6 @@
   "license": "MIT",
   "dependencies": {
     "@stamp/compose": "^1.0.0",
-    "@stamp/is": "^0.1.2"
+    "@stamp/is": "^1.0.0"
   }
 }

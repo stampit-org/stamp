@@ -5,6 +5,6 @@
   "description": "Core functions for creating stamps",
   "repository": "https://github.com/stampit-org/stamp/tree/master/packages/core",
   "dependencies": {
-    "@stamp/is": "^0.1.2"
+    "@stamp/is": "^1.0.0"
   }
 }
