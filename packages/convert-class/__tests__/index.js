@@ -32,7 +32,7 @@ describe('@stamp/convert-class', function () {
     expect(S.compose.initializers.length).toBe(1);
     expect(S.compose.methods.method1).toBe(C1.prototype.method1);
     expect(S.compose.staticProperties.sm1).toBe(C1.sm1);
-    expect(S('foo').method1()).toBe((new C1('foo')).method1());
+    expect(S('parent').method1()).toBe((new C1('parent')).method1());
   });
 
   it('converts a child class', function () {
@@ -73,8 +73,8 @@ describe('@stamp/convert-class', function () {
     expect(S.compose.methods.method2).toBe(C2.prototype.method2);
     expect(S.compose.staticProperties.sm1).toBe(C1.sm1);
     expect(S.compose.staticProperties.sm2).toBe(C2.sm2);
-    expect(S('foo', 'bar').method1()).toBe((new C2('foo', 'bar')).method1());
-    expect(S('foo', 'bar').method2()).toBe((new C2('foo', 'bar')).method2());
+    expect(S('parent', 'child').method1()).toBe((new C2('parent', 'child')).method1());
+    expect(S('parent', 'child').method2()).toBe((new C2('parent', 'child')).method2());
 
   });
 
@@ -110,7 +110,6 @@ describe('@stamp/convert-class', function () {
 
     const S = convertClass(C2);
 
-    expect(S.compose.initializers.length).toBe(1);
     expect(S.compose.methods.method).not.toBe(C1.prototype.method);
     expect(S.compose.methods.method).toBe(C2.prototype.method);
     expect(S.compose.staticProperties.sm).not.toBe(C1.sm);
@@ -155,5 +154,50 @@ describe('@stamp/convert-class', function () {
     expect(S2.compose({initializers: [() => 1]})()).toBe(1);
     expect(S2.compose({initializers: [() => 1]})()).toBe(1);
     expect(compose({initializers: [() => null]}, S2)()).toBe(null);
+  });
+
+  it('super is delegated in method and static methods', function () {
+    class C1 {
+      constructor(arg1) {
+        this.prop1 = arg1
+      }
+
+      // prop1 = ''
+
+      method() {
+        return 'parent'
+      }
+
+      static sm() {
+        return 'parent'
+      }
+    }
+
+    class C2 extends C1 {
+      constructor(arg1, arg2) {
+        super(arg1);
+        this.prop2 = arg2
+      }
+
+      // prop2 = ''
+
+      method() {
+        return super.method() // calling the parent method
+      }
+
+      static sm() {
+        return super.sm(); // calling the parent method
+      }
+    }
+
+    const S = convertClass(C2);
+
+    expect(S().method()).toBe('parent');
+    expect(S().method).toBe((new C2()).method);
+    expect(S().method).not.toBe((new C1()).method);
+
+    expect(S.sm()).toBe('parent');
+    expect(S.sm).toBe(C2.sm);
+    expect(S.sm).not.toBe(C1.sm);
   });
 });
