@@ -1,6 +1,6 @@
 {
   "name": "@stamp/it",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A nice, handy API implementation of the compose standard",
   "main": "index.js",
   "repository": {
@@ -10,10 +10,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@stamp/compose": "^1.0.0",
-    "@stamp/core": "^1.0.0",
+    "@stamp/compose": "^1.0.2",
+    "@stamp/core": "^1.0.1",
     "@stamp/is": "^1.0.0",
-    "@stamp/shortcut": "^1.0.1"
+    "@stamp/shortcut": "^1.0.2"
   },
   "devDependencies": {
     "@stamp/check-compose": "^1.0.3",

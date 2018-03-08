@@ -1,6 +1,6 @@
 {
   "name": "@stamp/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Core functions for creating stamps",
   "repository": "https://github.com/stampit-org/stamp/tree/master/packages/core",
