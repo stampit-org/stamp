@@ -16,6 +16,8 @@ describe('InstanceOf', function () {
     const MyComposedStamp = compose(InstanceOf);
     const obj = MyComposedStamp();
 
+    expect({} instanceof MyComposedStamp).toBe(false);
+    expect(MyComposedStamp.compose()() instanceof MyComposedStamp).toBe(false);
     expect(obj instanceof InstanceOf).toBe(false);
     expect(obj instanceof MyComposedStamp.compose()).toBe(false);
     expect(obj instanceof compose()).toBe(false);
