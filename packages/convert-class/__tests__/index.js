@@ -13,17 +13,17 @@ describe('@stamp/convert-class', function () {
 
   it('converts a simple class', function () {
     class C1 {
-      constructor(arg1) {
-        this.prop1 = arg1
+      constructor (arg1) {
+        this.prop1 = arg1;
       }
 
       // prop1 = ''
 
-      method1() {
-        return this.prop1
+      method1 () {
+        return this.prop1;
       }
 
-      static sm1() {}
+      static sm1 () {}
     }
 
     const S = convertClass(C1);
@@ -37,32 +37,32 @@ describe('@stamp/convert-class', function () {
 
   it('converts a child class', function () {
     class C1 {
-      constructor(arg1) {
-        this.prop1 = arg1
+      constructor (arg1) {
+        this.prop1 = arg1;
       }
 
       // prop1 = ''
 
-      method1() {
-        return this.prop1
+      method1 () {
+        return this.prop1;
       }
 
-      static sm1() {}
+      static sm1 () {}
     }
 
     class C2 extends C1 {
-      constructor(arg1, arg2) {
+      constructor (arg1, arg2) {
         super(arg1);
-        this.prop2 = arg2
+        this.prop2 = arg2;
       }
 
       // prop2 = ''
 
-      method2() {
-        return this.prop2
+      method2 () {
+        return this.prop2;
       }
 
-      static sm2() {}
+      static sm2 () {}
     }
 
     const S = convertClass(C2);
@@ -80,32 +80,32 @@ describe('@stamp/convert-class', function () {
 
   it('should take override into account', function () {
     class C1 {
-      constructor(arg1) {
-        this.prop1 = arg1
+      constructor (arg1) {
+        this.prop1 = arg1;
       }
 
       // prop1 = ''
 
-      method() {
-        return this.prop1
+      method () {
+        return this.prop1;
       }
 
-      static sm() {}
+      static sm () {}
     }
 
     class C2 extends C1 {
-      constructor(arg1, arg2) {
+      constructor (arg1, arg2) {
         super(arg1);
-        this.prop2 = arg2
+        this.prop2 = arg2;
       }
 
       // prop2 = ''
 
-      method() {
-        return this.prop2
+      method () {
+        return this.prop2;
       }
 
-      static sm() {}
+      static sm () {}
     }
 
     const S = convertClass(C2);
@@ -118,74 +118,74 @@ describe('@stamp/convert-class', function () {
 
   it('result can be composed', function () {
     class C1 {
-      constructor(arg1) {
-        this.prop1 = arg1
+      constructor (arg1) {
+        this.prop1 = arg1;
       }
 
       // prop1 = ''
 
-      method1() {
-        return this.prop1
+      method1 () {
+        return this.prop1;
       }
 
-      static sm1() {}
+      static sm1 () {}
     }
 
     class C2 extends C1 {
-      constructor(arg1, arg2) {
+      constructor (arg1, arg2) {
         super(arg1);
-        this.prop2 = arg2
+        this.prop2 = arg2;
       }
 
       // prop2 = ''
 
-      method2() {
-        return this.prop2
+      method2 () {
+        return this.prop2;
       }
 
-      static sm2() {}
+      static sm2 () {}
     }
 
     const S1 = convertClass(C1);
     const S2 = convertClass(C2);
 
-    expect(S1.compose({properties: {p: 1}})().p).toBe(1);
-    expect(S2.compose({methods: {m() {return 1}}})().m()).toBe(1);
-    expect(S2.compose({initializers: [() => 1]})()).toBe(1);
-    expect(S2.compose({initializers: [() => 1]})()).toBe(1);
-    expect(compose({initializers: [() => null]}, S2)()).toBe(null);
+    expect(S1.compose({ properties: { p: 1 } })().p).toBe(1);
+    expect(S2.compose({ methods: { m () {return 1;} } })().m()).toBe(1);
+    expect(S2.compose({ initializers: [() => 1] })()).toBe(1);
+    expect(S2.compose({ initializers: [() => 1] })()).toBe(1);
+    expect(compose({ initializers: [() => null] }, S2)()).toBe(null);
   });
 
   it('super is delegated in method and static methods', function () {
     class C1 {
-      constructor(arg1) {
-        this.prop1 = arg1
+      constructor (arg1) {
+        this.prop1 = arg1;
       }
 
       // prop1 = ''
 
-      method() {
-        return 'parent'
+      method () {
+        return 'parent';
       }
 
-      static sm() {
-        return 'parent'
+      static sm () {
+        return 'parent';
       }
     }
 
     class C2 extends C1 {
-      constructor(arg1, arg2) {
+      constructor (arg1, arg2) {
         super(arg1);
-        this.prop2 = arg2
+        this.prop2 = arg2;
       }
 
       // prop2 = ''
 
-      method() {
-        return super.method() // calling the parent method
+      method () {
+        return super.method(); // calling the parent method
       }
 
-      static sm() {
+      static sm () {
         return super.sm(); // calling the parent method
       }
     }

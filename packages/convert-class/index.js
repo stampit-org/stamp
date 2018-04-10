@@ -1,6 +1,6 @@
 const compose = require('@stamp/compose');
 
-function classStaticProperties(ctor) {
+function classStaticProperties (ctor) {
   if (ctor === Function.prototype) return {};
   return Reflect.ownKeys(ctor)
   .reduce((statics, k) => {
@@ -8,27 +8,27 @@ function classStaticProperties(ctor) {
       statics[k] = ctor[k];
     }
     return statics;
-  }, classStaticProperties(ctor.__proto__));
+  }, classStaticProperties(ctor.__proto__)); // jshint ignore:line
 }
 
-function classMethods(ctor) {
+function classMethods (ctor) {
   if (ctor === Function.prototype) return {};
   return Reflect.ownKeys(ctor.prototype).reduce((methods, k) => {
     if (k !== 'constructor') {
       methods[k] = ctor.prototype[k];
     }
     return methods;
-  }, classMethods(ctor.__proto__))
+  }, classMethods(ctor.__proto__)); // jshint ignore:line
 }
 
-function isClass(v) {
+function isClass (v) {
   return typeof v === 'function' && /^\s*class\s+/.test(v.toString());
 }
 
-module.exports = function convertClass(ctor) {
+module.exports = function convertClass (ctor) {
   if (!isClass(ctor)) return compose();
   return compose({
-    initializers: [function (_, {instance, args},) {
+    initializers: [function (_, { instance, args }) {
       Object.assign(this, Reflect.construct(ctor, args));
     }],
 
