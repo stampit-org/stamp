@@ -1,0 +1,10 @@
+{
+  "name": "@stamp/instanceof",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Enables `obj instanceof MyStamp` in ES6 environments",
+  "repository": "https://github.com/stampit-org/stamp/tree/master/packages/instanceof",
+  "dependencies": {
+    "@stamp/compose": "^1.0.2"
+  }
+}

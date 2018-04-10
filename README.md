@@ -11,6 +11,7 @@ _Mono repository for stamp related packages._
 * `@stamp/eventemittable` - Node.js' EventEmitter as a stamp
 * `@stamp/fp-constructor` - Adds the Functional Programming capabilities to your stamps
 * `@stamp/init-property` - Replaces properties which reference stamps with objects created from the stamps
+* `@stamp/instanceof` - Enables `obj instanceof MyStamp` in ES6 environments
 * `@stamp/is` - Various checking functions used with stamps
 * `@stamp/it` - A nice, handy API implementation of the compose standard
 * `@stamp/named` - (Re)Name a stamp factory function
