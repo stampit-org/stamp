@@ -2,6 +2,8 @@
 
 _Mono repository for stamp related packages._
 
+Documentation: https://stampit.js.org
+
 * `@stamp/arg-over-prop` - Assign properties passed to the stamp factory
 * `@stamp/check-compose` - Command line tool to test your 'compose' function implementation
 * `@stamp/collision` - Detect and manipulate method collisions
