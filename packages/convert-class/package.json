@@ -1,6 +1,6 @@
 {
   "name": "@stamp/convert-class",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Converts ES6 class to stamp",
   "main": "index.js",
   "repository": {
