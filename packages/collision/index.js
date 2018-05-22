@@ -16,9 +16,11 @@ function dedupe(array) {
 function makeProxyFunction(functions, name) {
   function deferredFn() {
     'use strict';
+    const results = [];
     for (var i = 0; i < functions.length; i++) {
-      functions[i].apply(this, arguments); // jshint ignore:line
+      results.push(functions[i].apply(this, arguments)); // jshint ignore:line
     }
+    return results;
   }
 
   Object.defineProperty(deferredFn, 'name', {

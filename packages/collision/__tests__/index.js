@@ -4,6 +4,7 @@ var Collision = require('..');
 describe('@stamp/collision', function () {
   it('defer', function () {
     var draw1 = jest.fn();
+    draw1.mockReturnValueOnce({a: 1});
     var Defer1 = compose({
         methods: {
           draw: draw1
@@ -12,6 +13,7 @@ describe('@stamp/collision', function () {
       Collision.collisionSetup({defer: ['draw']})
     );
     var draw2 = jest.fn();
+    draw2.mockReturnValueOnce({b: 2});
     var Defer2 = Collision.collisionSetup({defer: ['draw']}).compose({
       methods: {
         draw: draw2
@@ -21,8 +23,9 @@ describe('@stamp/collision', function () {
     var StampCombined = compose(Defer1, Defer2);
     var obj = StampCombined();
 
-    obj.draw();
+    var result = obj.draw();
 
+    expect(result).toEqual([{a: 1}, {b: 2}]);
     expect(draw1).toBeCalled();
     expect(draw2).toBeCalled();
   });
