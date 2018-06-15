@@ -1,4 +1,5 @@
 var compose = require('@stamp/compose');
+var InstanceOf = require('@stamp/instanceof');
 var Privatize = require('..');
 
 describe('@stamp/privatize', function () {
@@ -76,5 +77,10 @@ describe('@stamp/privatize', function () {
     instance.checkAccess();
     expect(accessFoo).toBe(1);
     expect(accessBar).toBe(Orig.compose.methods.bar);
-  })
+  });
+
+  it('works with InstanceOf stamp', function () {
+    const Stamp = compose(InstanceOf, Privatize);
+    expect(Stamp() instanceof Stamp).toBe(true);
+  });
 });

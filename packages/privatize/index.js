@@ -35,6 +35,15 @@ function initializer(_, opts) {
       newObject[name] = makeProxyFunction(methods[name], name);
     }
   }
+
+  // Integration with @stamp/instanceof
+  if (typeof Symbol !== "undefined") {
+    var stampSymbol = Symbol.for('stamp');
+    if (methods[stampSymbol]) {
+      newObject[stampSymbol] = opts.stamp;
+    }
+  }
+
   return newObject;
 }
 

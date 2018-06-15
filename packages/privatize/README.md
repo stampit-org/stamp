@@ -97,3 +97,7 @@ compose(ConfiguredPrivatize, {
     }
 })
 ```
+
+## Development
+
+This `@stamp/privatize` module knows about and relies on other ecosystem stamps implementation. This means that other `@stamp/*` ecosystem stamps should know nothing about `@stamp/privatize`. But opposite is acceptable.
