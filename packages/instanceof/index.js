@@ -1,16 +1,15 @@
-const compose = require('@stamp/compose');
+var compose = require('@stamp/compose');
 
-const stampSymbol = Symbol.for('stamp');
-
-module.exports = compose({
+module.exports = typeof Symbol === 'undefined' ? compose() : compose({
   methods: {},
-  composers: [({ stamp }) => {
+  composers: [function (opts) {
+    var stamp = opts.stamp;
     // Attaching to object prototype to save memory
-    stamp.compose.methods[stampSymbol] = stamp;
+    stamp.compose.methods[Symbol.for('stamp')] = stamp;
 
     Object.defineProperty(stamp, Symbol.hasInstance, {
-      value (obj) {
-        return obj && obj[stampSymbol] === stamp;
+      value: function value (obj) {
+        return obj && obj[Symbol.for('stamp')] === stamp;
       }
     });
   }]
