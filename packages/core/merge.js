@@ -7,7 +7,7 @@ var isArray = require('@stamp/is/array');
  * The returned values is always of the same type as the 'src'.
  * @param dst The object to merge into
  * @param src The object to merge from
- * @returns {*}
+ * @returns {*} The mutated `dst` argument or a new object.
  */
 function mergeOne(dst, src) {
   if (src === undefined) return dst;
