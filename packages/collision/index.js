@@ -11,7 +11,6 @@ function forEach(maybeArray, fn) {
 }
 
 function forEachMetadata(maybeDescriptor, fn) {
-  if (!is.isObject(maybeDescriptor)) return;
   forEach(maybeDescriptor, function (metadataType) {
     if (!is.isPlainObject(maybeDescriptor[metadataType])) return;
     forEach(maybeDescriptor[metadataType], function (metadataName) {
@@ -51,7 +50,6 @@ function makeProxyFunction(functions, name, delayType) {
   var haveRegularFns = false, haveProxiesFns = false;
   for (var i = 0; i < functions.length; i++) {
     var f = functions[i];
-    if (!is.isFunction(f)) continue;
 
     if (is.isArray(f._proxiedFunctions)) {
       haveProxiesFns = true;
@@ -100,7 +98,6 @@ function getValidSettings(composables) {
 
       if (!is.isPlainObject(settings[metadataType])) return;
       forEach(settings[metadataType], function (metadataName) {
-        if (!is.isString(settings[metadataType][metadataName])) return; // malformed settings
 
         finalSettings[metadataType] = finalSettings[metadataType] || {};
         if (settings[metadataType][metadataName] === "forbid") {
@@ -125,7 +122,7 @@ function getValidSettings(composables) {
 function checkCollisions(finalSettings, finalDescriptor, composables) {
   var aggregatedComposables = {};
   forEach(composables, function (composable) {
-    var descriptor = composable.compose || composable || {};
+    var descriptor = composable.compose || composable;
     forEachMetadata(descriptor, function (metadataType, metadataName) {
       aggregatedComposables[metadataType] = aggregatedComposables[metadataType] || {};
       var array = aggregatedComposables[metadataType][metadataName] = aggregatedComposables[metadataType][metadataName] || [];
@@ -158,7 +155,6 @@ function getSettings(composable) {
 }
 
 var Collision = compose({
-  deepConfiguration: { Collision: {} },
   staticProperties: {
     collisionSetup: function (opts) {
       "use strict";
