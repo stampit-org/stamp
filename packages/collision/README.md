@@ -1,6 +1,6 @@
 # @stamp/collision
 
-_Controls collision behavior: forbid or defer_
+_Controls collision behavior: forbid, defer or pipe_
 
 This stamp (aka behavior) will check if there are any conflicts on every `compose` call. 
 Throws an `Error` in case of a forbidden collision or ambiguous setup.
@@ -10,44 +10,111 @@ Throws an `Error` in case of a forbidden collision or ambiguous setup.
 ```js
 import Collision from '@stamp/collision';
 
-const ForbidRedrawCollision = Collision.collisionSetup({forbid: ['redraw']});
+const ForbidRedrawCollision = Collision.collisionSetup({methods: {redraw: "forbid" }});
 ```
 
 Or if you don't want to import the stamp you can import only the method:
 ```js
 import {collisionSetup} from '@stamp/collision';
-const ForbidRedrawCollision = collisionSetup({forbid: ['redraw']});
+const ForbidRedrawCollision = collisionSetup({methods: {redraw: "forbid" }});
 ```
 
 
-The `defer` collects same named methods and wraps them into a single method.
+The `defer` collects same named methods and wraps them into a single method which returns an array of returned values.
 ```js
 import Collision from '@stamp/collision';
 
 import {Border, Button, Graph} from './drawable/primitives';
 
-const UiComponent = Collision.collisionSetup({defer: ['draw']})
+const UiComponent = Collision.collisionSetup({methods: {draw: "defer" }})
 .compose(Border, Button, Graph);
 
 const component = UiComponent();
-component.draw(); // will draw() all three primitives
+const array = component.draw(42); // will draw() all three primitives
+```
+
+
+The `pipe` collects same named methods and wraps them into a single method which pipes method returned values one into another
+```js
+import Collision from '@stamp/collision';
+
+const UserDetails = stampit({
+  props: {
+    firstName: "John",
+    lastName: "Smith"
+  },
+  methods: {
+    toJSON(previous) {
+      return {...previous, firstName: this.firstName, lastName: this.lastName};
+    }
+  }
+});
+const UserAuth = stampit({
+  props: {
+    email: "john@example.com",
+    password: "hashedpassword"
+  },
+  methods: {
+    toJSON(previous) {
+      return {...previous, email: this.email, password: this.password};
+    }
+  }
+});
+
+const User = Collision.collisionSetup({methods: {toJSON: "pipe" }})
+.compose(UserDetails, UserAuth);
+
+const user = User();
+const json = user.toJSON();
+/*
+{ email: 'john@example.com',
+  password: 'hashedpassword',
+  firstName: 'John',
+  lastName: 'Smith' }
+*/
 ```
 
 ## API
 
-### Static methods
+### Forbid, Defer or Pipe an exclusive method
+`stamp.collisionSetup({ [META]: { [NAME]: TYPE } }) -> Stamp`
+Where:
+* `META` - String, one of "methods", "properties", "deepProperties", "propertyDescriptors", "staticProperties", "staticDeepProperties", "staticPropertyDescriptors", "configuration", "deepConfiguration".
+* `NAME` - String, the name of your method, property, etc.
+* `TYPE` - String, one of "forbid", "defer", "pipe". 
 
-#### collisionSetup
-Forbid or Defer an exclusive method
-`stamp.collisionSetup({forbid: ['methodName1'], defer: ['methodName2']}) -> Stamp`
+Example:
+```js
+MyStamp = MyStamp.collisionSetup({ methods: { setPassword: "forbid" }});
+```
 
-#### collisionForbidAll
-Forbid any collisions, excluding those allowed
-`stamp.collisionForbidAll() -> Stamp`
+### Forbid, Defer or Pipe an all the methods
+`stamp.collisionSetup({ [META]: TYPE }) -> Stamp`
 
-#### collisionSettingsReset
-Remove any Collision settings from the stamp
-`stamp.collisionSettingsReset() -> Stamp`
+Example:
+```js
+MyStamp = MyStamp.collisionSetup({ methods: "forbid" });
+```
+
+### Forbid, Defer or Pipe everything (NOT RECOMMENDED TO USE)
+`stamp.collisionSetup(TYPE) -> Stamp`
+
+Example - effectively disables any further composition:
+```js
+MyStamp = MyStamp.collisionSetup("forbid");
+```
+
+### Remove (reset) all the collision settings
+```js
+MyStamp = MyStamp.setupCollision(null);
+```
+
+### Remove (reset) some collision settings
+```js
+MyStamp = MyStamp.setupCollision({ methods: null });
+```
+
+
 
 ## Example
 
@@ -58,16 +125,18 @@ import Collision from '@stamp/collision';
 import Privatize from '@stamp/privatize';
 
 // General purpose behavior to defer "draw()" method collisions
-const DeferDraw = Collision.collisionSetup({defer: ['draw']});
+const DeferDraw = Collision.collisionSetup({methods: {draw: "defer"}});
 
+const draw1 = jest.fn(); // Spy function
 const Border = compose(DeferDraw, {
   methods: {
-    draw: jest.fn() // Spy function
+    draw: draw1
   }
 });
+const draw2 = jest.fn(); // Spy function
 const Button = compose(DeferDraw, {
   methods: {
-    draw: jest.fn() // Spy function
+    draw: draw2
   }
 });
 
@@ -75,7 +144,7 @@ const Button = compose(DeferDraw, {
 const PrivateDraw = Privatize.privatizeMethods('draw');
 
 // General purpose behavior to forbid the "redraw()" method collision
-const ForbidRedrawCollision = Collision.collisionSetup({forbid: ['redraw']});
+const ForbidRedrawCollision = Collision.collisionSetup({methods: {redraw: "forbid"}});
 
 // The aggregating component
 const ModalDialog = compose(PrivateDraw) // privatize the "draw()" method
@@ -100,10 +169,10 @@ expect(dialog.draw).toBeUndefined();
 dialog.redraw(42);
 
 // Check if the spy "draw()" deferred functions were actually invoked
-expect(Border.compose.methods.draw).toBeCalledWith(42);
-expect(Button.compose.methods.draw).toBeCalledWith(42);
+expect(draw1).toBeCalledWith(42);
+expect(draw2).toBeCalledWith(42);
 
 // Make sure the ModalDialog throws every time on the "redraw()" collisions
-const HaveRedraw = compose({methods: {redraw() {}}})
+const HaveRedraw = compose({methods: {redraw() {}}});
 expect(() => compose(ModalDialog, HaveRedraw)).toThrow();
 ```
