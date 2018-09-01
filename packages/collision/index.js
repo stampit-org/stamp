@@ -1,14 +1,23 @@
 var compose = require("@stamp/compose");
-var assign = require("@stamp/core/assign");
 var is = require("@stamp/is");
 
 function forEach(maybeArray, fn) {
   if (!is.isArray(maybeArray) && is.isObject(maybeArray)) maybeArray = Object.keys(maybeArray);
   if (is.isArray(maybeArray) && maybeArray.length > 0) {
     for (var i = 0; i < maybeArray.length; i++) {
-      fn(maybeArray[i]);
+      if (fn(maybeArray[i]) === "BREAK") break;
     }
   }
+}
+
+function forEachMetadata(maybeDescriptor, fn) {
+  if (!is.isObject(maybeDescriptor)) return;
+  forEach(maybeDescriptor, function (metadataType) {
+    if (!is.isPlainObject(maybeDescriptor[metadataType])) return;
+    forEach(maybeDescriptor[metadataType], function (metadataName) {
+      fn(metadataType, metadataName);
+    });
+  });
 }
 
 function deferredFn(functions) {
@@ -66,67 +75,64 @@ function makeProxyFunction(functions, name, delayType) {
   return fn;
 }
 
-function isForbidden(allSettings, metadataType, metadataName) {
-  if (!allSettings || !allSettings.forbidAll) return false;
-  if (allSettings.forbidAll === true) return true;
-  if (allSettings.forbidAll[metadataType]) return true;
-
-  if (!allSettings.forbid) return false;
-  if (allSettings.forbid[metadataType] && allSettings.forbid[metadataType][metadataName]) return true;
-
-  return false;
+function isForbidden(settings, metadataType, metadataName) {
+  return (
+    settings === "forbid" ||
+    (settings && settings[metadataType] === "forbid") ||
+    (settings && settings[metadataType] && settings[metadataType][metadataName] === "forbid")
+  );
 }
 
-function checkAmbiguousSetup(allSettings) {
-  if (!allSettings.defer && !allSettings.pipe) return;
-
-  forEach(allSettings.defer, function (metadataType) {
-    forEach(allSettings.defer[metadataType], function (metadataName) {
-      if (isForbidden(allSettings, metadataType, metadataName)) {
-        throw new Error("Ambiguous Collision settings. The `" + metadataName + "` " + metadataType + " are both deferred and forbidden");
-      }
-    });
-  });
-
-  forEach(allSettings.pipe, function (metadataType) {
-    forEach(allSettings.pipe[metadataType], function (metadataName) {
-      if (isForbidden(allSettings, metadataType, metadataName)) {
-        throw new Error("Ambiguous Collision settings. The `" + metadataName + "` " + metadataType + " are both piped and forbidden");
-      }
-    });
-  });
-
-  var mergedDelayedDescriptor = assign({}, allSettings.defer, allSettings.pipe);
-  forEach(mergedDelayedDescriptor, function (metadataType) {
-    forEach(mergedDelayedDescriptor[metadataType], function (metadataName) {
-      if (
-        allSettings.defer && allSettings.defer[metadataType] && allSettings.defer[metadataType] &&
-        allSettings.pipe && allSettings.pipe[metadataType] && allSettings.pipe[metadataType]
-      ) {
-        throw new Error("Ambiguous Collision settings. The `" + metadataName + "` " + metadataType + " are both piped and deferred");
-      }
-    });
-  });
-}
-
-function checkCollisions(allSettings, finalDescriptor, composables) {
-  var aggregatedComposables = {};
+function getValidSettings(composables) {
+  var finalSettings = {};
   forEach(composables, function (composable) {
-    var descriptor = composable.compose || composable || {};
-    forEach(descriptor, function (metadataType) {
-      if (!is.isPlainObject(descriptor[metadataType])) return;
-      forEach(descriptor[metadataType], function (metadataName) {
-        aggregatedComposables[metadataType] = aggregatedComposables[metadataType] || {};
-        aggregatedComposables[metadataType][metadataName] = aggregatedComposables[metadataType][metadataName] || [];
-        aggregatedComposables[metadataType][metadataName].push(descriptor[metadataType][metadataName]);
+    var settings = getSettings(composable);
+
+    if (settings === "forbid") {
+      finalSettings = "forbid";
+      return "BREAK";
+    }
+    forEach(settings, function (metadataType) {
+      if (settings[metadataType] === "forbid") {
+        finalSettings[metadataType] = "forbid";
+        return "BREAK";
+      }
+
+      if (!is.isPlainObject(settings[metadataType])) return;
+      forEach(settings[metadataType], function (metadataName) {
+        if (!is.isString(settings[metadataType][metadataName])) return; // malformed settings
+
+        finalSettings[metadataType] = finalSettings[metadataType] || {};
+        if (settings[metadataType][metadataName] === "forbid") {
+          finalSettings[metadataType][metadataName] = "forbid";
+          return "BREAK";
+        }
+
+        var newValue = settings[metadataType][metadataName];
+        var existingValue = finalSettings[metadataType][metadataName];
+        if (existingValue && existingValue !== newValue) {
+          throw new Error("Ambiguous Collision settings. The `" + metadataName + "` " + metadataType + " can't be both " + existingValue + " and " + newValue);
+        }
+
+        finalSettings[metadataType][metadataName] = newValue;
       });
     });
   });
 
-  forEach(aggregatedComposables, function (metadataType) {
-    forEach(aggregatedComposables[metadataType], function (metadataName) {
-      if (aggregatedComposables[metadataType][metadataName].length > 1) {
-        if (isForbidden(allSettings, metadataType, metadataName)) {
+  return finalSettings;
+}
+
+function checkCollisions(finalSettings, finalDescriptor, composables) {
+  var aggregatedComposables = {};
+  forEach(composables, function (composable) {
+    var descriptor = composable.compose || composable || {};
+    forEachMetadata(descriptor, function (metadataType, metadataName) {
+      aggregatedComposables[metadataType] = aggregatedComposables[metadataType] || {};
+      var array = aggregatedComposables[metadataType][metadataName] = aggregatedComposables[metadataType][metadataName] || [];
+      array.push(descriptor[metadataType][metadataName]);
+
+      if (array.length > 1) {
+        if (isForbidden(finalSettings, metadataType, metadataName)) {
           throw Error("Collisions of `" + metadataName + "` " + metadataType + " are forbidden.");
         }
       }
@@ -136,16 +142,19 @@ function checkCollisions(allSettings, finalDescriptor, composables) {
   return aggregatedComposables;
 }
 
-function mutateFinalDescriptor(allSettings, finalDescriptor, aggregatedComposables) {
+function mutateFinalDescriptor(finalSettings, finalDescriptor, aggregatedComposables) {
   forEach(delayTypes, function (delayType) {
-    forEach(aggregatedComposables, function (metadataType) {
-      forEach(aggregatedComposables[metadataType], function (metadataName) {
-        if (allSettings && allSettings[delayType] && allSettings[delayType][metadataType] && allSettings[delayType][metadataType][metadataName]) {
-          finalDescriptor[metadataType][metadataName] = makeProxyFunction(aggregatedComposables[metadataType][metadataName], metadataName, delayType);
-        }
-      });
+    forEachMetadata(aggregatedComposables, function (metadataType, metadataName) {
+      if (finalSettings[metadataType] && finalSettings[metadataType][metadataName] === delayType) {
+        finalDescriptor[metadataType][metadataName] = makeProxyFunction(aggregatedComposables[metadataType][metadataName], metadataName, delayType);
+      }
     });
   });
+}
+
+function getSettings(composable) {
+  var descriptor = composable.compose || composable;
+  return descriptor && descriptor.deepConfiguration && descriptor.deepConfiguration.Collision;
 }
 
 var Collision = compose({
@@ -153,43 +162,19 @@ var Collision = compose({
   staticProperties: {
     collisionSetup: function (opts) {
       "use strict";
-      var Stamp = is.isStamp(this && this.compose) ? this : Collision;
+      var Stamp = is.isStamp(this) ? this : Collision;
       return Stamp.compose({ deepConfiguration: { Collision: opts } });
-    },
-    collisionForbidAll: function (metadataType) {
-      if (!metadataType) {
-        return this.collisionSetup({ forbidAll: true });
-      } else {
-        var opts = { forbidAll: {} };
-        opts[metadataType] = true;
-        return this.collisionSetup(opts);
-      }
-    },
-    collisionForbid: function (opts) {
-      return this.collisionSetup({ forbid: opts });
-    },
-    collisionDeferMethod: function (methodName) {
-      var methods = {};
-      methods[methodName] = true;
-      return this.collisionSetup({ defer: { methods: methods } });
-    },
-    collisionPipeMethod: function (methodName) {
-      var methods = {};
-      methods[methodName] = true;
-      return this.collisionSetup({ pipe: { methods: methods } });
-    },
-    collisionSettingsReset: function () {
-      return this.collisionSetup(null);
     }
   },
   composers: [function (opts) {
     var finalDescriptor = opts.stamp.compose;
-    var allSettings = finalDescriptor.deepConfiguration && finalDescriptor.deepConfiguration.Collision;
-    if (!is.isObject(allSettings)) return;
+    var allSettings = getSettings(finalDescriptor);
+    if (!is.isObject(allSettings) && !is.isString(allSettings)) return;
 
-    checkAmbiguousSetup(allSettings);
-    var aggregatedComposables = checkCollisions(allSettings, finalDescriptor, opts.composables);
-    mutateFinalDescriptor(allSettings, finalDescriptor, aggregatedComposables);
+    var finalSettings = getValidSettings(opts.composables); // recompose the settings. Also, checks for ambiguous setup
+    finalDescriptor.deepConfiguration.Collision = finalSettings;
+    var aggregatedComposables = checkCollisions(finalSettings, finalDescriptor, opts.composables);
+    mutateFinalDescriptor(finalSettings, finalDescriptor, aggregatedComposables);
   }]
 });
 

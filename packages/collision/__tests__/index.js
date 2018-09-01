@@ -10,11 +10,11 @@ describe("@stamp/collision", function () {
           draw: draw1
         }
       },
-      Collision.collisionSetup({ defer: { methods: { draw: true } } })
+      Collision.collisionSetup({ methods: { draw: "defer" } })
     );
     var draw2 = jest.fn();
     draw2.mockReturnValueOnce({ b: 2 });
-    var Defer2 = Collision.collisionSetup({ defer: { methods: { draw: true } } }).compose({
+    var Defer2 = Collision.collisionSetup({ methods: { draw: "defer" } }).compose({
       methods: {
         draw: draw2
       }
@@ -85,20 +85,16 @@ describe("@stamp/collision", function () {
       }
     );
 
-    expect(function () {compose(Forbid, Defer);}).toThrow();
-    expect(function () {compose(Defer, Forbid);}).toThrow();
+    expect(function () {compose(Forbid, Defer);}).toThrow(/Collision/);
+    expect(function () {compose(Defer, Forbid);}).toThrow(/Collision/);
 
-    expect(function () {compose(Regular, Forbid);}).toThrow();
-    expect(function () {compose(Forbid, Regular);}).toThrow();
-  });
-
-  it("forbid + allow", function () {
-    expect(function () {Collision.collisionSetup({ methods: { foo: "allow" } });}).toThrow(/Collision/);
+    expect(function () {compose(Regular, Forbid);}).toThrow(/Collision/);
+    expect(function () {compose(Forbid, Regular);}).toThrow(/Collision/);
   });
 
   it("can be used as a standalone function", function () {
     var collisionSetup = Collision.collisionSetup;
-    expect(function () {collisionSetup({ methods: { foo: "allow" } });}).toThrow(/Collision/);
+    expect(typeof collisionSetup({ methods: { foo: "allow" } })).toBe("function")
   });
 
   it("forbid without conflicts", function () {
@@ -120,7 +116,7 @@ describe("@stamp/collision", function () {
     expect(function () {compose(Regular, Forbid);}).not.toThrow();
   });
 
-  it("collisionSettingsReset", function () {
+  it("resetting settings", function () {
     var Forbid = compose({
         methods: {
           draw: function () {}
@@ -128,7 +124,7 @@ describe("@stamp/collision", function () {
       },
       Collision.collisionSetup({ methods: { draw: "forbid" } })
     );
-    var Resetted1 = Forbid.collisionSettingsReset();
+    var Resetted1 = Forbid.collisionSetup(null);
     var Defer = compose({
         methods: {
           draw: function () {}
@@ -136,7 +132,7 @@ describe("@stamp/collision", function () {
       },
       Collision.collisionSetup({ methods: { draw: "defer" } })
     );
-    var Resetted2 = Defer.collisionSettingsReset();
+    var Resetted2 = Defer.collisionSetup(null);
     var Regular = compose({
         methods: {
           draw: function () {}
