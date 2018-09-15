@@ -53,6 +53,7 @@
     }
   },
   "jest": {
+    "testEnvironment": "node",
     "coverageReporters": [
       "html",
       "text"
