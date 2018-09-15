@@ -16,7 +16,7 @@ function dedupe(array) {
 function makeProxyFunction(functions, name) {
   function deferredFn() {
     'use strict';
-    const results = [];
+    var results = [];
     for (var i = 0; i < functions.length; i++) {
       results.push(functions[i].apply(this, arguments)); // jshint ignore:line
     }

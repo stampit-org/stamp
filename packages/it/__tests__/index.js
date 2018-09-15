@@ -41,7 +41,10 @@ describe('@stamp/it', function () {
       statics: {s: 1},
       deepStatics: {ds: 1},
       conf: {c: 1},
-      deepConf: {dc: 1}
+      deepConf: {dc: 1},
+      propertyDescriptors: {pd: {value: 1}},
+      staticPropertyDescriptors: {spd: {value: 1}},
+      name: "1"
     }).compose;
 
     expect(descr.properties.p).toBe(1);
@@ -52,5 +55,8 @@ describe('@stamp/it', function () {
     expect(descr.staticDeepProperties.ds).toBe(1);
     expect(descr.configuration.c).toBe(1);
     expect(descr.deepConfiguration.dc).toBe(1);
+    expect(descr.propertyDescriptors.pd.value).toBe(1);
+    expect(descr.staticPropertyDescriptors.spd.value).toBe(1);
+    expect(descr.staticPropertyDescriptors.name.value).toBe("1");
   });
 });
