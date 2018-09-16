@@ -1,6 +1,6 @@
 {
   "name": "@stamp/it",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "A nice, handy API implementation of the compose standard",
   "main": "index.js",
   "repository": {
