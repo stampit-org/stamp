@@ -1,6 +1,7 @@
 var compose = require('@stamp/compose');
 var Shortcut = require('@stamp/shortcut');
 var isStamp = require('@stamp/is/stamp');
+var isString = require('@stamp/is/string');
 var isObject = require('@stamp/is/object');
 var isFunction = require('@stamp/is/function');
 var merge = require('@stamp/core/merge');
@@ -28,7 +29,6 @@ function standardiseDescriptor(descr) {
   var statics = descr.statics;
   var staticDeepProperties = descr.staticDeepProperties;
   var deepStatics = descr.deepStatics;
-  var spd = descr.staticPropertyDescriptors;
   var configuration = descr.configuration;
   var conf = descr.conf;
   var deepConfiguration = descr.deepConfiguration;
@@ -45,6 +45,9 @@ function standardiseDescriptor(descr) {
 
   var sdp = isObject(deepStatics) ? merge({}, deepStatics) : undefined;
   sdp = isObject(staticDeepProperties) ? merge(sdp, staticDeepProperties) : sdp;
+
+  var spd = descr.staticPropertyDescriptors;
+  if (isString(descr.name)) spd = assign({}, spd || {}, { name: { value: descr.name } });
 
   var c = isObject(conf) || isObject(configuration) ?
     assign({}, conf, configuration) : undefined;
