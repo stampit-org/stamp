@@ -1,29 +1,29 @@
-var fs = require('fs');
-var test = require('tape');
-var Promise = require('bluebird');
+const fs = require("fs");
+const test = require("tape");
+const Promise = require("bluebird");
 
-module.exports = function (compose) {
-  if (typeof compose !== 'function')
+module.exports = compose => {
+  if (typeof compose !== "function")
     throw new Error('"compose" must be a function');
 
-  var files = fs.readdirSync(__dirname)
+  const files = fs
+    .readdirSync(__dirname)
     .filter(RegExp.prototype.test.bind(/.+-tests\.js$/));
 
-  var failures = [];
+  const failures = [];
 
-  return new Promise(function (resolve) {
-    test.createStream({objectMode: true})
-      .on('data', function (assert) {
-        if (assert.error)
-          failures.push(assert);
+  return new Promise(resolve => {
+    test
+      .createStream({ objectMode: true })
+      .on("data", assert => {
+        if (assert.error) failures.push(assert);
       })
-      .on('end', function () {
-        resolve({failures: failures});
+      .on("end", () => {
+        resolve({ failures: failures });
       });
 
-    files.forEach(function (file) {
-      require('./' + file)(compose);
+    files.forEach(file => {
+      require("./" + file)(compose);
     });
   });
 };
-

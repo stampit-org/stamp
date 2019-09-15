@@ -1,13 +1,11 @@
-var test = require('tape');
+const test = require("tape");
 
-module.exports = function (compose) {
+module.exports = compose => {
+  test("compose function", assert => {
+    const actual = typeof compose;
+    const expected = "function";
 
-  test('compose function', function (assert) {
-    var actual = typeof compose;
-    var expected = 'function';
-
-    assert.equal(actual, expected,
-      'compose should be a function.');
+    assert.equal(actual, expected, "compose should be a function.");
 
     assert.end();
   });

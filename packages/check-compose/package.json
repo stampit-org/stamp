@@ -5,12 +5,15 @@
   "description": "Command line tool to test your 'compose' function implementation",
   "repository": "https://github.com/stampit-org/stamp/tree/master/packages/check-compose",
   "bin": {
-    "check-compose": "./bin/check-compose"
+    "check-compose": "./bin/check-compose.js"
   },
   "dependencies": {
     "bluebird": "^3.4.7",
     "lodash": "^4.17.4",
     "prettyjson": "^1.2.1",
     "tape": "^4.6.3"
+  },
+  "devDependencies": {
+    "prettier": "^1.18.2"
   }
 }

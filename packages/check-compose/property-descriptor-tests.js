@@ -1,104 +1,124 @@
-var test = require('tape');
-var _ = require('lodash');
+const test = require("tape");
+const _ = require("lodash");
 
-module.exports = function (compose) {
-
-  var createDescriptors = function () {
-    var a = {
-      value: 'a',
+module.exports = compose => {
+  const createDescriptors = () => {
+    const a = {
+      value: "a",
       writable: false,
       configurable: false,
       enumerable: false
     };
-    var b = _.assign({}, a);
-    var descriptors = {a: a, b: b};
+    const b = _.assign({}, a);
+    const descriptors = { a: a, b: b };
     return descriptors;
   };
 
-  test('stamp', function (nest) {
-    nest.test('...with propertyDescriptors', function (assert) {
-      var descriptors = createDescriptors();
-      var b = descriptors.b;
+  test("stamp", nest => {
+    nest.test("...with propertyDescriptors", assert => {
+      const descriptors = createDescriptors();
+      const b = descriptors.b;
 
-      var obj = compose({
+      const obj = compose({
         propertyDescriptors: _.assign({}, descriptors)
       })();
 
-      var actual = Object.getOwnPropertyDescriptor(obj, 'b');
-      var expected = _.assign({}, b);
+      const actual = Object.getOwnPropertyDescriptor(obj, "b");
+      const expected = _.assign({}, b);
 
-      assert.deepEqual(actual, expected,
-        'should assign propertyDescriptors to instances');
+      assert.deepEqual(
+        actual,
+        expected,
+        "should assign propertyDescriptors to instances"
+      );
 
       assert.end();
     });
 
-    nest.test('...with malformed propertyDescriptors', function (assert) {
-      [0, 'a', null, undefined, {}, NaN, /regexp/].forEach(function (propertyValue) {
-        var actual = compose({
+    nest.test("...with malformed propertyDescriptors", assert => {
+      [0, "a", null, undefined, {}, NaN, /regexp/].forEach(propertyValue => {
+        const actual = compose({
           propertyDescriptors: propertyValue
         })();
-        var expected = compose()();
+        const expected = compose()();
 
-        assert.deepEqual(actual, expected,
-          'should not any properties instances');
+        assert.deepEqual(
+          actual,
+          expected,
+          "should not any properties instances"
+        );
       });
 
       assert.end();
     });
 
-    nest.test('...with malformed staticPropertyDescriptors', function (assert) {
-      [0, 'a', null, undefined, {}, NaN, /regexp/].forEach(function (propertyValue) {
-        var stamp = compose({
+    nest.test("...with malformed staticPropertyDescriptors", assert => {
+      [0, "a", null, undefined, {}, NaN, /regexp/].forEach(propertyValue => {
+        const stamp = compose({
           staticPropertyDescriptors: propertyValue
         });
-        var actual = _.values(stamp.compose).filter(function (value) { return !_.isEmpty(value); });
-        var expected = _.values(compose().compose);
+        const actual = _.values(stamp.compose).filter(value => {
+          return !_.isEmpty(value);
+        });
+        const expected = _.values(compose().compose);
 
-        assert.deepEqual(actual, expected,
-          'should not add any descriptor data');
+        assert.deepEqual(
+          actual,
+          expected,
+          "should not add any descriptor data"
+        );
       });
 
       assert.end();
     });
 
-    nest.test('...with propertyDescriptors and existing prop conflict', function (assert) {
-      var descriptors = createDescriptors();
+    nest.test(
+      "...with propertyDescriptors and existing prop conflict",
+      assert => {
+        const descriptors = createDescriptors();
 
-      var obj = compose({
-          properties: {
-            a: 'existing prop'
+        const obj = compose(
+          {
+            properties: {
+              a: "existing prop"
+            }
+          },
+          {
+            propertyDescriptors: _.assign({}, descriptors)
           }
-        },
-        {
-          propertyDescriptors: _.assign({}, descriptors)
-        })();
+        )();
 
-      var actual = obj.a;
-      var expected = 'a';
+        const actual = obj.a;
+        const expected = "a";
 
-      assert.deepEqual(actual, expected,
-        'should assign propertyDescriptors to instances & override existing prop');
+        assert.deepEqual(
+          actual,
+          expected,
+          "should assign propertyDescriptors to instances & override existing prop"
+        );
 
-      assert.end();
-    });
+        assert.end();
+      }
+    );
 
-    nest.test('...with staticPropertyDescriptors', function (assert) {
-      var descriptors = createDescriptors();
-      var b = descriptors.b;
+    nest.test("...with staticPropertyDescriptors", assert => {
+      const descriptors = createDescriptors();
+      const b = descriptors.b;
 
-      var stamp = compose({
+      const stamp = compose({
         staticPropertyDescriptors: _.assign({}, descriptors)
       });
 
-      var actual = Object.getOwnPropertyDescriptor(stamp, 'b');
-      var expected = _.assign({}, b);
+      const actual = Object.getOwnPropertyDescriptor(stamp, "b");
+      const expected = _.assign({}, b);
 
-      assert.deepEqual(actual, expected,
-        'should assign staticProperties to stamp');
+      assert.deepEqual(
+        actual,
+        expected,
+        "should assign staticPropertyDescriptors to stamp"
+      );
 
       assert.end();
     });
   });
-
 };

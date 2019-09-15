@@ -1,102 +1,123 @@
-var test = require('tape');
-var _ = require('lodash');
+const test = require("tape");
+const _ = require("lodash");
 
-module.exports = function (compose) {
-
-  var buildDescriptor = function (obj) {
-    return _.assign({}, {
-      properties: {
-        a: 'props',
-        b: 'props'
-      }
-    }, obj);
+module.exports = compose => {
+  const buildDescriptor = obj => {
+    return _.assign(
+      {},
+      {
+        properties: {
+          a: "props",
+          b: "props"
+        }
+      },
+      obj
+    );
   };
 
-  test('compose override priorities', function (nest) {
-    nest.test('...with instance', function (assert) {
-      var stamp = compose(buildDescriptor());
-      var actual = stamp({
+  test("compose override priorities", nest => {
+    nest.test("...with instance", assert => {
+      const stamp = compose(buildDescriptor());
+      const actual = stamp({
         instance: {
-          a: 'instance'
+          a: "instance"
         }
       }).a;
-      var expected = 'props';
+      const expected = "props";
 
-      assert.equal(actual, expected,
-        'properties should override instance props');
+      assert.equal(
+        actual,
+        expected,
+        "properties should override instance props"
+      );
 
       assert.end();
     });
 
-    nest.test('...with deepProperties', function (assert) {
-      var stamp = compose(
+    nest.test("...with deepProperties", assert => {
+      const stamp = compose(
         buildDescriptor({
           deepProperties: {
-            a: 'deepProps'
+            a: "deepProps"
           }
-        }));
-      var actual = stamp().a;
-      var expected = 'props';
+        })
+      );
+      const actual = stamp().a;
+      const expected = "props";
 
-      assert.equal(actual, expected,
-        'shallow properties should override deep properties');
+      assert.equal(
+        actual,
+        expected,
+        "shallow properties should override deep properties"
+      );
 
       assert.end();
     });
 
-    nest.test('...with descriptors', function (assert) {
-      var stamp = compose(
+    nest.test("...with descriptors", assert => {
+      const stamp = compose(
         buildDescriptor({
           propertyDescriptors: {
             b: {
-              value: 'propertyDescriptors'
+              value: "propertyDescriptors"
             }
           }
-        }));
+        })
+      );
 
-      var actual = stamp().b;
-      var expected = 'propertyDescriptors';
+      const actual = stamp().b;
+      const expected = "propertyDescriptors";
 
-      assert.equal(actual, expected,
-        'descriptors should override shallow properties');
+      assert.equal(
+        actual,
+        expected,
+        "descriptors should override shallow properties"
+      );
       assert.end();
     });
 
-    nest.test('...with instance & deepProperties', function (assert) {
-      var stamp = compose(buildDescriptor({
-        deepProperties: {
-          c: 'deep'
-        }
-      }));
-      var actual = stamp({
+    nest.test("...with instance & deepProperties", assert => {
+      const stamp = compose(
+        buildDescriptor({
+          deepProperties: {
+            c: "deep"
+          }
+        })
+      );
+      const actual = stamp({
         instance: {
-          c: 'instance'
+          c: "instance"
         }
       }).c;
-      var expected = 'deep';
+      const expected = "deep";
 
-      assert.equal(actual, expected,
-        'deepProperties should override instance props');
+      assert.equal(
+        actual,
+        expected,
+        "deepProperties should override instance props"
+      );
 
       assert.end();
     });
 
-    nest.test('...with staticProperties', function (assert) {
-      var stamp = compose({
+    nest.test("...with staticProperties", assert => {
+      const stamp = compose({
         staticDeepProperties: {
-          d: 'deep'
+          d: "deep"
         },
         staticProperties: {
-          d: 'staticProps'
+          d: "staticProps"
         }
       });
-      var actual = stamp.d;
-      var expected = 'staticProps';
+      const actual = stamp.d;
+      const expected = "staticProps";
 
-      assert.equal(actual, expected,
-        'staticProperties should override staticDeepProperties');
+      assert.equal(
+        actual,
+        expected,
+        "staticProperties should override staticDeepProperties"
+      );
       assert.end();
     });
   });
-
 };

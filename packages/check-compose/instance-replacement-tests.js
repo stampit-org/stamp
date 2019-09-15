@@ -1,21 +1,23 @@
-var test = require('tape');
+const test = require("tape");
 
-module.exports = function (compose) {
-
-  [0, 1, null, NaN, 'string', true, false].forEach(function (obj) {
-    test('initializer returns ' + obj, function (assert) {
+module.exports = compose => {
+  [0, 1, null, NaN, "string", true, false].forEach(obj => {
+    test("initializer returns " + obj, assert => {
       compose({
         initializers: [
-          function () {
+          () => {
             return obj;
           },
-          function (options, o) {
-          var instance = o.instance;
-            var actual = typeof instance;
-            var expected = typeof obj;
+          (options, o) => {
+            const instance = o.instance;
+            const actual = typeof instance;
+            const expected = typeof obj;
 
-            assert.equal(actual, expected,
-              'initializer return value should replace instance');
+            assert.equal(
+              actual,
+              expected,
+              "initializer return value should replace instance"
+            );
 
             assert.end();
           }
@@ -24,20 +26,22 @@ module.exports = function (compose) {
     });
   });
 
-
-  test('initializer returns undefined', function (assert) {
+  test("initializer returns undefined", assert => {
     compose({
       initializers: [
-        function () {
+        () => {
           return undefined;
         },
-        function (options, o) {
-          var instance = o.instance;
-          var actual = typeof instance;
-          var expected = 'object';
+        (options, o) => {
+          const instance = o.instance;
+          const actual = typeof instance;
+          const expected = "object";
 
-          assert.equal(actual, expected,
-            'initializer return value should not replace instance');
+          assert.equal(
+            actual,
+            expected,
+            "initializer return value should not replace instance"
+          );
 
           assert.end();
         }
@@ -45,27 +49,29 @@ module.exports = function (compose) {
     })();
   });
 
-  test('instance replacement', function (assert) {
-    var message = 'instance replaced';
-    var newInstance = {
+  test("instance replacement", assert => {
+    const message = "instance replaced";
+    const newInstance = {
       message: message
     };
 
-    var obj = compose({
+    const obj = compose({
       initializers: [
-        function () {
+        () => {
           return newInstance;
         }
       ]
     })();
 
-    var actual = obj.message;
-    var expected = message;
+    const actual = obj.message;
+    const expected = message;
 
-    assert.equal(actual, expected,
-      'the replaced instance value should be returned from the stamp');
+    assert.equal(
+      actual,
+      expected,
+      "the replaced instance value should be returned from the stamp"
+    );
 
     assert.end();
   });
-
 };

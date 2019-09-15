@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-(function () {
-  var path = require('path');
-  var composeImplementationFiles = process.argv.slice(2);
+(() => {
+  const path = require('path');
+  const composeImplementationFiles = process.argv.slice(2);
   if (!composeImplementationFiles.length) {
     console.log('usage: ' + path.basename(process.argv[1]) + ' COMPOSE_FILE_NAMES...');
     process.exit(1);
     return;
   }
 
-  var importedImplementations = composeImplementationFiles.map(function (file) {
+  const importedImplementations = composeImplementationFiles.map(file => {
     try {
       return require(file);
     }
@@ -24,8 +24,8 @@
 
   });
 
-  importedImplementations.forEach(function (imported, index) {
-    var compose = typeof imported === 'function' ? imported :
+  importedImplementations.forEach((imported, index) => {
+    const compose = typeof imported === 'function' ? imported :
       typeof imported.default === 'function' ? imported.default :
         typeof imported.compose === 'function' ? imported.compose :
           undefined;
@@ -36,12 +36,12 @@
     }
 
     require('../')(compose)
-      .then(function (result) {
-        var failures = result.failures;
+      .then(result => {
+        const failures = result.failures;
         if (failures && failures.length > 0) {
           console.error(require('prettyjson').render(failures));
           process.exit(1);
         }
       });
   });
-}());
+})();
