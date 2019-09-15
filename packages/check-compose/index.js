@@ -1,6 +1,5 @@
 const fs = require("fs");
 const test = require("tape");
-const Promise = require("bluebird");
 
 module.exports = compose => {
   if (typeof compose !== "function")

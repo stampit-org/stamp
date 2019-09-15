@@ -29,7 +29,8 @@
   "devDependencies": {
     "jest": "^23.6.0",
     "jshint": "^2.9.4",
-    "lerna": "^2.0.0"
+    "lerna": "^2.0.0",
+    "prettier": "^1.18.2"
   },
   "jshintConfig": {
     "node": true,
