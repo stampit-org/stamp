@@ -68,7 +68,7 @@ var Collision = compose({
       return this.collisionSetup(null);
     },
     collisionProtectAnyMethod: function (opts) {
-      return this.collisionSetup(assign({}, opts, {forbidAll: true}));
+      return this.collisionSetup(assign(assign({}, opts), {forbidAll: true}));
     }
   },
   composers: [function (opts) {
