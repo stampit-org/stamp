@@ -1,10 +1,10 @@
 {
   "lerna": "2.0.0",
   "version": "independent",
-  "commands": {
+  "command": {
     "publish": {
       "access": "public",
-      "ignore": [
+      "ignoreChanges": [
         "__tests__/"
       ],
       "npmClientArgs": ["--access public"]
