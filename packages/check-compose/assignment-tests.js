@@ -30,7 +30,7 @@ module.exports = compose => {
         },
         set setter(val) {
           this.actualValue = val;
-        },
+        }, // jshint -W078
         get getterAndSetter() {
           return this.actualValue;
         },
