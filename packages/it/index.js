@@ -37,13 +37,13 @@ function standardiseDescriptor(descr) {
   var p = isObject(props) || isObject(properties) ?
     assign(assign({}, props), properties) : undefined;
 
-  var dp = isObject(deepProps) ? merge({}, deepProps) : undefined;
+  var dp = isObject(deepProps) ? merge({}, deepProps) : {};
   dp = isObject(deepProperties) ? merge(dp, deepProperties) : dp;
 
   var sp = isObject(statics) || isObject(staticProperties) ?
     assign(assign({}, statics), staticProperties) : undefined;
 
-  var sdp = isObject(deepStatics) ? merge({}, deepStatics) : undefined;
+  var sdp = isObject(deepStatics) ? merge({}, deepStatics) : {};
   sdp = isObject(staticDeepProperties) ? merge(sdp, staticDeepProperties) : sdp;
 
   var spd = descr.staticPropertyDescriptors;
@@ -52,7 +52,7 @@ function standardiseDescriptor(descr) {
   var c = isObject(conf) || isObject(configuration) ?
     assign(assign({}, conf), configuration) : undefined;
 
-  var dc = isObject(deepConf) ? merge({}, deepConf) : undefined;
+  var dc = isObject(deepConf) ? merge({}, deepConf) : {};
   dc = isObject(deepConfiguration) ? merge(dc, deepConfiguration) : dc;
 
   var ii = extractFunctions(init, initializers);
