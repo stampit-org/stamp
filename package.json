@@ -27,32 +27,10 @@
     "lint": "jshint packages/**/*.js"
   },
   "devDependencies": {
-    "jest": "^23.6.0",
-    "jshint": "^2.9.4",
-    "lerna": "^2.0.0",
+    "jest": "^24.9.0",
+    "jshint": "^2.10.2",
+    "lerna": "^3.18.3",
     "prettier": "^1.18.2"
-  },
-  "jshintConfig": {
-    "node": true,
-    "globals": {
-      "afterAll": false,
-      "afterEach": false,
-      "beforeAll": false,
-      "beforeEach": false,
-      "check": false,
-      "describe": false,
-      "expect": false,
-      "gen": false,
-      "it": false,
-      "fit": false,
-      "jest": false,
-      "pit": false,
-      "require": false,
-      "test": false,
-      "xdescribe": false,
-      "xit": false,
-      "xtest": false
-    }
   },
   "jest": {
     "testEnvironment": "node",
