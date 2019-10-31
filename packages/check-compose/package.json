@@ -8,8 +8,8 @@
     "check-compose": "./bin/check-compose.js"
   },
   "dependencies": {
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.15",
     "prettyjson": "^1.2.1",
-    "tape": "^4.6.3"
+    "tape": "^4.11.0"
   }
 }

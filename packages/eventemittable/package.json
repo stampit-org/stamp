@@ -6,6 +6,6 @@
   "repository": "https://github.com/stampit-org/stamp/tree/master/packages/eventemittable",
   "dependencies": {
     "@stamp/compose": "^1.0.2",
-    "events": "^1.1.1"
+    "events": "^3.0.0"
   }
 }
