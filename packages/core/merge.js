@@ -27,7 +27,7 @@ function mergeOne(dst, src) {
     // is this a regular property?
     if (desc.hasOwnProperty('value')) { // eslint-disable-line
       // Do not merge properties with the 'undefined' value.
-      if (desc.value === undefined) return;
+      if (desc.value === undefined) return dst;
 
       var srcValue = src[key];
       // Recursive calls to mergeOne() must allow only plain objects or arrays in dst
