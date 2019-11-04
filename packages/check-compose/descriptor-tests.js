@@ -22,7 +22,9 @@ module.exports = compose => {
           }
         };
 
-        const actual = compose(descriptor).compose[descriptorName].a;
+        const metadata = compose(descriptor).compose[descriptorName];
+        assert.ok(metadata);
+        const actual = metadata.a;
         const expected = { b: "b" };
 
         assert.deepEqual(
