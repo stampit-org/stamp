@@ -3,7 +3,7 @@ buildconfig.env
 server.js
 sauce_connect.log
 /dist/
-
+package-lock.json
 
 
 ###### Mac OS generated files

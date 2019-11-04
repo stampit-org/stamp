@@ -1,6 +1,6 @@
 var getOwnPropertyKeys = require("./get-own-property-keys");
 
-module.exports = function assign(dst, src) {
+function assignOne(dst, src) {
   if (src != null) {
     // We need to copy regular properties, symbols, getters and setters.
     var keys = getOwnPropertyKeys(src);
@@ -10,5 +10,12 @@ module.exports = function assign(dst, src) {
     }
   }
 
+  return dst;
+}
+
+module.exports = function(dst) {
+  for (var i = 1; i < arguments.length; i++) {
+    dst = assignOne(dst, arguments[i]);
+  }
   return dst;
 };
