@@ -24,14 +24,20 @@
     "publish": "lerna publish -i -- --access=public",
     "updated": "lerna updated",
     "clean": "lerna clean",
-    "lint": "jshint packages/**/*.js"
+    "lint": "eslint packages/**/*.js"
   },
   "engines": {
     "node": ">= 8.2.1"
   },
   "devDependencies": {
+    "eslint": "^6.6.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^23.0.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-prettier": "^3.1.1",
     "jest": "^24.9.0",
-    "jshint": "^2.10.2",
     "lerna": "^3.18.3",
     "prettier": "^1.18.2"
   },

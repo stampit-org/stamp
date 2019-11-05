@@ -1,0 +1,142 @@
+{
+  "env": {
+    "jest": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "airbnb-base",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    // "plugin:jest/recommended",
+    // "plugin:jest/style",
+    "plugin:jest/all",
+    "plugin:node/recommended",
+    "prettier",
+    "plugin:prettier/recommended" // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2016, // Allows for the parsing of modern ECMAScript features
+    "ecmaFeatures": {
+      // "impliedStrict": true
+    }
+  },
+  "plugins": ["import", "jest", "node", "prettier"],
+  "reportUnusedDisableDirectives": true,
+  "rules": {
+    "class-methods-use-this": 1,
+    "global-require": 1,
+    "guard-for-in": 1,
+    "max-classes-per-file": 1,
+    "no-array-constructor": 1,
+    "no-continue": 1,
+    "no-nested-ternary": 1,
+    "no-param-reassign": 1,
+    "no-plusplus": 1,
+    "no-process-exit": 1,
+    "no-proto": 1,
+    "no-restricted-syntax": 1,
+    "no-return-assign": 1,
+    "no-underscore-dangle": 1,
+    "no-unreachable": 1,
+    "no-unused-vars": 1,
+    "no-use-before-define": 1,
+    "prefer-destructuring": 1,
+    "prefer-object-spread": 1,
+    "prefer-rest-params": 1,
+    "prefer-spread": 1,
+    "strict": 1,
+    "valid-typeof": 1,
+    "vars-on-top": 1,
+
+    // eslint-plugin-es - https://mysticatea.github.io/eslint-plugin-es/
+
+    // eslint-plugin-eslint-comments - https://mysticatea.github.io/eslint-plugin-eslint-comments/
+
+    // eslint-plugin-import rules - https://github.com/benmosher/eslint-plugin-import/blob/master/README.md
+    // "import/no-unresolved": [2, { "caseSensitive": true, "commonjs": true }],
+    // "import/named": 2,
+    // "import/default": 2,
+    // "import/namespace": 2,
+    // "import/no-absolute-path": 2,
+    "import/no-dynamic-require": 1,
+    // "import/no-internal-modules": 2,
+    // "import/no-self-import": 2,
+    // "import/no-cycle": 2,
+    // "import/no-useless-path-segments": 2,
+    // "import/no-relative-parent-imports": 2,
+    // "import/no-unused-modules": 2,
+    // "import/export": 2,
+    // "import/no-named-as-default": 2,
+    // "import/no-named-as-default-member": 2,
+    // "import/no-deprecated": 2,
+    // "import/no-extraneous-dependencies": 2,
+    // "import/no-mutable-exports": 2,
+    // "import/unambiguous": 2,
+    // "import/no-default-export": 2,
+    // "import/group-exports":2,
+    // // "import/no-commonjs":2,
+    // "import/no-amd": 2,
+    // "import/first": 2,
+    // "import/exports-last": 2,
+    // "import/no-duplicates": 2,
+    // "import/no-namespace": 2,
+    // "import/extensions": [2, "ignorePackages"],
+    // "import/order": [2, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
+    // "import/newline-after-import": 2,
+    // "import/prefer-default-export": 2,
+    // "import/no-unassigned-import": 2,
+
+    // eslint-plugin-jest - https://github.com/jest-community/eslint-plugin-jest/blob/master/README.md
+    "jest/expect-expect": 1,
+    "jest/no-test-return-statement": 1,
+    "jest/no-truthy-falsy": 1,
+    "jest/prefer-called-with": 1,
+    "jest/prefer-expect-assertions": 1,
+    "jest/require-to-throw-message": 1,
+
+    // eslint-plugin-jsdoc - https://github.com/gajus/eslint-plugin-jsdoc/blob/master/README.md
+
+    // eslint-plugin-node - https://github.com/mysticatea/eslint-plugin-node
+    // "node/no-callback-literal": 2,
+    // "node/no-exports-assign": 2,
+    // "node/no-extraneous-import": 2,
+    // "node/no-extraneous-require": 2,
+    // "node/no-missing-import": 2,
+    // "node/no-missing-require": 2,
+    // "node/no-unpublished-bin": 2,
+    // "node/no-unpublished-import": 2,
+    "node/no-unpublished-require": 1,
+    // "node/no-unsupported-features/es-builtins": 2,
+    // "node/no-unsupported-features/es-syntax": 2,
+    // "node/no-unsupported-features/node-builtins": 2,
+    // "node/process-exit-as-throw": 2,
+    // "node/shebang": 2,
+    "node/no-deprecated-api": 1,
+    // "node/exports-style": 2,
+    // "node/file-extension-in-import": 2,
+    // "node/prefer-global/buffer": 2,
+    // "node/prefer-global/console": 2,
+    // "node/prefer-global/process": 2,
+    // "node/prefer-global/text-decoder": 2,
+    // "node/prefer-global/text-encoder": 2,
+    // "node/prefer-global/url-search-params": 2,
+    // "node/prefer-global/url": 2,
+    // "node/prefer-promises/dns": 2,
+    // "node/prefer-promises/fs": 2,
+    // "node/no-hide-core-modules": 2,
+    // "node/no-unsupported-features": 2,
+
+    // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
+    // e.g. "@typescript-eslint/explicit-function-return-type": "off",
+    "prettier/prettier": "error"
+  },
+  "settings": {
+    // "import/parsers": {
+    //   "@typescript-eslint/parser": [".ts", ".tsx"]
+    // },
+    // "import/resolver": {
+    //   "typescript": {}
+    // }
+  }
+}
