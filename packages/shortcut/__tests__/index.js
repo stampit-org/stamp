@@ -1,22 +1,25 @@
-var compose = require('@stamp/compose');
-var Shortcut = require('..');
+/* eslint-disable jest/no-truthy-falsy */
+/* eslint-disable func-names */
+
+const compose = require('@stamp/compose');
+const Shortcut = require('..');
 
 expect.extend({
-  toBeA: function (received, argument) {
-    var pass = typeof received === argument;
+  toBeA(received, argument) {
+    // eslint-disable-next-line valid-typeof
+    const pass = typeof received === argument;
     return {
-      pass: pass,
-      message: function () {
-        return 'expected ' + received +
-          (pass ? ' not' : '') + ' to be a' + argument;
-      }
+      pass,
+      message() {
+        return `expected ${received}${pass ? ' not' : ''} to be a${argument}`;
+      },
     };
-  }
+  },
 });
 
-describe('@stamp/shortcut', function () {
-  it('adds all shortcuts', function () {
-    var Stamp = compose(Shortcut);
+describe('@stamp/shortcut', function() {
+  it('adds all shortcuts', function() {
+    const Stamp = compose(Shortcut);
 
     expect(Stamp.methods).toBeA('function');
 
@@ -55,25 +58,25 @@ describe('@stamp/shortcut', function () {
     expect(Stamp.staticPropertyDescriptors).toBeA('function');
   });
 
-  it('shortcuts add metadata', function () {
-    var meta = {
-      methods: {m: function () {}},
+  it('shortcuts add metadata', function() {
+    const meta = {
+      methods: { m() {} },
 
-      props: {p: {}},
-      statics: {s: {}},
-      conf: {c: {}},
+      props: { p: {} },
+      statics: { s: {} },
+      conf: { c: {} },
 
-      deepProps: {dp: [1, 'a']},
-      deepStatics: {ds: [1, 'a']},
-      deepConf: {dc: [1, 'a']},
+      deepProps: { dp: [1, 'a'] },
+      deepStatics: { ds: [1, 'a'] },
+      deepConf: { dc: [1, 'a'] },
 
-      init: [function () {}],
-      composers: [function () {}],
+      init: [function() {}],
+      composers: [function() {}],
 
-      propertyDescriptors: {x: {writable: true}},
-      staticPropertyDescriptors: {y: {writable: true}}
+      propertyDescriptors: { x: { writable: true } },
+      staticPropertyDescriptors: { y: { writable: true } },
     };
-    var Stamp = compose(Shortcut)
+    const Stamp = compose(Shortcut)
       .methods(meta.methods)
       .props(meta.props)
       .statics(meta.statics)
@@ -92,47 +95,47 @@ describe('@stamp/shortcut', function () {
     expect(Stamp.s).toBe(meta.statics.s);
     expect(Stamp.compose.configuration.c).toBe(meta.conf.c);
 
-    expect(Stamp().dp).toEqual(meta.deepProps.dp);
-    expect(Stamp.ds).toEqual(meta.deepStatics.ds);
-    expect(Stamp.compose.deepConfiguration.dc).toEqual(meta.deepConf.dc);
+    expect(Stamp().dp).toStrictEqual(meta.deepProps.dp);
+    expect(Stamp.ds).toStrictEqual(meta.deepStatics.ds);
+    expect(Stamp.compose.deepConfiguration.dc).toStrictEqual(meta.deepConf.dc);
 
-    expect(Stamp.compose.initializers).toEqual(meta.init);
-    expect(Stamp.compose.composers).toEqual(meta.composers);
+    expect(Stamp.compose.initializers).toStrictEqual(meta.init);
+    expect(Stamp.compose.composers).toStrictEqual(meta.composers);
 
-    expect(Stamp.compose.propertyDescriptors).toEqual(meta.propertyDescriptors);
-    expect(Stamp.compose.staticPropertyDescriptors).toEqual(meta.staticPropertyDescriptors);
+    expect(Stamp.compose.propertyDescriptors).toStrictEqual(meta.propertyDescriptors);
+    expect(Stamp.compose.staticPropertyDescriptors).toStrictEqual(meta.staticPropertyDescriptors);
   });
 
-  it('unbound shortcuts add metadata', function () {
-    var methods = Shortcut.methods;
-    var props = Shortcut.props;
-    var statics = Shortcut.statics;
-    var conf = Shortcut.conf;
-    var deepProps = Shortcut.deepProps;
-    var deepStatics = Shortcut.deepStatics;
-    var deepConf = Shortcut.deepConf;
-    var init = Shortcut.init;
-    var composers = Shortcut.composers;
-    var propertyDescriptors = Shortcut.propertyDescriptors;
-    var staticPropertyDescriptors = Shortcut.staticPropertyDescriptors;
-    var meta = {
-      methods: {m: function () {}},
+  it('unbound shortcuts add metadata', function() {
+    const { methods } = Shortcut;
+    const { props } = Shortcut;
+    const { statics } = Shortcut;
+    const { conf } = Shortcut;
+    const { deepProps } = Shortcut;
+    const { deepStatics } = Shortcut;
+    const { deepConf } = Shortcut;
+    const { init } = Shortcut;
+    const { composers } = Shortcut;
+    const { propertyDescriptors } = Shortcut;
+    const { staticPropertyDescriptors } = Shortcut;
+    const meta = {
+      methods: { m() {} },
 
-      props: {p: {}},
-      statics: {s: {}},
-      conf: {c: {}},
+      props: { p: {} },
+      statics: { s: {} },
+      conf: { c: {} },
 
-      deepProps: {dp: [1, 'a']},
-      deepStatics: {ds: [1, 'a']},
-      deepConf: {dc: [1, 'a']},
+      deepProps: { dp: [1, 'a'] },
+      deepStatics: { ds: [1, 'a'] },
+      deepConf: { dc: [1, 'a'] },
 
-      init: [function () {}],
-      composers: [function () {}],
+      init: [function() {}],
+      composers: [function() {}],
 
-      propertyDescriptors: {x: {writable: true}},
-      staticPropertyDescriptors: {y: {writable: true}}
+      propertyDescriptors: { x: { writable: true } },
+      staticPropertyDescriptors: { y: { writable: true } },
     };
-    var Stamp = compose(
+    const Stamp = compose(
       methods(meta.methods),
       props(meta.props),
       statics(meta.statics),
@@ -152,39 +155,39 @@ describe('@stamp/shortcut', function () {
     expect(Stamp.s).toBe(meta.statics.s);
     expect(Stamp.compose.configuration.c).toBe(meta.conf.c);
 
-    expect(Stamp().dp).toEqual(meta.deepProps.dp);
-    expect(Stamp.ds).toEqual(meta.deepStatics.ds);
-    expect(Stamp.compose.deepConfiguration.dc).toEqual(meta.deepConf.dc);
+    expect(Stamp().dp).toStrictEqual(meta.deepProps.dp);
+    expect(Stamp.ds).toStrictEqual(meta.deepStatics.ds);
+    expect(Stamp.compose.deepConfiguration.dc).toStrictEqual(meta.deepConf.dc);
 
-    expect(Stamp.compose.initializers).toEqual(meta.init);
-    expect(Stamp.compose.composers).toEqual(meta.composers);
+    expect(Stamp.compose.initializers).toStrictEqual(meta.init);
+    expect(Stamp.compose.composers).toStrictEqual(meta.composers);
 
-    expect(Stamp.compose.propertyDescriptors).toEqual(meta.propertyDescriptors);
-    expect(Stamp.compose.staticPropertyDescriptors).toEqual(meta.staticPropertyDescriptors);
+    expect(Stamp.compose.propertyDescriptors).toStrictEqual(meta.propertyDescriptors);
+    expect(Stamp.compose.staticPropertyDescriptors).toStrictEqual(meta.staticPropertyDescriptors);
   });
 
-  it('unbound shortcuts should not add static methods', function () {
-    var methods = Shortcut.methods;
+  it('unbound shortcuts should not add static methods', function() {
+    const { methods } = Shortcut;
     expect(methods({}).methods).toBeFalsy();
-    var props = Shortcut.props;
+    const { props } = Shortcut;
     expect(props({}).props).toBeFalsy();
-    var statics = Shortcut.statics;
+    const { statics } = Shortcut;
     expect(statics({}).statics).toBeFalsy();
-    var conf = Shortcut.conf;
+    const { conf } = Shortcut;
     expect(conf({}).conf).toBeFalsy();
-    var deepProps = Shortcut.deepProps;
+    const { deepProps } = Shortcut;
     expect(deepProps({}).deepProps).toBeFalsy();
-    var deepStatics = Shortcut.deepStatics;
+    const { deepStatics } = Shortcut;
     expect(deepStatics({}).deepStatics).toBeFalsy();
-    var deepConf = Shortcut.deepConf;
+    const { deepConf } = Shortcut;
     expect(deepConf({}).deepConf).toBeFalsy();
-    var init = Shortcut.init;
+    const { init } = Shortcut;
     expect(init({}).init).toBeFalsy();
-    var composers = Shortcut.composers;
+    const { composers } = Shortcut;
     expect(composers({}).composers).toBeFalsy();
-    var propertyDescriptors = Shortcut.propertyDescriptors;
+    const { propertyDescriptors } = Shortcut;
     expect(propertyDescriptors({}).propertyDescriptors).toBeFalsy();
-    var staticPropertyDescriptors = Shortcut.staticPropertyDescriptors;
+    const { staticPropertyDescriptors } = Shortcut;
     expect(staticPropertyDescriptors({}).staticPropertyDescriptors).toBeFalsy();
   });
 });

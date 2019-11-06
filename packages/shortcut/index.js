@@ -1,51 +1,54 @@
-var compose = require('@stamp/compose');
+const compose = require('@stamp/compose');
 
-function createShortcut(propName) {
-  return function (arg) {
-    'use strict';
-    var param = {};
-    param[propName] = arg;
+const createShortcut = (propName) => {
+  // eslint-disable-next-line func-names
+  return function(arg) {
+    // 'use strict';
+
+    const param = { [propName]: arg };
     return this && this.compose ? this.compose(param) : compose(param);
   };
-}
+};
 
-var properties = createShortcut('properties');
-var staticProperties = createShortcut('staticProperties');
-var configuration = createShortcut('configuration');
-var deepProperties = createShortcut('deepProperties');
-var staticDeepProperties = createShortcut('staticDeepProperties');
-var deepConfiguration = createShortcut('deepConfiguration');
-var initializers = createShortcut('initializers');
+const properties = createShortcut('properties');
+const staticProperties = createShortcut('staticProperties');
+const configuration = createShortcut('configuration');
+const deepProperties = createShortcut('deepProperties');
+const staticDeepProperties = createShortcut('staticDeepProperties');
+const deepConfiguration = createShortcut('deepConfiguration');
+const initializers = createShortcut('initializers');
 
-module.exports = compose({
+const Shortcut = compose({
   staticProperties: {
     methods: createShortcut('methods'),
 
     props: properties,
-    properties: properties,
+    properties,
 
     statics: staticProperties,
-    staticProperties: staticProperties,
+    staticProperties,
 
     conf: configuration,
-    configuration: configuration,
+    configuration,
 
     deepProps: deepProperties,
-    deepProperties: deepProperties,
+    deepProperties,
 
     deepStatics: staticDeepProperties,
-    staticDeepProperties: staticDeepProperties,
+    staticDeepProperties,
 
     deepConf: deepConfiguration,
-    deepConfiguration: deepConfiguration,
+    deepConfiguration,
 
     init: initializers,
-    initializers: initializers,
+    initializers,
 
     composers: createShortcut('composers'),
 
     propertyDescriptors: createShortcut('propertyDescriptors'),
 
-    staticPropertyDescriptors: createShortcut('staticPropertyDescriptors')
-  }
+    staticPropertyDescriptors: createShortcut('staticPropertyDescriptors'),
+  },
 });
+
+module.exports = Shortcut;
