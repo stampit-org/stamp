@@ -1,1 +1,3 @@
-module.exports = require('./object');
+const isDecriptor = require('./object');
+
+module.exports = isDecriptor;

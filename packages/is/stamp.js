@@ -1,5 +1,5 @@
-var isFunction = require('./function');
+const isFunction = require('./function');
 
-module.exports = function isStamp(arg) {
-  return isFunction(arg) && isFunction(arg.compose);
-};
+const isStamp = (value) => isFunction(value) && isFunction(value.compose);
+
+module.exports = isStamp;
