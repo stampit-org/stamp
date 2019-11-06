@@ -25,6 +25,7 @@
   "reportUnusedDisableDirectives": true,
   "rules": {
     "class-methods-use-this": 1,
+    "func-names": [1, "as-needed"],
     "global-require": 1,
     "guard-for-in": 1,
     "max-classes-per-file": 1,
@@ -92,8 +93,10 @@
     "jest/no-test-return-statement": 1,
     "jest/no-truthy-falsy": 1,
     "jest/prefer-called-with": 1,
-    "jest/prefer-expect-assertions": 1,
+    "jest/prefer-expect-assertions": 0,
     "jest/require-to-throw-message": 1,
+    "jest/require-top-level-describe": 1,
+    "jest/no-export": 1,
 
     // eslint-plugin-jsdoc - https://github.com/gajus/eslint-plugin-jsdoc/blob/master/README.md
 

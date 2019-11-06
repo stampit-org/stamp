@@ -24,7 +24,8 @@
     "publish": "lerna publish -i -- --access=public",
     "updated": "lerna updated",
     "clean": "lerna clean",
-    "lint": "eslint packages/**/*.js"
+    "lint": "eslint packages/**/*.js",
+    "lint-fix": "eslint --fix packages/**/*.js"
   },
   "engines": {
     "node": ">= 8.2.1"
