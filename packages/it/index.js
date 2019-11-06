@@ -1,62 +1,64 @@
-var compose = require('@stamp/compose');
-var Shortcut = require('@stamp/shortcut');
-var isStamp = require('@stamp/is/stamp');
-var isString = require('@stamp/is/string');
-var isObject = require('@stamp/is/object');
-var isFunction = require('@stamp/is/function');
-var merge = require('@stamp/core/merge');
-var assign = require('@stamp/core/assign');
+const compose = require('@stamp/compose');
+const Shortcut = require('@stamp/shortcut');
+const isStamp = require('@stamp/is/stamp');
+const isString = require('@stamp/is/string');
+const isObject = require('@stamp/is/object');
+const isFunction = require('@stamp/is/function');
+const merge = require('@stamp/core/merge');
+const assign = require('@stamp/core/assign');
 
-var concat = Array.prototype.concat;
-function extractFunctions() {
-  var fns = concat.apply([], arguments).filter(isFunction);
+const { concat } = Array.prototype;
+const { get, set } = Reflect;
+
+const extractFunctions = (...args) => {
+  const fns = concat.apply([], args).filter(isFunction);
   return fns.length === 0 ? undefined : fns;
-}
+};
 
-function standardiseDescriptor(descr) {
+const standardiseDescriptor = (descr) => {
   if (!isObject(descr)) return descr;
 
-  var methods = descr.methods;
-  var properties = descr.properties;
-  var props = descr.props;
-  var initializers = descr.initializers;
-  var init = descr.init;
-  var composers = descr.composers;
-  var deepProperties = descr.deepProperties;
-  var deepProps = descr.deepProps;
-  var pd = descr.propertyDescriptors;
-  var staticProperties = descr.staticProperties;
-  var statics = descr.statics;
-  var staticDeepProperties = descr.staticDeepProperties;
-  var deepStatics = descr.deepStatics;
-  var configuration = descr.configuration;
-  var conf = descr.conf;
-  var deepConfiguration = descr.deepConfiguration;
-  var deepConf = descr.deepConf;
+  const {
+    methods,
+    properties,
+    props,
+    initializers,
+    init,
+    composers,
+    deepProperties,
+    deepProps,
+    propertyDescriptors,
+    staticProperties,
+    statics,
+    staticDeepProperties,
+    deepStatics,
+    configuration,
+    conf,
+    deepConfiguration,
+    deepConf,
+  } = descr;
 
-  var p = isObject(props) || isObject(properties) ?
-    assign({}, props, properties) : undefined;
+  const p = isObject(props) || isObject(properties) ? assign({}, props, properties) : undefined;
 
-  var dp = isObject(deepProps) || isObject(deepProperties) ? merge({}, deepProps, deepProperties) : undefined;
+  const dp = isObject(deepProps) || isObject(deepProperties) ? merge({}, deepProps, deepProperties) : undefined;
 
-  var sp = isObject(statics) || isObject(staticProperties) ?
-    assign({}, statics, staticProperties) : undefined;
+  const sp = isObject(statics) || isObject(staticProperties) ? assign({}, statics, staticProperties) : undefined;
 
-  var sdp = isObject(deepStatics) || isObject(staticDeepProperties) ? merge({}, deepStatics, staticDeepProperties) : undefined;
+  const sdp =
+    isObject(deepStatics) || isObject(staticDeepProperties) ? merge({}, deepStatics, staticDeepProperties) : undefined;
 
-  var spd = descr.staticPropertyDescriptors;
+  let spd = descr.staticPropertyDescriptors;
   if (isString(descr.name)) spd = assign({}, spd || {}, { name: { value: descr.name } });
 
-  var c = isObject(conf) || isObject(configuration) ?
-    assign({}, conf, configuration) : undefined;
+  const c = isObject(conf) || isObject(configuration) ? assign({}, conf, configuration) : undefined;
 
-  var dc = isObject(deepConf) || isObject(deepConfiguration) ? merge({}, deepConf, deepConfiguration) : undefined;
+  const dc = isObject(deepConf) || isObject(deepConfiguration) ? merge({}, deepConf, deepConfiguration) : undefined;
 
-  var ii = extractFunctions(init, initializers);
+  const ii = extractFunctions(init, initializers);
 
-  var cc = extractFunctions(composers);
+  const cc = extractFunctions(composers);
 
-  var descriptor = {};
+  const descriptor = {};
   if (methods) descriptor.methods = methods;
   if (p) descriptor.properties = p;
   if (ii) descriptor.initializers = ii;
@@ -64,34 +66,44 @@ function standardiseDescriptor(descr) {
   if (dp) descriptor.deepProperties = dp;
   if (sp) descriptor.staticProperties = sp;
   if (sdp) descriptor.staticDeepProperties = sdp;
-  if (pd) descriptor.propertyDescriptors = pd;
+  if (propertyDescriptors) descriptor.propertyDescriptors = propertyDescriptors;
   if (spd) descriptor.staticPropertyDescriptors = spd;
   if (c) descriptor.configuration = c;
   if (dc) descriptor.deepConfiguration = dc;
 
   return descriptor;
-}
+};
 
 function stampit() {
-  'use strict'; // to make sure `this` is not pointing to `global` or `window`
-  var length = arguments.length, args = [];
-  for (var i = 0; i < length; i += 1) {
-    var arg = arguments[i];
+  // eslint-disable-next-line lines-around-directive,strict
+  'use strict';
+
+  // to make sure `this` is not pointing to `global` or `window`
+  // eslint-disable-next-line prefer-rest-params
+  const { length } = arguments;
+  const args = [];
+  for (let i = 0; i < length; i += 1) {
+    // eslint-disable-next-line prefer-rest-params
+    const arg = arguments[i];
     args.push(isStamp(arg) ? arg : standardiseDescriptor(arg));
   }
 
+  // eslint-disable-next-line no-use-before-define
   return compose.apply(this || baseStampit, args); // jshint ignore:line
 }
 
-var baseStampit = Shortcut.compose({
+const baseStampit = Shortcut.compose({
   staticProperties: {
-    create: function () { return this.apply(this, arguments); },
-    compose: stampit // infecting
-  }
+    create(...args) {
+      return this.apply(this, args);
+    },
+    compose: stampit, // infecting
+  },
 });
 
-var shortcuts = Shortcut.compose.staticProperties;
-for (var prop in shortcuts) stampit[prop] = shortcuts[prop].bind(baseStampit);
+const shortcuts = Shortcut.compose.staticProperties;
+// eslint-disable-next-line guard-for-in,no-restricted-syntax
+for (const prop in shortcuts) set(stampit, prop, get(shortcuts, prop).bind(baseStampit));
 stampit.compose = stampit.bind();
 
 module.exports = stampit;
