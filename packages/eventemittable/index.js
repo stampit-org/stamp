@@ -1,10 +1,15 @@
-var compose = require('@stamp/compose');
-var EventEmitter = require('events').EventEmitter;
+const compose = require('@stamp/compose');
+const { EventEmitter } = require('events');
 
-module.exports = compose({
+// EventEmitter.listenerCount - Deprecated since: v4.0.0
+const listenerCount = (emitter, eventName) => emitter.listenerCount(eventName);
+
+const EventEmittable = compose({
   staticProperties: {
     defaultMaxListeners: EventEmitter.defaultMaxListeners,
-    listenerCount: EventEmitter.listenerCount
+    listenerCount,
   },
-  methods: EventEmitter.prototype
+  methods: EventEmitter.prototype,
 });
+
+module.exports = EventEmittable;
