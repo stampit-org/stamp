@@ -1,69 +1,69 @@
-var compose = require('@stamp/compose');
-var isArray = require('@stamp/is/array');
-var isObject = require('@stamp/is/object');
-var isString = require('@stamp/is/string');
-var assign = require('@stamp/core/assign');
+'use strict';
+
+const compose = require('@stamp/compose');
+const isArray = require('@stamp/is/array');
+const isObject = require('@stamp/is/object');
+const isString = require('@stamp/is/string');
+const assign = require('@stamp/core/assign');
+
+const { get, ownKeys, set } = Reflect;
 
 function initializer(opts, ref) {
-  if (!opts) return;
-  var conf = ref.stamp.compose.deepConfiguration;
-  var keysToAssign = conf && conf.ArgOverProp;
-  if (!keysToAssign || !keysToAssign.length) return;
-  for (var i = 0; i < keysToAssign.length; i++) {
-    var key = keysToAssign[i], incomingValue = opts[key];
-    if (incomingValue !== undefined) {
-      this[key] = incomingValue;
-    }
-  }
-}
-
-function dedupe(array) {
-  var result = [];
-  for (var i = 0; i < array.length; i++) {
-    var item = array[i];
-    if (result.indexOf(item) < 0) result.push(item);
-  }
-  return result;
-}
-
-var ArgOverProp = compose({
-  staticProperties: {
-    argOverProp: function () {
-      'use strict';
-      var propNames = [], defaultProps;
-      for (var i = 0; i < arguments.length; i++) {
-        var arg = arguments[i];
-        if (isString(arg)) {
-          propNames.push(arg);
+  if (isObject(opts)) {
+    const conf = ref.stamp.compose.deepConfiguration;
+    const keysToAssign = conf && conf.ArgOverProp;
+    if (keysToAssign && keysToAssign.length) {
+      keysToAssign.forEach((key) => {
+        const incomingValue = get(opts, key);
+        if (incomingValue !== undefined) {
+          set(this, key, incomingValue);
         }
-        else if (isArray(arg)) {
-          propNames = propNames.concat(arg.filter(isString));
-        } else if (isObject(arg)) {
-          defaultProps = assign(defaultProps || {}, arg);
-          propNames = propNames.concat(Object.keys(arg));
-        }
-      }
-
-      var Stamp = this && this.compose ? this : ArgOverProp;
-      return Stamp.compose({
-        deepConfiguration: {ArgOverProp: propNames},
-        properties: defaultProps // default property values
       });
     }
+  }
+}
+
+const dedupe = (array) => [...new Set(array)];
+
+const ArgOverProp = compose({
+  staticProperties: {
+    argOverProp(...args) {
+      // 'use strict';
+
+      let propNames = [];
+      let defaultProps;
+      args.forEach((arg) => {
+        if (isString(arg)) {
+          propNames.push(arg);
+        } else if (isArray(arg)) {
+          propNames = [...propNames, ...arg.filter(isString)];
+        } else if (isObject(arg)) {
+          defaultProps = assign(defaultProps || {}, arg);
+          propNames = [...propNames, ...ownKeys(arg)];
+        }
+      });
+
+      const Stamp = this && this.compose ? this : ArgOverProp;
+      return Stamp.compose({
+        deepConfiguration: { ArgOverProp: propNames },
+        properties: defaultProps, // default property values
+      });
+    },
   },
   initializers: [initializer],
-  composers: [function (opts) {
-    var descriptor = opts.stamp.compose;
-    var initializers = descriptor.initializers;
-    // Always keep our initializer the first
-    initializers.splice(initializers.indexOf(initializer), 1);
-    initializers.unshift(initializer);
+  composers: [
+    (opts) => {
+      const descriptor = opts.stamp.compose;
+      const { initializers } = descriptor;
+      // Always keep our initializer the first
+      initializers.splice(initializers.indexOf(initializer), 1);
+      initializers.unshift(initializer);
 
-    var conf = descriptor.deepConfiguration;
-    var propNames = conf && conf.ArgOverProp;
-    if (!isArray(propNames)) return;
-    conf.ArgOverProp = dedupe(propNames);
-  }]
+      const conf = descriptor.deepConfiguration;
+      const propNames = conf && conf.ArgOverProp;
+      if (isArray(propNames)) conf.ArgOverProp = dedupe(propNames);
+    },
+  ],
 });
 
 module.exports = ArgOverProp;
