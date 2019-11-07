@@ -46,7 +46,7 @@
     "prefer-object-spread": 1,
     "prefer-rest-params": 1,
     "prefer-spread": 1,
-    "strict": 1,
+    "strict": 0,
     "valid-typeof": 1,
     "vars-on-top": 1,
 
