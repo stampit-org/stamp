@@ -1,187 +1,175 @@
-var compose = require('@stamp/compose');
-var assign = require('@stamp/core/assign');
-var isStamp = require('@stamp/is/stamp');
-var isObject = require('@stamp/is/object');
-var isArray = require('@stamp/is/array');
+'use strict';
 
-function dedupe(array) {
-  var result = [];
-  for (var i = 0; i < array.length; i++) {
-    var item = array[i];
-    if (result.indexOf(item) < 0) result.push(item);
-  }
-  return result;
-}
+const compose = require('@stamp/compose');
+const assign = require('@stamp/core/assign');
+const isStamp = require('@stamp/is/stamp');
+const isObject = require('@stamp/is/object');
+const isArray = require('@stamp/is/array');
 
-function makeProxyFunction(functions, name) {
-  function deferredFn() {
-    'use strict';
-    var results = [];
-    for (var i = 0; i < functions.length; i++) {
-      results.push(functions[i].apply(this, arguments)); // jshint ignore:line
-    }
-    return results;
+const { defineProperty, get, ownKeys, set } = Reflect;
+
+const dedupe = (array) => [...new Set(array)];
+
+const makeProxyFunction = (functions, name) => {
+  function deferredFn(...args) {
+    const proxy = (func) => func.apply(this, args.slice());
+    return [...functions.map(proxy)];
   }
 
-  Object.defineProperty(deferredFn, 'name', {
+  defineProperty(deferredFn, 'name', {
     value: name,
-    configurable: true
+    configurable: true,
   });
 
   return deferredFn;
-}
+};
 
-function getCollisionSettings(descriptor) {
-  return descriptor &&
-    descriptor.deepConfiguration &&
-    descriptor.deepConfiguration.Collision;
-}
+const getCollisionSettings = (descriptor) =>
+  descriptor && descriptor.deepConfiguration && descriptor.deepConfiguration.Collision;
 
-function descriptorHasSetting(descriptor, setting, methodName) {
-  var settings = getCollisionSettings(descriptor);
-  var settingsFor = settings && settings[setting];
+const descriptorHasSetting = (descriptor, setting, methodName) => {
+  const settings = getCollisionSettings(descriptor);
+  const settingsFor = settings && get(settings, setting);
   return isArray(settingsFor) && settingsFor.indexOf(methodName) >= 0;
-}
+};
 
-function forbidsCollision(descriptor, methodName) {
-  var settings = getCollisionSettings(descriptor);
-  if (settings && settings.forbidAll) {
-    return !descriptorHasSetting(descriptor, 'allow', methodName);
-  }
-  return descriptorHasSetting(descriptor, 'forbid', methodName);
-}
+const forbidsCollision = (descriptor, methodName) => {
+  const settings = getCollisionSettings(descriptor);
 
-function defersCollision(descriptor, methodName) {
-  return descriptorHasSetting(descriptor, 'defer', methodName);
-}
+  return settings && settings.forbidAll
+    ? !descriptorHasSetting(descriptor, 'allow', methodName)
+    : descriptorHasSetting(descriptor, 'forbid', methodName);
+};
 
-var Collision = compose({
-  deepConfiguration: {Collision: {defer: [], forbid: []}},
+const defersCollision = (descriptor, methodName) => descriptorHasSetting(descriptor, 'defer', methodName);
+
+const setMethodsMetadata = (opts, methodsMetadata) => {
+  const { methods } = opts.stamp.compose;
+
+  ownKeys(methodsMetadata).forEach((methodName) => {
+    const oneMetadata = get(methodsMetadata, methodName);
+    if (isArray(oneMetadata)) {
+      set(
+        methods,
+        methodName,
+        oneMetadata.length === 1
+          ? // Some collisions aggregated to a single method
+            // Mutating the resulting stamp
+            oneMetadata[0]
+          : makeProxyFunction(oneMetadata, methodName)
+      );
+    } else {
+      set(methods, methodName, oneMetadata);
+    }
+  });
+};
+
+const Collision = compose({
+  deepConfiguration: { Collision: { defer: [], forbid: [] } },
   staticProperties: {
-    collisionSetup: function (opts) {
-      'use strict';
-      var Stamp = this && this.compose ? this : Collision;
-      return Stamp.compose({deepConfiguration: {Collision: opts}});
+    collisionSetup(opts) {
+      // 'use strict';
 
+      const Stamp = this && this.compose ? this : Collision;
+      return Stamp.compose({ deepConfiguration: { Collision: opts } });
     },
-    collisionSettingsReset: function () {
+    collisionSettingsReset() {
       return this.collisionSetup(null);
     },
-    collisionProtectAnyMethod: function (opts) {
-      return this.collisionSetup(assign({}, opts, {forbidAll: true}));
-    }
+    collisionProtectAnyMethod(opts) {
+      return this.collisionSetup(assign({}, opts, { forbidAll: true }));
+    },
   },
-  composers: [function (opts) {
-    var descriptor = opts.stamp.compose;
-    var settings = getCollisionSettings(descriptor);
-    if (!isObject(settings)) return;
+  composers: [
+    // eslint-disable-next-line func-names
+    function(opts) {
+      const descriptor = opts.stamp.compose;
+      const settings = getCollisionSettings(descriptor);
+      if (isObject(settings)) {
+        // let i;
+        // let methodName;
+        // Deduping is an important part of the logic
+        if (isArray(settings.defer)) settings.defer = dedupe(settings.defer);
+        if (isArray(settings.forbid)) settings.forbid = dedupe(settings.forbid);
+        if (isArray(settings.allow)) settings.allow = dedupe(settings.allow);
 
-    var i, methodName;
-    // Deduping is an important part of the logic
-    if (isArray(settings.defer)) {
-      settings.defer = dedupe(settings.defer);
-    }
-    if (isArray(settings.forbid)) {
-      settings.forbid = dedupe(settings.forbid);
-    }
-    if (isArray(settings.allow)) {
-      settings.allow = dedupe(settings.allow);
-    }
-
-    // Make sure settings are not ambiguous
-    if (isArray(settings.forbid)) {
-      var checkDefer = isArray(settings.defer) && settings.defer.length > 0;
-      var checkAllow = isArray(settings.allow) && settings.allow.length > 0;
-      if (checkDefer || checkAllow) {
-        for (i = 0; i < settings.forbid.length; i++) {
-          var forbiddenMethodName = settings.forbid[i];
-          if (checkDefer && settings.defer.indexOf(forbiddenMethodName) >= 0) {
-            throw new Error('Ambiguous Collision settings. The `' +
-              forbiddenMethodName + '` is both deferred and forbidden');
+        // Make sure settings are not ambiguous
+        if (isArray(settings.forbid)) {
+          const intersect = (value) => settings.forbid.indexOf(value) >= 0;
+          const deferredAndForbidden = isArray(settings.defer) ? settings.defer.filter(intersect) : [];
+          if (deferredAndForbidden.length > 0) {
+            throw new Error(
+              `Ambiguous Collision settings. [${deferredAndForbidden.join(', ')}] both deferred and forbidden`
+            );
           }
-          if (checkAllow && settings.allow.indexOf(forbiddenMethodName) >= 0) {
-            throw new Error('Ambiguous Collision settings. The `' +
-              forbiddenMethodName + '` is both allowed and forbidden');
+          const allowedAndForbidden = isArray(settings.allow) ? settings.allow.filter(intersect) : [];
+          if (allowedAndForbidden.length > 0) {
+            throw new Error(
+              `Ambiguous Collision settings. [${allowedAndForbidden.join(', ')}] both allowed and forbidden`
+            );
           }
         }
-      }
-    }
 
-    if (settings.forbidAll ||
-      isArray(settings.defer) && settings.defer.length > 0 ||
-      isArray(settings.forbid) && settings.forbid.length > 0
-    ) {
-      var d, j, oneMetadata;
+        if (
+          settings.forbidAll ||
+          (isArray(settings.defer) && settings.defer.length > 0) ||
+          (isArray(settings.forbid) && settings.forbid.length > 0)
+        ) {
+          const methodsMetadata = {}; // methods aggregation
+          opts.composables
+            .map((composable) => (isStamp(composable) ? composable.compose : composable))
+            .filter((composable) => isObject(composable.methods))
+            .forEach((composable) => {
+              const { methods } = composable;
+              ownKeys(methods)
+                .filter((methodName) => {
+                  const method = get(methods, methodName);
+                  const existingMetadata = get(methodsMetadata, methodName);
+                  // Checking by reference if the method is already present
+                  return (
+                    method !== undefined &&
+                    (existingMetadata === undefined ||
+                      (existingMetadata !== method &&
+                        (!isArray(existingMetadata) || existingMetadata.indexOf(method) === -1)))
+                  );
+                })
+                .forEach((methodName) => {
+                  const method = get(methods, methodName);
+                  const existingMetadata = get(methodsMetadata, methodName);
 
-      var methodsMetadata = {}; // methods aggregation
-      var composables = opts.composables;
-      for (i = 0; i < composables.length; i++) {
-        d = composables[i];
-        d = isStamp(d) ? d.compose : d;
-        if (!isObject(d.methods)) continue;
+                  // Process Collision.forbid
+                  if (existingMetadata && forbidsCollision(descriptor, methodName)) {
+                    throw new Error(`Collision of method \`${methodName}\` is forbidden`);
+                  }
 
-        var methodNames = Object.keys(d.methods);
-        for (j = 0; j < methodNames.length; j++) {
-          methodName = methodNames[j];
-          var method = d.methods[methodName];
-          if (!method) continue;
+                  // Process Collision.defer
+                  if (defersCollision(composable, methodName)) {
+                    if (existingMetadata && !isArray(existingMetadata)) {
+                      throw new Error(
+                        `Ambiguous Collision settings. The \`${methodName}\` is both deferred and regular`
+                      );
+                    }
+                    const arr = existingMetadata || [];
+                    arr.push(method);
+                    set(methodsMetadata, methodName, arr);
+                  } else {
+                    // Process no Collision settings
+                    if (isArray(existingMetadata)) {
+                      throw new Error(
+                        `Ambiguous Collision settings. The \`${methodName}\` is both deferred and regular`
+                      );
+                    }
 
-          var existingMetadata = methodsMetadata[methodName];
+                    set(methodsMetadata, methodName, method);
+                  }
+                });
+            });
 
-          // Checking by reference if the method is already present
-          if (existingMetadata &&
-            (existingMetadata === method ||
-            (isArray(existingMetadata) && existingMetadata.indexOf(method) >= 0))) {
-            continue;
-          }
-
-          // Process Collision.forbid
-          if (existingMetadata && forbidsCollision(descriptor, methodName)) {
-            throw new Error('Collision of method `' + methodName +
-              '` is forbidden');
-          }
-
-          // Process Collision.defer
-          if (defersCollision(d, methodName)) {
-            if (existingMetadata && !isArray(existingMetadata)) {
-              throw new Error('Ambiguous Collision settings. The `' +
-                methodName + '` is both deferred and regular');
-            }
-            var arr = existingMetadata || [];
-            arr.push(method);
-            methodsMetadata[methodName] = arr;
-            continue;
-          }
-
-          // Process no Collision settings
-          if (isArray(existingMetadata)) {
-            throw new Error('Ambiguous Collision settings. The `' +
-              methodName + '` is both deferred and regular');
-          }
-
-          methodsMetadata[methodName] = method;
+          setMethodsMetadata(opts, methodsMetadata);
         }
       }
-
-      var methods = opts.stamp.compose.methods;
-      var allMetadataMethods = Object.keys(methodsMetadata);
-      for (i = 0; i < allMetadataMethods.length; i++) {
-        methodName = allMetadataMethods[i];
-        oneMetadata = methodsMetadata[methodName];
-        if (isArray(oneMetadata)) {
-          if (oneMetadata.length === 1) {
-            methods[methodName] = oneMetadata[0];
-          } else {
-            // Some collisions aggregated to a single method
-            // Mutating the resulting stamp
-            methods[methodName] = makeProxyFunction(oneMetadata, methodName);
-          }
-        } else {
-          methods[methodName] = oneMetadata;
-        }
-      }
-    }
-  }]
+    },
+  ],
 });
 
 module.exports = Collision;
