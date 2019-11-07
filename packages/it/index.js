@@ -1,3 +1,7 @@
+/* eslint-disable no-use-before-define */
+
+'use strict';
+
 const compose = require('@stamp/compose');
 const Shortcut = require('@stamp/shortcut');
 const isStamp = require('@stamp/is/stamp');
@@ -8,7 +12,7 @@ const merge = require('@stamp/core/merge');
 const assign = require('@stamp/core/assign');
 
 const { concat } = Array.prototype;
-const { get, set } = Reflect;
+const { get, ownKeys, set } = Reflect;
 
 const extractFunctions = (...args) => {
   const fns = concat.apply([], args).filter(isFunction);
@@ -74,22 +78,10 @@ const standardiseDescriptor = (descr) => {
   return descriptor;
 };
 
-function stampit() {
-  // eslint-disable-next-line lines-around-directive,strict
-  'use strict';
+function stampit(...args) {
+  // 'use strict';
 
-  // to make sure `this` is not pointing to `global` or `window`
-  // eslint-disable-next-line prefer-rest-params
-  const { length } = arguments;
-  const args = [];
-  for (let i = 0; i < length; i += 1) {
-    // eslint-disable-next-line prefer-rest-params
-    const arg = arguments[i];
-    args.push(isStamp(arg) ? arg : standardiseDescriptor(arg));
-  }
-
-  // eslint-disable-next-line no-use-before-define
-  return compose.apply(this || baseStampit, args); // jshint ignore:line
+  return compose.apply(this || baseStampit, args.map((arg) => (isStamp(arg) ? arg : standardiseDescriptor(arg))));
 }
 
 const baseStampit = Shortcut.compose({
@@ -102,8 +94,8 @@ const baseStampit = Shortcut.compose({
 });
 
 const shortcuts = Shortcut.compose.staticProperties;
-// eslint-disable-next-line guard-for-in,no-restricted-syntax
-for (const prop in shortcuts) set(stampit, prop, get(shortcuts, prop).bind(baseStampit));
+
+ownKeys(shortcuts).forEach((prop) => set(stampit, prop, get(shortcuts, prop).bind(baseStampit)));
 stampit.compose = stampit.bind();
 
 module.exports = stampit;
