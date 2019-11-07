@@ -1,50 +1,59 @@
-var checkCompose = require('@stamp/check-compose');
-var stampit = require('../');
+/* eslint-disable jest/no-test-return-statement */
+/* eslint-disable global-require */
+/* eslint-disable jest/expect-expect */
+/* eslint-disable node/no-unpublished-require */
+/* eslint-disable func-names */
 
-describe('@stamp/it', function () {
-  it('passes official tests', function () {
-    var compose = require('..');
-    return checkCompose(compose)
-      .then(function (result) {
-        var failures = result.failures;
-        if (failures && failures.length > 0) {
-          var errorString = failures.map(function (f) {
+const checkCompose = require('@stamp/check-compose');
+const stampit = require('../');
+
+describe('@stamp/it', function() {
+  it('passes official tests', function() {
+    const compose = require('..');
+    return checkCompose(compose).then(function(result) {
+      const { failures } = result;
+      if (failures && failures.length > 0) {
+        const errorString = failures
+          .map(function(f) {
             return JSON.stringify(f);
-          }).join('\n');
-          throw new Error(errorString);
-        }
-      });
-  });
-
-  it('has the .create static function', function () {
-    var stamp = stampit({
-      methods: {
-        foo: function foo() { return 'foo'; }
-      },
-      properties: {
-        bar: 'bar'
+          })
+          .join('\n');
+        throw new Error(errorString);
       }
     });
+  });
 
-    expect(stamp.create()).toEqual(stamp());
+  it('has the .create static function', function() {
+    const stamp = stampit({
+      methods: {
+        foo: function foo() {
+          return 'foo';
+        },
+      },
+      properties: {
+        bar: 'bar',
+      },
+    });
+
+    expect(stamp.create()).toStrictEqual(stamp());
     expect(stamp.create().foo()).toBe('foo');
   });
 
-  it('converts extended descriptor to a standard', function () {
-    var initializer = function () {};
-    var composer = function () {};
-    var descr = stampit({
-      props: {p: 1},
+  it('converts extended descriptor to a standard', function() {
+    const initializer = function() {};
+    const composer = function() {};
+    const descr = stampit({
+      props: { p: 1 },
       init: initializer,
       composers: composer,
-      deepProps: {dp: 1},
-      statics: {s: 1},
-      deepStatics: {ds: 1},
-      conf: {c: 1},
-      deepConf: {dc: 1},
-      propertyDescriptors: {pd: {value: 1}},
-      staticPropertyDescriptors: {spd: {value: 1}},
-      name: "1"
+      deepProps: { dp: 1 },
+      statics: { s: 1 },
+      deepStatics: { ds: 1 },
+      conf: { c: 1 },
+      deepConf: { dc: 1 },
+      propertyDescriptors: { pd: { value: 1 } },
+      staticPropertyDescriptors: { spd: { value: 1 } },
+      name: '1',
     }).compose;
 
     expect(descr.properties.p).toBe(1);
@@ -57,6 +66,6 @@ describe('@stamp/it', function () {
     expect(descr.deepConfiguration.dc).toBe(1);
     expect(descr.propertyDescriptors.pd.value).toBe(1);
     expect(descr.staticPropertyDescriptors.spd.value).toBe(1);
-    expect(descr.staticPropertyDescriptors.name.value).toBe("1");
+    expect(descr.staticPropertyDescriptors.name.value).toBe('1');
   });
 });
