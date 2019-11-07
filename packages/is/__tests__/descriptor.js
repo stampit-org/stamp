@@ -1,34 +1,36 @@
-var isDescriptor = require('../descriptor');
+/* eslint-disable func-names */
+
+const isDescriptor = require('../descriptor');
 
 function getStamp(obj) {
-  var stamp = function () {};
-  stamp.compose = function () {};
+  const stamp = function() {};
+  stamp.compose = function() {};
   Object.assign(stamp.compose, obj);
   return stamp;
 }
 
-describe('isDescriptor', function () {
-  it('with objects', function () {
-    var emptyStampDescriptor = getStamp().compose;
-    var rawObject = {};
-    var rawFunction = function () {};
-    var regExp = /x/;
+describe('isDescriptor', function() {
+  it('with objects', function() {
+    const emptyStampDescriptor = getStamp().compose;
+    const rawObject = {};
+    const rawFunction = function() {};
+    const regExp = /x/;
 
-    expect(isDescriptor(emptyStampDescriptor)).toBeTruthy();
-    expect(isDescriptor(rawObject)).toBeTruthy();
-    expect(isDescriptor(rawFunction)).toBeTruthy();
-    expect(isDescriptor(regExp)).toBeTruthy();
+    expect(isDescriptor(emptyStampDescriptor)).toBe(true);
+    expect(isDescriptor(rawObject)).toBe(true);
+    expect(isDescriptor(rawFunction)).toBe(true);
+    expect(isDescriptor(regExp)).toBe(true);
   });
 
-  it('with non-objects', function () {
-    var undef;
-    var NULL = null;
-    var number = 42;
-    var string = 's';
+  it('with non-objects', function() {
+    let undef;
+    const NULL = null;
+    const number = 42;
+    const string = 's';
 
-    expect(isDescriptor(undef)).toBeFalsy();
-    expect(isDescriptor(NULL)).toBeFalsy();
-    expect(isDescriptor(number)).toBeFalsy();
-    expect(isDescriptor(string)).toBeFalsy();
+    expect(isDescriptor(undef)).toBe(false);
+    expect(isDescriptor(NULL)).toBe(false);
+    expect(isDescriptor(number)).toBe(false);
+    expect(isDescriptor(string)).toBe(false);
   });
 });

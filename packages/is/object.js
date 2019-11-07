@@ -1,4 +1,7 @@
-module.exports = function isObject(arg) {
-  var type = typeof arg;
-  return Boolean(arg) && (type === 'object' || type === 'function');
+const isObject = (value) => {
+  const type = typeof value;
+  // ??? purpose of Boolean(value)
+  return Boolean(value) && (type === 'object' || type === 'function');
 };
+
+module.exports = isObject;

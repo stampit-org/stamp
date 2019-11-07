@@ -1,4 +1,5 @@
-module.exports = function isPlainObject(value) {
-  return Boolean(value) && typeof value === 'object' &&
-    Object.getPrototypeOf(value) === Object.prototype;
-};
+const isPlainObject = (value) =>
+  // ??? purpose of Boolean(value)
+  Boolean(value) && typeof value === 'object' && Reflect.getPrototypeOf(value) === Object.prototype;
+
+module.exports = isPlainObject;

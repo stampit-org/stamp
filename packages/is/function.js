@@ -1,3 +1,3 @@
-module.exports = function isFunction(arg) {
-  return typeof arg === 'function';
-};
+const isFunction = (arg) => typeof arg === 'function';
+
+module.exports = isFunction;

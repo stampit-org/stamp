@@ -1,3 +1,5 @@
+/* eslint-disable global-require */
+
 module.exports = {
   // Public API
   isStamp: require('./stamp'),
@@ -9,5 +11,5 @@ module.exports = {
   isObject: require('./object'),
   isPlainObject: require('./plain-object'),
   isArray: require('./array'),
-  isString: require('./string')
+  isString: require('./string'),
 };
