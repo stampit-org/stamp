@@ -1,3 +1,5 @@
+'use strict';
+
 const isPlainObject = require('@stamp/is/plain-object');
 const isArray = require('@stamp/is/array');
 const getOwnPropertyKeys = require('./get-own-property-keys');
@@ -23,7 +25,7 @@ function mergeOne(dst, src) {
       getOwnPropertyKeys(src).forEach((key) => {
         const desc = getOwnPropertyDescriptor(src, key);
         // is this a regular property?
-        if (desc.hasOwnProperty('value')) { // eslint-disable-line
+        if (getOwnPropertyDescriptor(desc, 'value') !== undefined) {
           // Do not merge properties with the 'undefined' value.
           if (desc.value !== undefined) {
             const dstValue = get(dst, key);

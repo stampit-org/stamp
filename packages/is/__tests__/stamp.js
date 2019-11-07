@@ -1,5 +1,7 @@
 /* eslint-disable func-names */
 
+'use strict';
+
 const isStamp = require('../stamp');
 
 function getStamp(obj) {

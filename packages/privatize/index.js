@@ -1,3 +1,5 @@
+'use strict';
+
 const compose = require('@stamp/compose');
 
 const { defineProperty, get, ownKeys, set } = Reflect;
@@ -10,8 +12,6 @@ const makeProxyFunction = function(fn, name) {
   function proxiedFn(...args) {
     // 'use strict';
 
-    // const fields = privates.get(this); // jshint ignore:line
-    // return fn.apply(fields, arguments);
     return fn.apply(privates.get(this), args);
   }
 

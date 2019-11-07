@@ -1,6 +1,8 @@
 /* eslint-disable node/no-unpublished-require */
 /* eslint-disable func-names */
 
+'use strict';
+
 const compose = require('@stamp/compose');
 const InstanceOf = require('@stamp/instanceof');
 const Privatize = require('..');

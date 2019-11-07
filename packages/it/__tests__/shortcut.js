@@ -1,6 +1,8 @@
 /* eslint-disable node/no-unpublished-require */
 /* eslint-disable func-names */
 
+'use strict';
+
 const _ = require('lodash');
 const stampit = require('../');
 

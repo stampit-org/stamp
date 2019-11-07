@@ -1,5 +1,7 @@
 /* eslint-disable func-names */
 
+'use strict';
+
 const isPlainObject = require('../plain-object');
 
 describe('isPlainObject', function() {

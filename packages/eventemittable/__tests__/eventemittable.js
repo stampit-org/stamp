@@ -1,6 +1,8 @@
 /* eslint-disable func-names */
 /* eslint-disable no-underscore-dangle */
 
+'use strict';
+
 const compose = require('@stamp/compose');
 const EventEmittable = require('..');
 

@@ -1,5 +1,7 @@
 /* eslint-disable no-use-before-define */
 
+'use strict';
+
 const compose = require('@stamp/compose');
 const assign = require('@stamp/core/assign');
 const getOwnPropertyKeys = require('@stamp/core/get-own-property-keys');
@@ -10,7 +12,7 @@ const { get } = Reflect;
 function required(settings) {
   // 'use strict';
 
-  const Stamp = this && this.compose ? this : Required; // jshint ignore:line
+  const Stamp = this && this.compose ? this : Required;
   const prevSettings = Stamp.compose.deepConfiguration && Stamp.compose.deepConfiguration.Required;
 
   // filter out non stamp things

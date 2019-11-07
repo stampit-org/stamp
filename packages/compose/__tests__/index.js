@@ -1,6 +1,8 @@
+/* eslint-disable node/no-unpublished-require */
 /* eslint-disable func-names */
 
-// eslint-disable-next-line node/no-unpublished-require
+'use strict';
+
 const checkCompose = require('@stamp/check-compose');
 
 describe('@stamp/compose', function() {

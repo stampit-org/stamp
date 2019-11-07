@@ -1,5 +1,7 @@
 /* eslint-disable func-names */
 
+'use strict';
+
 const isString = require('../string');
 
 describe('isString', function() {

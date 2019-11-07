@@ -1,5 +1,7 @@
 /* eslint-disable func-names */
 
+'use strict';
+
 const isDescriptor = require('../descriptor');
 
 function getStamp(obj) {

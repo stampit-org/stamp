@@ -1,5 +1,7 @@
 /* eslint-disable global-require */
 
+'use strict';
+
 module.exports = {
   // Public API
   isStamp: require('./stamp'),

@@ -1,3 +1,5 @@
+'use strict';
+
 const compose = require('@stamp/compose');
 const isStamp = require('@stamp/is/stamp');
 

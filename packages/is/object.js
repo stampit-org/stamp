@@ -1,3 +1,5 @@
+'use strict';
+
 const isObject = (value) => {
   const type = typeof value;
   // ??? purpose of Boolean(value)

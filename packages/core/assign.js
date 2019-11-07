@@ -1,3 +1,5 @@
+'use strict';
+
 const getOwnPropertyKeys = require('./get-own-property-keys');
 
 const { defineProperty, getOwnPropertyDescriptor } = Reflect;

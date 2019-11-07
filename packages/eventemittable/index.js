@@ -1,3 +1,5 @@
+'use strict';
+
 const compose = require('@stamp/compose');
 const { EventEmitter } = require('events');
 

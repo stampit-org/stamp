@@ -1,3 +1,5 @@
+'use strict';
+
 const { isArray, isComposable, isFunction, isObject, isStamp } = require('@stamp/is');
 const { assign, merge } = require('@stamp/core');
 
@@ -12,7 +14,7 @@ const createFactory = () => {
   return function Stamp(options = {}, ...args) {
     const descriptor = Stamp.compose || {};
     // Next line was optimized for most JS VMs. Please, be careful here!
-    // let obj = { __proto__: descriptor.methods }; // jshint ignore:line
+    // let obj = { __proto__: descriptor.methods };
     let obj = {};
     if (descriptor.methods) setPrototypeOf(obj, descriptor.methods);
 
