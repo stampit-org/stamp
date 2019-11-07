@@ -1,10 +1,12 @@
+/* eslint-disable func-names */
+
 const compose = require('@stamp/compose');
 const InstanceOf = require('..');
 
-describe('InstanceOf', function () {
+describe('instanceOf', function() {
   if (typeof Symbol === 'undefined') return;
 
-  it('should just work', function () {
+  it('should just work', function() {
     const MyComposedStamp = compose(InstanceOf);
     const obj = MyComposedStamp();
 
@@ -12,7 +14,7 @@ describe('InstanceOf', function () {
     expect(obj instanceof MyComposedStamp).toBe(true);
   });
 
-  it('should return false for wrong things', function () {
+  it('should return false for wrong things', function() {
     const MyComposedStamp = compose(InstanceOf);
     const obj = MyComposedStamp();
 
