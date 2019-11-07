@@ -50,6 +50,6 @@
     ]
   },
   "dependencies": {
-    "@stamp/compose": "^1.0.0"
+    "@stamp/compose": "^1.0.2"
   }
 }
