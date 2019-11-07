@@ -1,36 +1,44 @@
+// 'use strict';
+
+// TODO: make `convertClass()` compatible with strict mode
+
 const compose = require('@stamp/compose');
 
-function classStaticProperties (ctor) {
-  if (ctor === Function.prototype) return {};
-  return Reflect.ownKeys(ctor)
-  .reduce((statics, k) => {
+const { prototype: functionPrototype } = Function;
+const { construct, get, getPrototypeOf, ownKeys, set } = Reflect;
+
+function classStaticProperties(ctor) {
+  if (ctor === functionPrototype) return {};
+  return ownKeys(ctor).reduce((statics, k) => {
     if (k !== 'length' && k !== 'name' && k !== 'prototype') {
-      statics[k] = ctor[k];
+      set(statics, k, get(ctor, k));
     }
     return statics;
-  }, classStaticProperties(ctor.__proto__)); // jshint ignore:line
+  }, classStaticProperties(getPrototypeOf(ctor)));
 }
 
-function classMethods (ctor) {
-  if (ctor === Function.prototype) return {};
-  return Reflect.ownKeys(ctor.prototype).reduce((methods, k) => {
+const classMethods = (ctor) => {
+  if (ctor === functionPrototype) return {};
+  const ctorPrototype = ctor.prototype;
+  return ownKeys(ctorPrototype).reduce((methods, k) => {
     if (k !== 'constructor') {
-      methods[k] = ctor.prototype[k];
+      set(methods, k, get(ctorPrototype, k));
     }
     return methods;
-  }, classMethods(ctor.__proto__)); // jshint ignore:line
-}
+  }, classMethods(getPrototypeOf(ctor)));
+};
 
-function isClass (v) {
-  return typeof v === 'function' && /^\s*class\s+/.test(v.toString());
-}
+const isClass = (v) => typeof v === 'function' && /^\s*class\s+/.test(v.toString());
 
-module.exports = function convertClass (ctor) {
+const convertClass = (ctor) => {
   if (!isClass(ctor)) return compose();
   return compose({
-    initializers: [function (_, { instance, args }) {
-      Object.assign(this, Reflect.construct(ctor, args));
-    }],
+    initializers: [
+      // eslint-disable-next-line func-names,no-unused-vars
+      function(_, { instance, args }) {
+        Object.assign(this, construct(ctor, args));
+      },
+    ],
 
     methods: classMethods(ctor),
 
@@ -38,8 +46,10 @@ module.exports = function convertClass (ctor) {
 
     staticPropertyDescriptors: {
       name: {
-        value: ctor.name
-      }
-    }
+        value: ctor.name,
+      },
+    },
   });
 };
+
+module.exports = convertClass;
