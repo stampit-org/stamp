@@ -1,14 +1,17 @@
-/* eslint-disable no-param-reassign */
+'use strict';
 
 const compose = require('@stamp/compose');
+
+const { get } = Reflect;
 
 const FpConstructor = compose({
   composers: [
     (opts) => {
-      opts.stamp.of = opts.stamp;
-      opts.stamp.constructor = opts.stamp;
-      opts.stamp.compose.methods = opts.stamp.compose.methods || {};
-      opts.stamp.compose.methods.constructor = opts.stamp;
+      const optsStamp = get(opts, 'stamp');
+      optsStamp.of = optsStamp;
+      optsStamp.constructor = optsStamp;
+      optsStamp.compose.methods = optsStamp.compose.methods || {};
+      optsStamp.compose.methods.constructor = optsStamp;
     },
   ],
 });
