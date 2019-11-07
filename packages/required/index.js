@@ -1,53 +1,64 @@
-var compose = require('@stamp/compose');
-var assign = require('@stamp/core/assign');
-var isObject = require('@stamp/is/object');
+/* eslint-disable no-use-before-define */
+
+const compose = require('@stamp/compose');
+const assign = require('@stamp/core/assign');
+const getOwnPropertyKeys = require('@stamp/core/get-own-property-keys');
+const isObject = require('@stamp/is/object');
+
+const { get } = Reflect;
 
 function required(settings) {
-  'use strict';
-  var Stamp = this && this.compose ? this : Required; // jshint ignore:line
-  var prevSettings = Stamp.compose.deepConfiguration && Stamp.compose.deepConfiguration.Required;
+  // 'use strict';
+
+  const Stamp = this && this.compose ? this : Required; // jshint ignore:line
+  const prevSettings = Stamp.compose.deepConfiguration && Stamp.compose.deepConfiguration.Required;
 
   // filter out non stamp things
-  var newSettings = assign({}, compose(prevSettings, settings).compose);
+  const newSettings = assign(
+    {},
+    compose(
+      prevSettings,
+      settings
+    ).compose
+  );
 
-  return Stamp.compose({deepConfiguration: {Required: newSettings}});
+  return Stamp.compose({ deepConfiguration: { Required: newSettings } });
 }
-
-function checkDescriptorHaveThese(descriptor, settings) {
-  if (!descriptor || !settings) return;
-  // Traverse settings and find if there is anything required.
-  var settingsKeys = Object.keys(settings);
-  for (var i = 0; i < settingsKeys.length; i++) {
-    var settingsKey = settingsKeys[i];
-    var settingsValue = settings[settingsKey];
-    if (isObject(settingsValue)) {
-      var metadataKeys = Object.keys(settingsValue);
-      for (var j = 0; j < metadataKeys.length; j++) {
-        var metadataKey = metadataKeys[j];
-        var metadataValue = settingsValue[metadataKey];
-        if (metadataValue === Required || metadataValue === required) {
-          // We found one thing which have to be provided. Let's check if it exists.
-          if (!descriptor[settingsKey] || descriptor[settingsKey][metadataKey] === undefined) {
-            throw new Error('Required: There must be ' + metadataKey + ' in this stamp ' + settingsKey);
-          }
-        }
-      }
-    }
-  }
-}
-
-var Required = compose({
-  initializers: [function (_, opts) {
-    var descriptor = opts.stamp.compose;
-    var settings = descriptor.deepConfiguration && descriptor.deepConfiguration.Required;
-    checkDescriptorHaveThese(descriptor, settings);
-  }],
-  staticProperties: {
-    required: required
-  }
-});
-
 Object.freeze(required);
+
+const checkDescriptorHaveThese = (descriptor, settings) => {
+  if (descriptor && settings) {
+    // Traverse settings and find if there is anything required.
+    getOwnPropertyKeys(settings).forEach((settingsKey) => {
+      const settingsValue = get(settings, settingsKey);
+      if (isObject(settingsValue)) {
+        getOwnPropertyKeys(settingsValue).forEach((metadataKey) => {
+          const metadataValue = get(settingsValue, metadataKey);
+          if (metadataValue === Required || metadataValue === required) {
+            // We found one thing which have to be provided. Let's check if it exists.
+            const descValue = get(descriptor, settingsKey);
+            if (!descValue || get(descValue, metadataKey) === undefined) {
+              throw new Error(`Required: There must be ${metadataKey} in this stamp ${settingsKey}`);
+            }
+          }
+        });
+      }
+    });
+  }
+};
+
+const Required = compose({
+  initializers: [
+    (_, opts) => {
+      const descriptor = opts.stamp.compose;
+      const settings = descriptor.deepConfiguration && descriptor.deepConfiguration.Required;
+      checkDescriptorHaveThese(descriptor, settings);
+    },
+  ],
+  staticProperties: {
+    required,
+  },
+});
 Object.freeze(Required);
 
 module.exports = Required;
