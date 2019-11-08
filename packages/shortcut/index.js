@@ -5,8 +5,6 @@ const compose = require('@stamp/compose');
 const createShortcut = (propName) => {
   // eslint-disable-next-line func-names
   return function(arg) {
-    // 'use strict';
-
     const param = { [propName]: arg };
     return this && this.compose ? this.compose(param) : compose(param);
   };

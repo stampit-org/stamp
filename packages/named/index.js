@@ -5,8 +5,6 @@ const compose = require('@stamp/compose');
 const Named = compose({
   staticProperties: {
     setName(name) {
-      // 'use strict';
-
       const Stamp = this && this.compose ? this : Named;
       return Stamp.compose({
         staticPropertyDescriptors: {

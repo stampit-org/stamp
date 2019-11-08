@@ -79,8 +79,6 @@ const standardiseDescriptor = (descr) => {
 };
 
 function stampit(...args) {
-  // 'use strict';
-
   return compose.apply(this || baseStampit, args.map((arg) => (isStamp(arg) ? arg : standardiseDescriptor(arg))));
 }
 

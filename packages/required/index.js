@@ -10,8 +10,6 @@ const isObject = require('@stamp/is/object');
 const { get } = Reflect;
 
 function required(settings) {
-  // 'use strict';
-
   const Stamp = this && this.compose ? this : Required;
   const prevSettings = Stamp.compose.deepConfiguration && Stamp.compose.deepConfiguration.Required;
 

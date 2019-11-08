@@ -62,9 +62,6 @@ const createStamp = (descriptor, composeFunction) => {
 
   const composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
   Stamp.compose = function _compose(...args) {
-    // 'use strict';
-
-    // to make sure `this` is not pointing to `global` or `window`
     return composeImplementation.apply(this, args);
   };
   assign(Stamp.compose, descriptor);
@@ -121,9 +118,6 @@ const mergeComposable = (dstDescriptor, srcComposable) => {
  * @returns {Stamp} A new stamp (aka composable factory function)
  */
 function compose(...args) {
-  // 'use strict';
-
-  // to make sure `this` is not pointing to `global` or `window`
   const descriptor = {};
   const composables = [];
   const add = (value) => {

@@ -10,8 +10,6 @@ const privates = new WeakMap(); // WeakMap works in IE11, node 0.12
 
 const makeProxyFunction = function(fn, name) {
   function proxiedFn(...args) {
-    // 'use strict';
-
     return fn.apply(privates.get(this), args);
   }
 
@@ -51,8 +49,6 @@ const Privatize = compose({
   deepConfiguration: { Privatize: { methods: [] } },
   staticProperties: {
     privatizeMethods(...args) {
-      // 'use strict';
-
       const methodNames = [];
       args.forEach((arg) => {
         if (typeof arg === 'string' && arg.length > 0) {

@@ -28,8 +28,6 @@ const dedupe = (array) => [...new Set(array)];
 const ArgOverProp = compose({
   staticProperties: {
     argOverProp(...args) {
-      // 'use strict';
-
       let propNames = [];
       let defaultProps;
       args.forEach((arg) => {
