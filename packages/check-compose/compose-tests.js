@@ -1,11 +1,21 @@
-const test = require("tape");
-const _ = require("lodash");
+/* eslint-disable jest/expect-expect */
+/* eslint-disable jest/no-test-callback */
+/* eslint-disable jest/no-export */
+/* eslint-disable jest/require-top-level-describe */
 
-module.exports = compose => {
-  test("compose ignores non objects", assert => {
+/* eslint-disable no-plusplus */
+/* eslint-disable prefer-rest-params */
+
+'use strict';
+
+const test = require('tape');
+const _ = require('lodash');
+
+module.exports = (compose) => {
+  test('compose ignores non objects', (assert) => {
     const stamp = compose(
       0,
-      "a",
+      'a',
       null,
       undefined,
       {},
@@ -15,20 +25,20 @@ module.exports = compose => {
     const subject = _.values(stamp.compose).filter(_.negate(_.isEmpty));
     const expected = _.values(compose().compose);
 
-    assert.deepEqual(subject, expected, "should not add any descriptor data");
+    assert.deepEqual(subject, expected, 'should not add any descriptor data');
 
     assert.end();
   });
 
-  test("compose in order", assert => {
+  test('compose in order', (assert) => {
     const initOrder = [];
-    const getInitDescriptor = value => {
+    const getInitDescriptor = (value) => {
       return {
         initializers: [
           () => {
             initOrder.push(value);
-          }
-        ]
+          },
+        ],
       };
     };
 
@@ -46,38 +56,30 @@ module.exports = compose => {
     stamp();
     const expected = [0, 1, 2, 3, 4, 5];
 
-    assert.deepEqual(initOrder, expected, "should compose in proper order");
+    assert.deepEqual(initOrder, expected, 'should compose in proper order');
 
     assert.end();
   });
 
-  test("compose is detachable", assert => {
+  test('compose is detachable', (assert) => {
     const detachedCompose = compose().compose;
 
-    assert.notEqual(
-      compose,
-      detachedCompose,
-      'stamp .compose function must be a different object to "compose"'
-    );
+    assert.notEqual(compose, detachedCompose, 'stamp .compose function must be a different object to "compose"');
 
     assert.end();
   });
 
-  test("detached compose does not inherit previous descriptor", assert => {
+  test('detached compose does not inherit previous descriptor', (assert) => {
     const detachedCompose = compose({ properties: { foo: 1 } }).compose;
     const obj = detachedCompose()();
     let expected;
 
-    assert.equal(
-      obj.foo,
-      expected,
-      "detached compose method should not inherit parent descriptor data"
-    );
+    assert.equal(obj.foo, expected, 'detached compose method should not inherit parent descriptor data');
 
     assert.end();
   });
 
-  test("compose is replaceable", assert => {
+  test('compose is replaceable', (assert) => {
     let counter = 0;
 
     function newCompose() {
@@ -94,12 +96,12 @@ module.exports = compose => {
       .compose();
     const expected = 3;
 
-    assert.equal(counter, expected, "should inherit new compose function");
+    assert.equal(counter, expected, 'should inherit new compose function');
 
     assert.end();
   });
 
-  test("replaced compose method is always a new object", assert => {
+  test('replaced compose method is always a new object', (assert) => {
     function newCompose() {
       return compose(
         { staticProperties: { compose: newCompose } },
@@ -113,15 +115,15 @@ module.exports = compose => {
     const stamp2 = stamp1.compose();
     const compose2 = stamp2.compose;
 
-    assert.notEqual(compose1, compose2, "should be different objects");
+    assert.notEqual(compose1, compose2, 'should be different objects');
 
     assert.end();
   });
 
-  test("replaced compose method is always a function", assert => {
+  test('replaced compose method is always a function', (assert) => {
     function newCompose() {
       return compose(
-        { staticProperties: { compose: "rubbish" } },
+        { staticProperties: { compose: 'rubbish' } },
         this,
         arguments
       );
@@ -131,12 +133,12 @@ module.exports = compose => {
     const actual = _.isFunction(overridenCompose);
     const expected = true;
 
-    assert.equal(actual, expected, "should be a function");
+    assert.equal(actual, expected, 'should be a function');
 
     assert.end();
   });
 
-  test("broken stamp", assert => {
+  test('broken stamp', (assert) => {
     const brokenStamp = compose();
     delete brokenStamp.compose;
 

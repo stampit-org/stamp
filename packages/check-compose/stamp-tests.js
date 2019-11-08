@@ -1,8 +1,17 @@
-const test = require("tape");
-const _ = require("lodash");
+/* eslint-disable jest/expect-expect */
+/* eslint-disable jest/lowercase-name */
+/* eslint-disable jest/no-test-callback */
+/* eslint-disable jest/no-export */
+/* eslint-disable jest/require-top-level-describe */
 
-module.exports = compose => {
+'use strict';
+
+const test = require('tape');
+const _ = require('lodash');
+
+module.exports = (compose) => {
   const build = (prop, key, val) => {
+    // eslint-disable-next-line no-param-reassign
     val = val || key;
     const composable = () => {};
     composable.compose = () => {};
@@ -13,111 +22,103 @@ module.exports = compose => {
     return composable;
   };
 
-  test("compose()", assert => {
+  test('compose()', (assert) => {
     const actual = typeof compose();
-    const expected = "function";
+    const expected = 'function';
 
-    assert.equal(actual, expected, "compose() should return a function");
+    assert.equal(actual, expected, 'compose() should return a function');
 
     assert.end();
   });
 
-  test("Stamp", nest => {
-    nest.test("...with no arguments", assert => {
+  test('Stamp', (nest) => {
+    nest.test('...with no arguments', (assert) => {
       const actual = typeof compose()();
-      const expected = "object";
+      const expected = 'object';
 
-      assert.equal(actual, expected, "should produce an object instance");
+      assert.equal(actual, expected, 'should produce an object instance');
 
       assert.end();
     });
 
-    nest.test("...with broken descriptor", assert => {
+    nest.test('...with broken descriptor', (assert) => {
       const stamp = compose();
       stamp.compose = null;
 
       const expected = {};
       const actual = stamp();
 
-      assert.deepEqual(
-        actual,
-        expected,
-        "should ignore non function initializers"
-      );
+      assert.deepEqual(actual, expected, 'should ignore non function initializers');
 
       assert.end();
     });
 
-    nest.test("should allow late descriptor edition", assert => {
+    nest.test('should allow late descriptor edition', (assert) => {
       const stamp = compose();
-      stamp.compose.properties = { foo: "exists" };
+      stamp.compose.properties = { foo: 'exists' };
 
-      const expected = { foo: "exists" };
+      const expected = { foo: 'exists' };
       const actual = stamp();
 
-      assert.deepEqual(
-        actual,
-        expected,
-        "should allow late addition of metadata"
-      );
+      assert.deepEqual(actual, expected, 'should allow late addition of metadata');
 
       assert.end();
     });
   });
 
-  test("Stamp assignments", nest => {
-    nest.test("...with properties", assert => {
+  test('Stamp assignments', (nest) => {
+    nest.test('...with properties', (assert) => {
       const composable = () => {};
       composable.compose = () => {};
       composable.compose.properties = {
-        a: "a",
-        b: "b"
+        a: 'a',
+        b: 'b',
       };
       const stamp = compose(composable);
 
       const expected = {
-        a: "a",
-        b: "b"
+        a: 'a',
+        b: 'b',
       };
       const actual = _.pick(stamp(), _.keys(expected));
 
-      assert.deepEqual(actual, expected, "should create properties");
+      assert.deepEqual(actual, expected, 'should create properties');
 
       assert.end();
     });
   });
 
-  test("Stamp.compose()", nest => {
-    nest.test("...type", assert => {
+  test('Stamp.compose()', (nest) => {
+    nest.test('...type', (assert) => {
       const actual = typeof compose().compose;
-      const expected = "function";
+      const expected = 'function';
 
-      assert.equal(actual, expected, "should be a function");
+      assert.equal(actual, expected, 'should be a function');
 
       assert.end();
     });
 
-    nest.test("...with no arguments", assert => {
+    nest.test('...with no arguments', (assert) => {
       const actual = typeof compose().compose().compose;
-      const expected = "function";
+      const expected = 'function';
 
-      assert.equal(actual, expected, "should return a new stamp");
+      assert.equal(actual, expected, 'should return a new stamp');
 
       assert.end();
     });
 
-    nest.test("...with base defaults", assert => {
-      const stamp1 = compose(build("properties", "a"));
-      const stamp2 = compose(build("properties", "b"));
+    nest.test('...with base defaults', (assert) => {
+      const stamp1 = compose(build('properties', 'a'));
+      const stamp2 = compose(build('properties', 'b'));
       const finalStamp = stamp1.compose(stamp2);
 
       const expected = {
-        a: "a",
-        b: "b"
+        a: 'a',
+        b: 'b',
       };
       const actual = _.pick(finalStamp(), _.keys(expected));
 
-      assert.deepEqual(actual, expected, "should use Stamp as base composable");
+      assert.deepEqual(actual, expected, 'should use Stamp as base composable');
 
       assert.end();
     });
