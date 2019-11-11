@@ -3,8 +3,6 @@
 /* eslint-disable jest/no-export */
 /* eslint-disable jest/require-top-level-describe */
 
-/* eslint-disable func-names */
-
 'use strict';
 
 const test = require('tape');
