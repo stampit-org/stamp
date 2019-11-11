@@ -8,9 +8,7 @@ const Named = compose({
       const Stamp = this && this.compose ? this : Named;
       return Stamp.compose({
         staticPropertyDescriptors: {
-          name: {
-            value: name,
-          },
+          name: { value: name },
         },
       });
     },
