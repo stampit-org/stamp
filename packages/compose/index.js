@@ -4,7 +4,8 @@ const { isArray, isComposable, isFunction, isObject, isStamp } = require('@stamp
 const { assign, merge } = require('@stamp/core');
 
 const { defineProperties } = Object;
-const { get, set, setPrototypeOf } = Reflect;
+const { get, set } = Reflect;
+// const { get, set, setPrototypeOf } = Reflect;
 
 /**
  * Creates new factory instance.
@@ -14,9 +15,9 @@ const createFactory = () => {
   return function Stamp(options = {}, ...args) {
     const descriptor = Stamp.compose || {};
     // Next line was optimized for most JS VMs. Please, be careful here!
-    // let obj = { __proto__: descriptor.methods };
-    let obj = {};
-    if (descriptor.methods) setPrototypeOf(obj, descriptor.methods);
+    let obj = { __proto__: descriptor.methods };
+    // let obj = {};
+    // if (descriptor.methods) setPrototypeOf(obj, descriptor.methods);
 
     merge(obj, descriptor.deepProperties);
     assign(obj, descriptor.properties);
@@ -25,7 +26,7 @@ const createFactory = () => {
     // if (!descriptor.initializers || descriptor.initializers.length === 0) return obj;
     if (descriptor.initializers && descriptor.initializers.length > 0) {
       const inits = descriptor.initializers;
-      inits.forEach((initializer) => {
+      for (const initializer of inits) {
         if (isFunction(initializer)) {
           const returnedValue = initializer.call(obj, options, {
             instance: obj,
@@ -34,7 +35,7 @@ const createFactory = () => {
           });
           if (returnedValue !== undefined) obj = returnedValue;
         }
-      });
+      }
     }
 
     return obj;
@@ -71,9 +72,11 @@ const createStamp = (descriptor, composeFunction) => {
 
 const concatAssignFunctions = (dstObject, srcArray, propName) => {
   if (isArray(srcArray)) {
-    const ws = new Set(get(dstObject, propName) || []);
-    srcArray.forEach((fn) => isFunction(fn) && ws.add(fn));
-    set(dstObject, propName, [...ws]);
+    const deduped = new Set(get(dstObject, propName) || []);
+    for (const fn of srcArray) {
+      if (isFunction(fn)) deduped.add(fn);
+    }
+    set(dstObject, propName, [...deduped]);
   }
 };
 

@@ -29,10 +29,12 @@ Object.freeze(required);
 const checkDescriptorHaveThese = (descriptor, settings) => {
   if (descriptor && settings) {
     // Traverse settings and find if there is anything required.
-    getOwnPropertyKeys(settings).forEach((settingsKey) => {
+    const settingsKeys = getOwnPropertyKeys(settings);
+    for (const settingsKey of settingsKeys) {
       const settingsValue = get(settings, settingsKey);
       if (isObject(settingsValue)) {
-        getOwnPropertyKeys(settingsValue).forEach((metadataKey) => {
+        const metadataKeys = getOwnPropertyKeys(settingsValue);
+        for (const metadataKey of metadataKeys) {
           const metadataValue = get(settingsValue, metadataKey);
           if (metadataValue === Required || metadataValue === required) {
             // We found one thing which have to be provided. Let's check if it exists.
@@ -41,9 +43,9 @@ const checkDescriptorHaveThese = (descriptor, settings) => {
               throw new Error(`Required: There must be ${metadataKey} in this stamp ${settingsKey}`);
             }
           }
-        });
+        }
       }
-    });
+    }
   }
 };
 
