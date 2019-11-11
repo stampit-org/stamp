@@ -1,6 +1,5 @@
 /* eslint-disable jest/prefer-called-with */
 /* eslint-disable jest/require-to-throw-message */
-/* eslint-disable func-names */
 
 'use strict';
 

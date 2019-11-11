@@ -1,7 +1,6 @@
+/* eslint-disable no-return-assign */
 /* eslint-disable jest/no-truthy-falsy */
 /* eslint-disable jest/require-to-throw-message */
-/* eslint-disable func-names */
-/* eslint-disable no-return-assign */
 
 'use strict';
 

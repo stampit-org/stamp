@@ -1,8 +1,7 @@
+/* eslint-disable global-require */
 /* eslint-disable jest/expect-expect */
 /* eslint-disable jest/no-test-return-statement */
 /* eslint-disable node/no-unpublished-require */
-/* eslint-disable func-names */
-/* eslint-disable global-require */
 
 'use strict';
 

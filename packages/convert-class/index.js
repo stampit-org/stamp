@@ -28,7 +28,7 @@ const classMethods = (ctor) =>
     : ownKeys(ctor.prototype).reduce(copyMethodsFrom(ctor.prototype), classMethods(getPrototypeOf(ctor)));
 
 const init = (ctor) =>
-  // eslint-disable-next-line func-names,no-unused-vars
+  // eslint-disable-next-line no-unused-vars
   function(_, { instance, args }) {
     if (this) assign(this, construct(ctor, args));
   };

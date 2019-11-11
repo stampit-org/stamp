@@ -1,6 +1,3 @@
-/* eslint-disable func-names */
-/* eslint-disable max-classes-per-file */
-
 'use strict';
 
 const compose = require('@stamp/compose');

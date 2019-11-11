@@ -1,4 +1,3 @@
-/* eslint-disable func-names */
 /* eslint-disable global-require */
 
 'use strict';

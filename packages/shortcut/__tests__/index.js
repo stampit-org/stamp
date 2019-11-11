@@ -1,5 +1,4 @@
 /* eslint-disable jest/no-truthy-falsy */
-/* eslint-disable func-names */
 
 'use strict';
 

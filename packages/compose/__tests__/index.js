@@ -1,16 +1,15 @@
+/* eslint-disable global-require */
+/* eslint-disable jest/expect-expect */
+/* eslint-disable jest/no-test-return-statement */
 /* eslint-disable node/no-unpublished-require */
-/* eslint-disable func-names */
 
 'use strict';
 
 const checkCompose = require('@stamp/check-compose');
 
 describe('@stamp/compose', function() {
-  // eslint-disable-next-line jest/expect-expect
   it('passes official tests', function() {
-    // eslint-disable-next-line global-require
     const compose = require('..');
-    // eslint-disable-next-line jest/no-test-return-statement
     return checkCompose(compose).then(function(result) {
       const { failures } = result;
       if (failures && failures.length > 0) {

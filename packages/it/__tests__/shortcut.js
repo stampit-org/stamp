@@ -1,5 +1,4 @@
 /* eslint-disable node/no-unpublished-require */
-/* eslint-disable func-names */
 
 'use strict';
 

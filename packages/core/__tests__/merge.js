@@ -1,5 +1,3 @@
-/* eslint-disable func-names */
-
 'use strict';
 
 const merge = require('../merge');
