@@ -2,9 +2,8 @@
 
 const isPlainObject = require('@stamp/is/plain-object');
 const isArray = require('@stamp/is/array');
-const getOwnPropertyKeys = require('./get-own-property-keys');
 
-const { defineProperty, get, getOwnPropertyDescriptor, set } = Reflect;
+const { defineProperty, get, getOwnPropertyDescriptor, ownKeys, set } = Reflect;
 
 /**
  * The 'src' argument plays the command role.
@@ -22,7 +21,8 @@ function mergeOne(dst, src) {
     // Now deal with non plain 'src' object. 'src' overrides 'dst'
     // Note that functions are also assigned! We do not deep merge functions.
     if (isPlainObject(src)) {
-      getOwnPropertyKeys(src).forEach((key) => {
+      const keys = ownKeys(src);
+      for (const key of keys) {
         const desc = getOwnPropertyDescriptor(src, key);
         // is this a regular property?
         if (getOwnPropertyDescriptor(desc, 'value') !== undefined) {
@@ -39,7 +39,7 @@ function mergeOne(dst, src) {
           // nope, it looks like a getter/setter
           defineProperty(dst, key, desc);
         }
-      });
+      }
     } else {
       return src;
     }
@@ -48,6 +48,12 @@ function mergeOne(dst, src) {
   return dst;
 }
 
-const merge = (...args) => args.reduce((dst, arg) => mergeOne(dst, arg));
+const merge = (dst, ...args) => {
+  for (const arg of args) {
+    // eslint-disable-next-line no-param-reassign
+    dst = mergeOne(dst, arg);
+  }
+  return dst;
+};
 
 module.exports = merge;

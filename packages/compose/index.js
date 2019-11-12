@@ -123,23 +123,27 @@ const mergeComposable = (dstDescriptor, srcComposable) => {
 function compose(...args) {
   const descriptor = {};
   const composables = [];
-  const add = (value) => {
-    mergeComposable(descriptor, value);
-    composables.push(value);
-  };
 
-  if (isComposable(this)) add(this);
+  if (isComposable(this)) {
+    mergeComposable(descriptor, this);
+    composables.push(this);
+  }
 
-  args.forEach((arg) => isComposable(arg) && add(arg));
+  for (const arg of args) {
+    if (isComposable(arg)) {
+      mergeComposable(descriptor, arg);
+      composables.push(arg);
+    }
+  }
 
   let stamp = createStamp(descriptor, compose);
 
   const { composers } = descriptor;
   if (isArray(composers) && composers.length > 0) {
-    composers.forEach((composer) => {
+    for (const composer of composers) {
       const returnedValue = composer({ stamp, composables });
       if (isStamp(returnedValue)) stamp = returnedValue;
-    });
+    }
   }
 
   return stamp;
