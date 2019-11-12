@@ -62,10 +62,7 @@ module.exports = (compose) => {
     });
 
     nest.test('...with two initializers', (assert) => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+      const subject = compose(build(1), build(2));
       const { initializers } = subject.compose;
 
       const actual = initializers[0]().num;
@@ -77,10 +74,7 @@ module.exports = (compose) => {
     });
 
     nest.test('...with two initializers', (assert) => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+      const subject = compose(build(1), build(2));
       const { initializers } = subject.compose;
 
       const actual = initializers[1]().num;
@@ -92,11 +86,7 @@ module.exports = (compose) => {
     });
 
     nest.test('...with three initializers', (assert) => {
-      const subject = compose(
-        build(1),
-        build(2),
-        build(3)
-      );
+      const subject = compose(build(1), build(2), build(3));
       const { initializers } = subject.compose;
 
       const actual = initializers[2]().num;
@@ -114,11 +104,7 @@ module.exports = (compose) => {
       stamp2.compose.initializers = stamp1.compose.initializers.slice();
       stamp3.compose.initializers = stamp1.compose.initializers.slice();
       stamp3.compose.initializers.push(stamp3.compose.initializers[0]);
-      const subject = compose(
-        stamp1,
-        stamp2,
-        stamp3
-      );
+      const subject = compose(stamp1, stamp2, stamp3);
       const { initializers } = subject.compose;
 
       const actual = initializers.length;

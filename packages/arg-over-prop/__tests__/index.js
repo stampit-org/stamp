@@ -47,30 +47,12 @@ describe('@stamp/arg-over-prop', function() {
     const Stamp1 = ArgOverProp.argOverProp('x');
     const Stamp2 = ArgOverProp.argOverProp({ x: 1 });
     const Stamp3 = ArgOverProp.argOverProp(['x']);
-    const S1 = Stamp1.compose(
-      Stamp2,
-      Stamp3
-    );
-    const S2 = Stamp1.compose(
-      Stamp3,
-      Stamp2
-    );
-    const S3 = Stamp2.compose(
-      Stamp1,
-      Stamp3
-    );
-    const S4 = Stamp2.compose(
-      Stamp3,
-      Stamp1
-    );
-    const S5 = Stamp3.compose(
-      Stamp1,
-      Stamp2
-    );
-    const S6 = Stamp3.compose(
-      Stamp2,
-      Stamp1
-    );
+    const S1 = Stamp1.compose(Stamp2, Stamp3);
+    const S2 = Stamp1.compose(Stamp3, Stamp2);
+    const S3 = Stamp2.compose(Stamp1, Stamp3);
+    const S4 = Stamp2.compose(Stamp3, Stamp1);
+    const S5 = Stamp3.compose(Stamp1, Stamp2);
+    const S6 = Stamp3.compose(Stamp2, Stamp1);
 
     expect(S1({ x: 2 })).toStrictEqual({ x: 2 });
     expect(S2({ x: 2 })).toStrictEqual({ x: 2 });

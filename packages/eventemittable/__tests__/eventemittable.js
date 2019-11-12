@@ -27,12 +27,9 @@ describe('EventEmittable', function() {
     it('should not overwrite collided methods', function() {
       const on = jest.fn();
       const off = jest.fn();
-      const MyStamp = compose(
-        EventEmittable,
-        {
-          methods: { on, off },
-        }
-      );
+      const MyStamp = compose(EventEmittable, {
+        methods: { on, off },
+      });
 
       expect(MyStamp().on).toBe(on);
       expect(MyStamp().off).toBe(off);

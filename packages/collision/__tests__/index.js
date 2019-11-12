@@ -26,10 +26,7 @@ describe('@stamp/collision', function() {
       },
     });
 
-    const StampCombined = compose(
-      Defer1,
-      Defer2
-    );
+    const StampCombined = compose(Defer1, Defer2);
     const obj = StampCombined();
 
     const result = obj.draw();
@@ -51,16 +48,10 @@ describe('@stamp/collision', function() {
     const Regular = compose({ methods: { draw() {} } });
 
     expect(function() {
-      compose(
-        Defer,
-        Regular
-      );
+      compose(Defer, Regular);
     }).toThrow();
     expect(function() {
-      compose(
-        Regular,
-        Defer
-      );
+      compose(Regular, Defer);
     }).toThrow();
   });
 
@@ -80,16 +71,10 @@ describe('@stamp/collision', function() {
     });
 
     expect(function() {
-      compose(
-        Defer,
-        Regular
-      );
+      compose(Defer, Regular);
     }).not.toThrow();
     expect(function() {
-      compose(
-        Regular,
-        Defer
-      );
+      compose(Regular, Defer);
     }).not.toThrow();
   });
 
@@ -117,29 +102,17 @@ describe('@stamp/collision', function() {
     });
 
     expect(function() {
-      compose(
-        Forbid,
-        Defer
-      );
+      compose(Forbid, Defer);
     }).toThrow();
     expect(function() {
-      compose(
-        Defer,
-        Forbid
-      );
+      compose(Defer, Forbid);
     }).toThrow();
 
     expect(function() {
-      compose(
-        Regular,
-        Forbid
-      );
+      compose(Regular, Forbid);
     }).toThrow();
     expect(function() {
-      compose(
-        Forbid,
-        Regular
-      );
+      compose(Forbid, Regular);
     }).toThrow();
   });
 
@@ -171,40 +144,22 @@ describe('@stamp/collision', function() {
     );
 
     expect(function() {
-      compose(
-        FooBar,
-        Foo
-      );
+      compose(FooBar, Foo);
     }).toThrow();
     expect(function() {
-      compose(
-        Foo,
-        FooBar
-      );
+      compose(Foo, FooBar);
     }).toThrow();
     expect(function() {
-      compose(
-        FooBar,
-        Bar
-      );
+      compose(FooBar, Bar);
     }).toThrow();
     expect(function() {
-      compose(
-        Bar,
-        FooBar
-      );
+      compose(Bar, FooBar);
     }).toThrow();
     expect(function() {
-      compose(
-        Foo,
-        Bar
-      );
+      compose(Foo, Bar);
     }).not.toThrow();
     expect(function() {
-      compose(
-        Bar,
-        Foo
-      );
+      compose(Bar, Foo);
     }).not.toThrow();
   });
 
@@ -223,29 +178,16 @@ describe('@stamp/collision', function() {
     const Stamp3 = compose(Base);
 
     expect(function() {
-      compose(
-        Stamp1,
-        Stamp2
-      );
+      compose(Stamp1, Stamp2);
     }).not.toThrow();
     expect(function() {
-      compose(
-        Stamp1,
-        Stamp2,
-        Stamp3
-      );
+      compose(Stamp1, Stamp2, Stamp3);
     }).not.toThrow();
     expect(function() {
-      compose(Stamp1).compose(
-        Stamp2,
-        Stamp3
-      );
+      compose(Stamp1).compose(Stamp2, Stamp3);
     }).not.toThrow();
     expect(function() {
-      compose(
-        Stamp1,
-        Stamp2
-      ).compose(Stamp3);
+      compose(Stamp1, Stamp2).compose(Stamp3);
     }).not.toThrow();
   });
 
@@ -277,40 +219,22 @@ describe('@stamp/collision', function() {
     );
 
     expect(function() {
-      compose(
-        FooBar,
-        Foo
-      );
+      compose(FooBar, Foo);
     }).not.toThrow();
     expect(function() {
-      compose(
-        Foo,
-        FooBar
-      );
+      compose(Foo, FooBar);
     }).not.toThrow();
     expect(function() {
-      compose(
-        FooBar,
-        Bar
-      );
+      compose(FooBar, Bar);
     }).toThrow();
     expect(function() {
-      compose(
-        Bar,
-        FooBar
-      );
+      compose(Bar, FooBar);
     }).toThrow();
     expect(function() {
-      compose(
-        Foo,
-        Bar
-      );
+      compose(Foo, Bar);
     }).not.toThrow();
     expect(function() {
-      compose(
-        Bar,
-        Foo
-      );
+      compose(Bar, Foo);
     }).not.toThrow();
   });
 
@@ -343,16 +267,10 @@ describe('@stamp/collision', function() {
     });
 
     expect(function() {
-      compose(
-        Forbid,
-        Regular
-      );
+      compose(Forbid, Regular);
     }).not.toThrow();
     expect(function() {
-      compose(
-        Regular,
-        Forbid
-      );
+      compose(Regular, Forbid);
     }).not.toThrow();
   });
 
@@ -382,28 +300,16 @@ describe('@stamp/collision', function() {
     });
 
     expect(function() {
-      compose(
-        Resetted1,
-        Resetted2
-      );
+      compose(Resetted1, Resetted2);
     }).not.toThrow();
     expect(function() {
-      compose(
-        Resetted1,
-        Regular
-      );
+      compose(Resetted1, Regular);
     }).not.toThrow();
     expect(function() {
-      compose(
-        Resetted2,
-        Resetted1
-      );
+      compose(Resetted2, Resetted1);
     }).not.toThrow();
     expect(function() {
-      compose(
-        Regular,
-        Resetted1
-      );
+      compose(Regular, Resetted1);
     }).not.toThrow();
   });
 
@@ -414,37 +320,25 @@ describe('@stamp/collision', function() {
       },
     });
 
-    const NoDefer = compose(
-      Collision,
-      {
-        methods: {
-          draw() {},
-        },
-      }
-    );
+    const NoDefer = compose(Collision, {
+      methods: {
+        draw() {},
+      },
+    });
     NoDefer.compose.deepConfiguration.Collision.defer = null;
 
-    const NoForbid = compose(
-      Collision,
-      {
-        methods: {
-          draw() {},
-        },
-      }
-    );
+    const NoForbid = compose(Collision, {
+      methods: {
+        draw() {},
+      },
+    });
     NoForbid.compose.deepConfiguration.Collision.forbid = null;
 
     expect(function() {
-      compose(
-        UndefinedMethod,
-        NoForbid
-      );
+      compose(UndefinedMethod, NoForbid);
     }).not.toThrow();
     expect(function() {
-      compose(
-        UndefinedMethod,
-        NoDefer
-      );
+      compose(UndefinedMethod, NoDefer);
     }).not.toThrow();
   });
 });

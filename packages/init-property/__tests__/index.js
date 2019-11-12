@@ -112,11 +112,7 @@ describe('@stamp/init-property', function() {
     const Stamp2 = compose({
       initializers: [function() {}],
     });
-    const Stamp = compose(
-      Stamp1,
-      InitProperty,
-      Stamp2
-    );
+    const Stamp = compose(Stamp1, InitProperty, Stamp2);
 
     expect(Stamp.compose.initializers[0]).toBe(InitProperty.compose.initializers[0]);
   });

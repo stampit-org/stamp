@@ -13,13 +13,7 @@ function required(settings) {
   const prevSettings = Stamp.compose.deepConfiguration && Stamp.compose.deepConfiguration.Required;
 
   // filter out non stamp things
-  const newSettings = assign(
-    {},
-    compose(
-      prevSettings,
-      settings
-    ).compose
-  );
+  const newSettings = assign({}, compose(prevSettings, settings).compose);
 
   return Stamp.compose({ deepConfiguration: { Required: newSettings } });
 }

@@ -27,10 +27,7 @@ module.exports = (compose) => {
       };
 
       nest.test(`...${prop} merge 1`, (assert) => {
-        const subject = compose(
-          build(1),
-          build(2)
-        );
+        const subject = compose(build(1), build(2));
         const props = subject.compose;
 
         const actual = props[prop].a[1];
@@ -42,10 +39,7 @@ module.exports = (compose) => {
       });
 
       nest.test(`...${prop} merge 2`, (assert) => {
-        const subject = compose(
-          build(1),
-          build(2)
-        );
+        const subject = compose(build(1), build(2));
         const props = subject.compose;
 
         const actual = props[prop].a[2];
@@ -57,11 +51,7 @@ module.exports = (compose) => {
       });
 
       nest.test(`...${prop} merge 3`, (assert) => {
-        const subject = compose(
-          build(1),
-          build(2),
-          build(3)
-        );
+        const subject = compose(build(1), build(2), build(3));
         const props = subject.compose;
 
         const actual = props[prop].a[3];
@@ -93,10 +83,7 @@ module.exports = (compose) => {
       });
 
       function deepMerge(a, b) {
-        return compose(
-          { [prop]: a },
-          { [prop]: b }
-        ).compose[prop];
+        return compose({ [prop]: a }, { [prop]: b }).compose[prop];
       }
 
       nest.test('undefined does not replace object', (t) => {
@@ -215,10 +202,7 @@ module.exports = (compose) => {
         c1[prop] = a;
         const c2 = {};
         c2[prop] = b;
-        return compose(
-          c1,
-          c2
-        ).compose[prop];
+        return compose(c1, c2).compose[prop];
       }
 
       nest.test('array replaces object', (t) => {

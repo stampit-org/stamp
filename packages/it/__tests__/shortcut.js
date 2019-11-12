@@ -149,11 +149,7 @@ describe('shortcuts', function() {
       .conf()
       .deepConf();
 
-    const Foo = compose(
-      HasFoo,
-      PrintFoo,
-      Init
-    );
+    const Foo = compose(HasFoo, PrintFoo, Init);
 
     expect(Foo.compose.properties.foo).toBe('default foo!');
     // eslint-disable-next-line jest/no-truthy-falsy

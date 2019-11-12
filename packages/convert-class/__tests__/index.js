@@ -162,12 +162,7 @@ describe('@stamp/convert-class', function() {
     ).toBe(1);
     expect(S2.compose({ initializers: [() => 1] })()).toBe(1);
     expect(S2.compose({ initializers: [() => 1] })()).toBe(1);
-    expect(
-      compose(
-        { initializers: [() => null] },
-        S2
-      )()
-    ).toBeNull();
+    expect(compose({ initializers: [() => null] }, S2)()).toBeNull();
   });
 
   it('super is delegated in method and static methods', function() {

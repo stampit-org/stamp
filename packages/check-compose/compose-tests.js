@@ -13,15 +13,7 @@ const _ = require('lodash');
 
 module.exports = (compose) => {
   test('compose ignores non objects', (assert) => {
-    const stamp = compose(
-      0,
-      'a',
-      null,
-      undefined,
-      {},
-      NaN,
-      /regexp/
-    );
+    const stamp = compose(0, 'a', null, undefined, {}, NaN, /regexp/);
     const subject = _.values(stamp.compose).filter(_.negate(_.isEmpty));
     const expected = _.values(compose().compose);
 
@@ -44,13 +36,7 @@ module.exports = (compose) => {
 
     const stamp = compose(
       compose(getInitDescriptor(0)),
-      compose(
-        getInitDescriptor(1),
-        getInitDescriptor(2)
-      ).compose(
-        getInitDescriptor(3),
-        getInitDescriptor(4)
-      ),
+      compose(getInitDescriptor(1), getInitDescriptor(2)).compose(getInitDescriptor(3), getInitDescriptor(4)),
       getInitDescriptor(5)
     );
     stamp();
@@ -84,11 +70,7 @@ module.exports = (compose) => {
 
     function newCompose() {
       counter++;
-      return compose(
-        { staticProperties: { compose: newCompose } },
-        this,
-        arguments
-      );
+      return compose({ staticProperties: { compose: newCompose } }, this, arguments);
     }
 
     newCompose()
@@ -103,11 +85,7 @@ module.exports = (compose) => {
 
   test('replaced compose method is always a new object', (assert) => {
     function newCompose() {
-      return compose(
-        { staticProperties: { compose: newCompose } },
-        this,
-        arguments
-      );
+      return compose({ staticProperties: { compose: newCompose } }, this, arguments);
     }
 
     const stamp1 = newCompose();
@@ -122,11 +100,7 @@ module.exports = (compose) => {
 
   test('replaced compose method is always a function', (assert) => {
     function newCompose() {
-      return compose(
-        { staticProperties: { compose: 'rubbish' } },
-        this,
-        arguments
-      );
+      return compose({ staticProperties: { compose: 'rubbish' } }, this, arguments);
     }
 
     const overridenCompose = newCompose().compose().compose;

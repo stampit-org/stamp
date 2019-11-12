@@ -54,10 +54,7 @@ module.exports = (compose) => {
   // that copy and priority are implemented correctly.
   assignmentProps.forEach((prop) => {
     test(`${prop} assignment 1`, (assert) => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       let actual = descr[prop][1];
@@ -74,10 +71,7 @@ module.exports = (compose) => {
     });
 
     test(`${prop} assignment 2`, (assert) => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       let actual = descr[prop][2];
@@ -93,11 +87,7 @@ module.exports = (compose) => {
     });
 
     test(`${prop} assignment 3`, (assert) => {
-      const subject = compose(
-        build(1),
-        build(2),
-        build(3)
-      );
+      const subject = compose(build(1), build(2), build(3));
       const descr = subject.compose;
 
       let actual = descr[prop][3];
@@ -113,10 +103,7 @@ module.exports = (compose) => {
     });
 
     test(`${prop} assignment priority`, (assert) => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       let actual = descr[prop].override;
@@ -132,10 +119,7 @@ module.exports = (compose) => {
     });
 
     test(`${prop} getters copying`, (assert) => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       const actual = descr[prop].getter;
@@ -147,10 +131,7 @@ module.exports = (compose) => {
     });
 
     test(`${prop} setters copying`, (assert) => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       descr[prop].setter = 4;
@@ -163,10 +144,7 @@ module.exports = (compose) => {
     });
 
     test(`${prop} getter+setter copying`, (assert) => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       let actual = descr[prop].getterAndSetter;

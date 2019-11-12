@@ -9,16 +9,13 @@ const Configure = require('..');
 
 describe('configure', function() {
   it('should allow composition', function() {
-    const MyStamp = compose(
-      Configure,
-      {
-        methods: {
-          foo() {
-            return 'bar';
-          },
+    const MyStamp = compose(Configure, {
+      methods: {
+        foo() {
+          return 'bar';
         },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.foo()).toBe('bar');
@@ -32,95 +29,80 @@ describe('configure', function() {
   });
 
   it('should make config property accessible from methods', function() {
-    const MyStamp = compose(
-      Configure,
-      {
-        methods: {
-          read() {
-            return this.config;
-          },
+    const MyStamp = compose(Configure, {
+      methods: {
+        read() {
+          return this.config;
         },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.read()).toBeTruthy();
   });
 
   it('should assign values from stamp configuration to config property', function() {
-    const MyStamp = compose(
-      Configure,
-      {
-        configuration: {
-          test: 'foo',
+    const MyStamp = compose(Configure, {
+      configuration: {
+        test: 'foo',
+      },
+      methods: {
+        read() {
+          return this.config;
         },
-        methods: {
-          read() {
-            return this.config;
-          },
-        },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.read().test).toBe('foo');
   });
 
   it('should assign values from stamp deepConfiguration to config property', function() {
-    const MyStamp = compose(
-      Configure,
-      {
-        deepConfiguration: {
-          test: ['foo', 'bar'],
+    const MyStamp = compose(Configure, {
+      deepConfiguration: {
+        test: ['foo', 'bar'],
+      },
+      methods: {
+        read() {
+          return this.config;
         },
-        methods: {
-          read() {
-            return this.config;
-          },
-        },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.read().test).toStrictEqual(['foo', 'bar']);
   });
 
   it('should take configuration over deepConfiguration when name conflict', function() {
-    const MyStamp = compose(
-      Configure,
-      {
-        configuration: {
-          test: 'foo',
+    const MyStamp = compose(Configure, {
+      configuration: {
+        test: 'foo',
+      },
+      deepConfiguration: {
+        test: ['foo', 'bar'],
+      },
+      methods: {
+        read() {
+          return this.config;
         },
-        deepConfiguration: {
-          test: ['foo', 'bar'],
-        },
-        methods: {
-          read() {
-            return this.config;
-          },
-        },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.read().test).toStrictEqual('foo');
   });
 
   it('should forbid any mutations to config object', function() {
-    const MyStamp = compose(
-      Configure,
-      {
-        configuration: {
-          test: 'foo',
+    const MyStamp = compose(Configure, {
+      configuration: {
+        test: 'foo',
+      },
+      methods: {
+        write() {
+          return (this.config.test = 'bar');
         },
-        methods: {
-          write() {
-            return (this.config.test = 'bar');
-          },
-        },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.write).toThrow();
@@ -129,16 +111,13 @@ describe('configure', function() {
 
 describe('configure.noPrivatize()', function() {
   it('should allow composition', function() {
-    const MyStamp = compose(
-      Configure.noPrivatize(),
-      {
-        methods: {
-          foo() {
-            return 'bar';
-          },
+    const MyStamp = compose(Configure.noPrivatize(), {
+      methods: {
+        foo() {
+          return 'bar';
         },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.foo()).toBe('bar');
@@ -152,95 +131,80 @@ describe('configure.noPrivatize()', function() {
   });
 
   it('should make config property accessible from methods', function() {
-    const MyStamp = compose(
-      Configure.noPrivatize(),
-      {
-        methods: {
-          read() {
-            return this.config;
-          },
+    const MyStamp = compose(Configure.noPrivatize(), {
+      methods: {
+        read() {
+          return this.config;
         },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.read()).toBeTruthy();
   });
 
   it('should assign values from stamp configuration to config property', function() {
-    const MyStamp = compose(
-      Configure.noPrivatize(),
-      {
-        configuration: {
-          test: 'foo',
+    const MyStamp = compose(Configure.noPrivatize(), {
+      configuration: {
+        test: 'foo',
+      },
+      methods: {
+        read() {
+          return this.config;
         },
-        methods: {
-          read() {
-            return this.config;
-          },
-        },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.read().test).toBe('foo');
   });
 
   it('should assign values from stamp deepConfiguration to config property', function() {
-    const MyStamp = compose(
-      Configure.noPrivatize(),
-      {
-        deepConfiguration: {
-          test: ['foo', 'bar'],
+    const MyStamp = compose(Configure.noPrivatize(), {
+      deepConfiguration: {
+        test: ['foo', 'bar'],
+      },
+      methods: {
+        read() {
+          return this.config;
         },
-        methods: {
-          read() {
-            return this.config;
-          },
-        },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.read().test).toStrictEqual(['foo', 'bar']);
   });
 
   it('should take configuration over deepConfiguration when name conflict', function() {
-    const MyStamp = compose(
-      Configure.noPrivatize(),
-      {
-        configuration: {
-          test: 'foo',
+    const MyStamp = compose(Configure.noPrivatize(), {
+      configuration: {
+        test: 'foo',
+      },
+      deepConfiguration: {
+        test: ['foo', 'bar'],
+      },
+      methods: {
+        read() {
+          return this.config;
         },
-        deepConfiguration: {
-          test: ['foo', 'bar'],
-        },
-        methods: {
-          read() {
-            return this.config;
-          },
-        },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.read().test).toStrictEqual('foo');
   });
 
   it('should forbid any mutations to config object', function() {
-    const MyStamp = compose(
-      Configure.noPrivatize(),
-      {
-        configuration: {
-          test: 'foo',
+    const MyStamp = compose(Configure.noPrivatize(), {
+      configuration: {
+        test: 'foo',
+      },
+      methods: {
+        write() {
+          return (this.config.test = 'bar');
         },
-        methods: {
-          write() {
-            return (this.config.test = 'bar');
-          },
-        },
-      }
-    );
+      },
+    });
 
     const objectInstance = MyStamp();
     expect(objectInstance.write).toThrow();

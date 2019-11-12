@@ -12,11 +12,7 @@ describe('@stamp/fp-constructor Stamp.of', function() {
 
   it('should refer to the correct stamp regardless of other stamps in the composition', function() {
     const Stamp = compose({ staticProperties: { of: 1 } })
-      .compose(
-        { staticProperties: { of: 2 } },
-        FpConstructor,
-        { staticProperties: { of: 3 } }
-      )
+      .compose({ staticProperties: { of: 2 } }, FpConstructor, { staticProperties: { of: 3 } })
       .compose({ staticProperties: { of: 4 } });
 
     expect(Stamp.of).toBe(Stamp);
@@ -40,11 +36,7 @@ describe('@stamp/fp-constructor instance.constructor', function() {
 
   it('should refer to the correct stamp regardless of other stamps in the composition', function() {
     const Stamp = compose({ methods: { constructor: 1 } })
-      .compose(
-        { methods: { constructor: 2 } },
-        FpConstructor,
-        { methods: { constructor: 3 } }
-      )
+      .compose({ methods: { constructor: 2 } }, FpConstructor, { methods: { constructor: 3 } })
       .compose({ methods: { constructor: 4 } });
     const instance = Stamp();
 

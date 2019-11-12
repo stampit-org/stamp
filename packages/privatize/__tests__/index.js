@@ -37,32 +37,31 @@ describe('@stamp/privatize', function() {
     const Stamp2 = compose({
       initializers: [function() {}],
     });
-    const Stamp = compose(
-      Stamp1,
-      Privatize,
-      Stamp2
-    );
+    const Stamp = compose(Stamp1, Privatize, Stamp2);
 
     expect(Stamp.compose.initializers[2]).toBe(Privatize.compose.initializers[0]);
   });
 
   it('should allow rubbish to the .privatizeMethods()', function() {
-    const Stamp = compose(
-      { methods: { bar() {} } },
-      Privatize
-    ).privatizeMethods(null, {}, [], 1, 'bar', NaN, /a/, undefined);
+    const Stamp = compose({ methods: { bar() {} } }, Privatize).privatizeMethods(
+      null,
+      {},
+      [],
+      1,
+      'bar',
+      NaN,
+      /a/,
+      undefined
+    );
     const instance = Stamp();
 
     expect(instance.bar).toBeUndefined();
   });
 
   it('should work without any methods defined', function() {
-    const Stamp = compose(
-      Privatize,
-      {
-        properties: { bar: 'foo' },
-      }
-    );
+    const Stamp = compose(Privatize, {
+      properties: { bar: 'foo' },
+    });
     const instance = Stamp();
 
     expect(instance.bar).toBeUndefined();
@@ -93,10 +92,7 @@ describe('@stamp/privatize', function() {
   });
 
   it('works with InstanceOf stamp', function() {
-    const Stamp = compose(
-      InstanceOf,
-      Privatize
-    );
+    const Stamp = compose(InstanceOf, Privatize);
     expect(Stamp() instanceof Stamp).toBe(true);
   });
 });

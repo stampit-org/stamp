@@ -79,7 +79,10 @@ const standardiseDescriptor = (descr) => {
 };
 
 function stampit(...args) {
-  return compose.apply(this || baseStampit, args.map((arg) => (isStamp(arg) ? arg : standardiseDescriptor(arg))));
+  return compose.apply(
+    this || baseStampit,
+    args.map((arg) => (isStamp(arg) ? arg : standardiseDescriptor(arg)))
+  );
 }
 
 const baseStampit = Shortcut.compose({
