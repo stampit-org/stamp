@@ -2,6 +2,9 @@
 
 const compose = require('@stamp/compose');
 
+/**
+ * @deprecated REASON
+ */
 const Named = compose({
   staticProperties: {
     setName(name) {
