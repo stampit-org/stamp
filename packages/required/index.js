@@ -4,10 +4,9 @@
 
 const compose = require('@stamp/compose');
 const assign = require('@stamp/core/assign');
-const getOwnPropertyKeys = require('@stamp/core/get-own-property-keys');
 const isObject = require('@stamp/is/object');
 
-const { get } = Reflect;
+const { get, ownKeys } = Reflect;
 
 function required(settings) {
   const Stamp = this && this.compose ? this : Required;
@@ -29,11 +28,11 @@ Object.freeze(required);
 const checkDescriptorHaveThese = (descriptor, settings) => {
   if (descriptor && settings) {
     // Traverse settings and find if there is anything required.
-    const settingsKeys = getOwnPropertyKeys(settings);
+    const settingsKeys = ownKeys(settings);
     for (const settingsKey of settingsKeys) {
       const settingsValue = get(settings, settingsKey);
       if (isObject(settingsValue)) {
-        const metadataKeys = getOwnPropertyKeys(settingsValue);
+        const metadataKeys = ownKeys(settingsValue);
         for (const metadataKey of metadataKeys) {
           const metadataValue = get(settingsValue, metadataKey);
           if (metadataValue === Required || metadataValue === required) {
