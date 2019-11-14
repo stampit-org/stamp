@@ -1,10 +1,4 @@
-/* eslint-disable jest/expect-expect */
-/* eslint-disable jest/no-test-callback */
-/* eslint-disable jest/no-export */
-/* eslint-disable jest/require-top-level-describe */
-
 /* eslint-disable no-proto */
-/* eslint-disable no-shadow */
 /* eslint-disable no-underscore-dangle */
 
 'use strict';
@@ -33,7 +27,7 @@ module.exports = (compose) => {
           this._info += `PREFIX-${info}`;
         },
       });
-      const stamp = getsetProps.reduce((stamp, propName) => stamp.compose({ [propName]: createGS() }), compose());
+      const stamp = getsetProps.reduce((s, propName) => s.compose({ [propName]: createGS() }), compose());
 
       const descriptor = stamp.compose;
       getsetProps.forEach((propName) => {
@@ -54,7 +48,7 @@ module.exports = (compose) => {
           this._info += `PREFIX-${info}`;
         },
       });
-      let stamp = getsetProps.reduce((stamp, propName) => stamp.compose({ [propName]: createGS() }), compose());
+      let stamp = getsetProps.reduce((s, propName) => s.compose({ [propName]: createGS() }), compose());
 
       const createGS2 = () => ({
         get info() {
@@ -64,7 +58,7 @@ module.exports = (compose) => {
           this._info = `3${info}`;
         },
       });
-      stamp = getsetProps.reduce((stamp, propName) => stamp.compose({ [propName]: createGS2() }), stamp);
+      stamp = getsetProps.reduce((s, propName) => s.compose({ [propName]: createGS2() }), stamp);
 
       const descriptor = stamp.compose;
       getsetProps.forEach((propName) => {

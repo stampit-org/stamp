@@ -1,9 +1,3 @@
-/* eslint-disable jest/expect-expect */
-/* eslint-disable jest/lowercase-name */
-/* eslint-disable jest/no-test-callback */
-/* eslint-disable jest/no-export */
-/* eslint-disable jest/require-top-level-describe */
-
 'use strict';
 
 const test = require('tape');

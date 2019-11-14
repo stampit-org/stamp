@@ -1,11 +1,3 @@
-/* eslint-disable jest/expect-expect */
-/* eslint-disable jest/no-test-callback */
-/* eslint-disable jest/no-export */
-/* eslint-disable jest/require-top-level-describe */
-
-/* eslint-disable no-use-before-define */
-/* eslint-disable prefer-rest-params */
-
 'use strict';
 
 const test = require('tape');
@@ -15,11 +7,11 @@ module.exports = (compose) => {
   test('composer arguments', (t) => {
     let executed = 0;
     let passedStamp;
-    function composer() {
-      t.equal(arguments.length, 1, 'have single argument');
-      t.ok(_.isPlainObject(arguments[0]), 'argument is an object');
-      t.ok(_.isArray(arguments[0].composables), 'composables passed');
-      const composers = arguments[0].composables.reduce((all, c) => {
+    function composer(...args) {
+      t.equal(args.length, 1, 'have single argument');
+      t.ok(_.isPlainObject(args[0]), 'argument is an object');
+      t.ok(_.isArray(args[0].composables), 'composables passed');
+      const composers = args[0].composables.reduce((all, c) => {
         const descr = c.compose || c;
         if (_.isArray(descr.composers)) return all.concat(descr.composers);
         return all;
@@ -27,7 +19,7 @@ module.exports = (compose) => {
       t.ok(_.isArray(composers), 'have the composers list');
       t.ok(_.includes(composers, composer), 'our composer is present');
       executed += 1;
-      passedStamp = arguments[0].stamp;
+      passedStamp = args[0].stamp;
     }
     const stamp = compose({
       composers: [composer],
@@ -176,12 +168,12 @@ module.exports = (compose) => {
   test('stamp.compose({ composers() }) passes full composables array', (t) => {
     let run = 0;
     const stamp2 = compose();
-    function composer(ref) {
-      const { composables } = ref;
+    function composer(...args) {
+      const { composables } = args[0];
 
       run += 1;
 
-      const composers = arguments[0].composables.reduce((all, c) => {
+      const composers = args[0].composables.reduce((all, c) => {
         const descr = c.compose || c;
         if (_.isArray(descr.composers)) return all.concat(descr.composers);
         return all;
@@ -192,7 +184,7 @@ module.exports = (compose) => {
       }
       if (run === 2) {
         t.ok(_.includes(composers, composer), 'inheriting stamp should still pass our composer');
-        t.ok(_.includes(composables, stamp), 'composables must contain stamp itself');
+        t.ok(_.includes(composables, stamp), 'composables must contain stamp itself'); // eslint-disable-line no-use-before-define
         t.ok(_.includes(composables, stamp2), 'composables must contain second stamp too');
       }
     }

@@ -1,11 +1,3 @@
-/* eslint-disable jest/expect-expect */
-/* eslint-disable jest/no-test-callback */
-/* eslint-disable jest/no-export */
-/* eslint-disable jest/require-top-level-describe */
-
-/* eslint-disable no-plusplus */
-/* eslint-disable prefer-rest-params */
-
 'use strict';
 
 const test = require('tape');
@@ -68,9 +60,9 @@ module.exports = (compose) => {
   test('compose is replaceable', (assert) => {
     let counter = 0;
 
-    function newCompose() {
-      counter++;
-      return compose({ staticProperties: { compose: newCompose } }, this, arguments);
+    function newCompose(...args) {
+      counter += 1;
+      return compose({ staticProperties: { compose: newCompose } }, this, args);
     }
 
     newCompose()
@@ -84,8 +76,8 @@ module.exports = (compose) => {
   });
 
   test('replaced compose method is always a new object', (assert) => {
-    function newCompose() {
-      return compose({ staticProperties: { compose: newCompose } }, this, arguments);
+    function newCompose(...args) {
+      return compose({ staticProperties: { compose: newCompose } }, this, args);
     }
 
     const stamp1 = newCompose();
@@ -99,8 +91,8 @@ module.exports = (compose) => {
   });
 
   test('replaced compose method is always a function', (assert) => {
-    function newCompose() {
-      return compose({ staticProperties: { compose: 'rubbish' } }, this, arguments);
+    function newCompose(...args) {
+      return compose({ staticProperties: { compose: 'rubbish' } }, this, args);
     }
 
     const overridenCompose = newCompose().compose().compose;
