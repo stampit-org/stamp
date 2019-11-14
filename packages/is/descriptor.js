@@ -1,1 +1,5 @@
-module.exports = require('./object');
+'use strict';
+
+const isDecriptor = require('./object');
+
+module.exports = isDecriptor;

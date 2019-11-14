@@ -1,3 +1,5 @@
-module.exports = function isString(arg) {
-  return typeof arg === 'string';
-};
+'use strict';
+
+const isString = (value) => typeof value === 'string';
+
+module.exports = isString;

@@ -1,36 +1,38 @@
-var isStamp = require('../stamp');
+'use strict';
+
+const isStamp = require('../stamp');
 
 function getStamp(obj) {
-  var stamp = function () {};
-  stamp.compose = function () {};
+  const stamp = function() {};
+  stamp.compose = function() {};
   Object.assign(stamp.compose, obj);
   return stamp;
 }
 
-describe('isStamp', function () {
-  it('with stamps', function () {
-    var emptyStamp = getStamp();
-    var refsOnlyStamp = getStamp({properties: {foo: 'bar'}});
-    var methodsOnlyStamp = getStamp({methods: {method: function () {}}});
-    var closureOnlyStamp = getStamp({initializers: [function () {}]});
+describe('isStamp', function() {
+  it('with stamps', function() {
+    const emptyStamp = getStamp();
+    const refsOnlyStamp = getStamp({ properties: { foo: 'bar' } });
+    const methodsOnlyStamp = getStamp({ methods: { method() {} } });
+    const closureOnlyStamp = getStamp({ initializers: [function() {}] });
 
-    expect(isStamp(emptyStamp)).toBeTruthy();
-    expect(isStamp(refsOnlyStamp)).toBeTruthy();
-    expect(isStamp(methodsOnlyStamp)).toBeTruthy();
-    expect(isStamp(closureOnlyStamp)).toBeTruthy();
+    expect(isStamp(emptyStamp)).toBe(true);
+    expect(isStamp(refsOnlyStamp)).toBe(true);
+    expect(isStamp(methodsOnlyStamp)).toBe(true);
+    expect(isStamp(closureOnlyStamp)).toBe(true);
   });
 
-  it('isStamp() with non stamps', function () {
-    var undef;
-    var rawObject = {refs: {}, methods: {}, init: {}, compose: {}, props: {}};
-    var rawFunction = function () {
+  it('isStamp() with non stamps', function() {
+    let undef;
+    const rawObject = { refs: {}, methods: {}, init: {}, compose: {}, props: {} };
+    const rawFunction = function() {
       this.init = this;
     };
-    var regExp = /x/;
+    const regExp = /x/;
 
-    expect(isStamp(undef)).toBeFalsy();
-    expect(isStamp(rawObject)).toBeFalsy();
-    expect(isStamp(rawFunction)).toBeFalsy();
-    expect(isStamp(regExp)).toBeFalsy();
+    expect(isStamp(undef)).toBe(false);
+    expect(isStamp(rawObject)).toBe(false);
+    expect(isStamp(rawFunction)).toBe(false);
+    expect(isStamp(regExp)).toBe(false);
   });
 });

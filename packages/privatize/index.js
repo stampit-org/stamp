@@ -1,81 +1,78 @@
-var compose = require('@stamp/compose');
-var privates = new WeakMap(); // WeakMap works in IE11, node 0.12
+'use strict';
 
-var makeProxyFunction = function (fn, name) {
-  function proxiedFn() {
-    'use strict';
-    var fields = privates.get(this); // jshint ignore:line
-    return fn.apply(fields, arguments);
+const compose = require('@stamp/compose');
+
+const { defineProperty, get, ownKeys, set } = Reflect;
+
+const stampSymbol = Symbol.for('stamp');
+
+const privates = new WeakMap(); // WeakMap works in IE11, node 0.12
+
+const makeProxyFunction = function(fn, name) {
+  function proxiedFn(...args) {
+    return fn.apply(privates.get(this), args);
   }
 
-  Object.defineProperty(proxiedFn, 'name', {
+  defineProperty(proxiedFn, 'name', {
     value: name,
-    configurable: true
+    configurable: true,
   });
 
   return proxiedFn;
 };
 
 function initializer(_, opts) {
-  var descriptor = opts.stamp.compose;
-  var privateMethodNames = descriptor.deepConfiguration.Privatize.methods;
+  const descriptor = opts.stamp.compose;
+  const privateMethodNames = descriptor.deepConfiguration.Privatize.methods;
 
-  var newObject = {}; // our proxy object
+  const newObject = {}; // our proxy object
   privates.set(newObject, this);
 
-  var methods = descriptor.methods;
-  if (!methods) {
-    return newObject;
-  }
+  const { methods } = descriptor;
+  if (methods) {
+    ownKeys(methods).forEach((name) => {
+      if (privateMethodNames.indexOf(name) < 0) {
+        // not private, thus wrap
+        set(newObject, name, makeProxyFunction(get(methods, name), name));
+      }
+    });
 
-  var methodNames = Object.keys(methods);
-  for (var i = 0; i < methodNames.length; i++) {
-    var name = methodNames[i];
-    if (privateMethodNames.indexOf(name) < 0) { // not private, thus wrap
-      newObject[name] = makeProxyFunction(methods[name], name);
-    }
-  }
-
-  // Integration with @stamp/instanceof
-  if (typeof Symbol !== "undefined") {
-    var stampSymbol = Symbol.for('stamp');
-    if (methods[stampSymbol]) {
-      newObject[stampSymbol] = opts.stamp;
-    }
+    // Integration with @stamp/instanceof
+    if (get(methods, stampSymbol)) set(newObject, stampSymbol, opts.stamp);
   }
 
   return newObject;
 }
 
-var Privatize = compose({
+const Privatize = compose({
   initializers: [initializer],
-  deepConfiguration: {Privatize: {methods: []}},
+  deepConfiguration: { Privatize: { methods: [] } },
   staticProperties: {
-    privatizeMethods: function () {
-      'use strict';
-      var methodNames = [];
-      for (var i = 0; i < arguments.length; i++) {
-        var arg = arguments[i];
+    privatizeMethods(...args) {
+      const methodNames = [];
+      args.forEach((arg) => {
         if (typeof arg === 'string' && arg.length > 0) {
           methodNames.push(arg);
         }
-      }
-      var Stamp = this && this.compose ? this : Privatize;
+      });
+      const Stamp = this && this.compose ? this : Privatize;
       return Stamp.compose({
         deepConfiguration: {
           Privatize: {
-            methods: methodNames
-          }
-        }
+            methods: methodNames,
+          },
+        },
       });
-    }
+    },
   },
-  composers: [function (opts) {
-    var initializers = opts.stamp.compose.initializers;
-    // Keep our initializer the last to return proxy object
-    initializers.splice(initializers.indexOf(initializer), 1);
-    initializers.push(initializer);
-  }]
+  composers: [
+    (opts) => {
+      const { initializers } = opts.stamp.compose;
+      // Keep our initializer the last to return proxy object
+      initializers.splice(initializers.indexOf(initializer), 1);
+      initializers.push(initializer);
+    },
+  ],
 });
 
 module.exports = Privatize;

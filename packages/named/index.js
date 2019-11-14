@@ -1,19 +1,21 @@
-var compose = require('@stamp/compose');
+'use strict';
 
-var Named = compose({
+const compose = require('@stamp/compose');
+
+/**
+ * @deprecated REASON
+ */
+const Named = compose({
   staticProperties: {
-    setName: function (name) {
-      'use strict';
-      var Stamp = this && this.compose ? this : Named;
+    setName(name) {
+      const Stamp = this && this.compose ? this : Named;
       return Stamp.compose({
         staticPropertyDescriptors: {
-          name: {
-            value: name
-          }
-        }
+          name: { value: name },
+        },
       });
-    }
-  }
+    },
+  },
 });
 
 module.exports = Named;

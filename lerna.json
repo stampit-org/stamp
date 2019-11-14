@@ -1,5 +1,4 @@
 {
-  "lerna": "2.0.0",
   "version": "independent",
   "command": {
     "publish": {
@@ -7,8 +6,15 @@
       "ignoreChanges": [
         "__tests__/"
       ],
-      "npmClientArgs": ["--access public"]
+      "npmClientArgs": [
+        "--access public"
+      ]
     }
   },
-  "npmClientArgs": ["--access public"]
+  "npmClientArgs": [
+    "--access public"
+  ],
+  "packages": [
+    "packages/*"
+  ]
 }

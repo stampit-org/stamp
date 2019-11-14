@@ -1,0 +1,92 @@
+{
+  "env": {
+    "jest": true,
+    "node": true
+  },
+  "extends": [
+    "plugin:es/no-2017", // NodeJS 8 support
+    "eslint:recommended",
+    "airbnb-base",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:jest/all",
+    "plugin:node/recommended",
+    "plugin:prettier/recommended" // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2016 //  NodeJS 8 support
+  },
+  "plugins": [
+    "es", // should be unnecessary with drop of Node 8 or switch to Typescript
+    "import",
+    "jest", // relevancy to ensure correct unit tests to be evaluated
+    "node",
+    "prettier"
+  ],
+  "reportUnusedDisableDirectives": true,
+  "rules": {
+    "class-methods-use-this": 1,
+    "func-names": "off",
+    "global-require": 1,
+    "guard-for-in": 1,
+    "max-classes-per-file": "off",
+    "no-array-constructor": 1,
+    "no-continue": 1,
+    "no-nested-ternary": 1,
+    "no-param-reassign": 1,
+    "no-plusplus": 1,
+    "no-process-exit": 1,
+    "no-proto": 1,
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "ForInStatement",
+        "message": "for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array."
+      },
+      {
+        "selector": "LabeledStatement",
+        "message": "Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand."
+      },
+      {
+        "selector": "WithStatement",
+        "message": "`with` is disallowed in strict mode because it makes code impossible to predict and optimize."
+      }
+    ],
+    "no-return-assign": 1,
+    "no-underscore-dangle": 1,
+    "no-unreachable": 1,
+    "no-unused-vars": 1,
+    "no-use-before-define": 1,
+    "prefer-destructuring": 1,
+    "prefer-object-spread": 0,
+    "prefer-rest-params": 1,
+    "prefer-spread": 1,
+    "strict": 0,
+    "valid-typeof": 1,
+    "vars-on-top": 1,
+
+    // eslint-plugin-es - https://mysticatea.github.io/eslint-plugin-es/
+
+    // eslint-plugin-import rules - https://github.com/benmosher/eslint-plugin-import/blob/master/README.md
+    "import/no-dynamic-require": 1,
+
+    // eslint-plugin-jest - https://github.com/jest-community/eslint-plugin-jest/blob/master/README.md
+    "jest/expect-expect": 1,
+    "jest/no-test-return-statement": 1,
+    "jest/no-truthy-falsy": 1,
+    "jest/prefer-called-with": 1,
+    "jest/prefer-expect-assertions": 0,
+    "jest/require-to-throw-message": 1,
+    "jest/require-top-level-describe": 1,
+    "jest/no-export": 1,
+
+    // for reference. Might be useful with switch to Typescript
+    // eslint-plugin-jsdoc - https://github.com/gajus/eslint-plugin-jsdoc/blob/master/README.md
+
+    // eslint-plugin-node - https://github.com/mysticatea/eslint-plugin-node
+    "node/no-unpublished-require": 1,
+    "node/no-deprecated-api": 1,
+
+    "prettier/prettier": "error"
+  }
+}

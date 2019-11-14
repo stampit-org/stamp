@@ -1,21 +1,25 @@
-var getOwnPropertyKeys = require("./get-own-property-keys");
+'use strict';
 
-function assignOne(dst, src) {
+const { defineProperty, getOwnPropertyDescriptor, ownKeys } = Reflect;
+
+const assignOne = (dst, src) => {
   if (src != null) {
     // We need to copy regular properties, symbols, getters and setters.
-    var keys = getOwnPropertyKeys(src);
-    for (var i = 0; i < keys.length; i += 1) {
-      var desc = Object.getOwnPropertyDescriptor(src, keys[i]);
-      Object.defineProperty(dst, keys[i], desc);
+    const keys = ownKeys(src);
+    for (const key of keys) {
+      defineProperty(dst, key, getOwnPropertyDescriptor(src, key));
     }
   }
 
   return dst;
-}
+};
 
-module.exports = function(dst) {
-  for (var i = 1; i < arguments.length; i++) {
-    dst = assignOne(dst, arguments[i]);
+const assign = (dst, ...args) => {
+  for (const arg of args) {
+    // eslint-disable-next-line no-param-reassign
+    dst = assignOne(dst, arg);
   }
   return dst;
 };
+
+module.exports = assign;

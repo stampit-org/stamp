@@ -1,19 +1,19 @@
-var compose = require('@stamp/compose');
-var Privatize = require('@stamp/privatize');
+'use strict';
+
+const compose = require('@stamp/compose');
+const Privatize = require('@stamp/privatize');
 
 function configure(_, options) {
-  var configuration = options.stamp.compose.configuration;
-  var deepConfiguration = options.stamp.compose.deepConfiguration;
-  this.config = Object.freeze(
-    Object.assign({}, deepConfiguration, configuration)
-  );
+  const { configuration } = options.stamp.compose;
+  const { deepConfiguration } = options.stamp.compose;
+  this.config = Object.freeze(Object.assign({}, deepConfiguration, configuration));
 }
 
-var ConfigurePublic = compose({
-  initializers: [configure]
+const ConfigurePublic = compose({
+  initializers: [configure],
 });
 
-var ConfigurePrivate = ConfigurePublic.compose(Privatize);
+const ConfigurePrivate = ConfigurePublic.compose(Privatize);
 
 ConfigurePrivate.noPrivatize = function noPrivatize() {
   return ConfigurePublic;

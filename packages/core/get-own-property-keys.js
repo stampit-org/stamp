@@ -1,5 +1,9 @@
-module.exports = function getOwnPropertyKeys(obj) {
-  var keys = Object.getOwnPropertyNames(obj);
-  if (!Object.getOwnPropertySymbols) return keys;
-  return keys.concat(Object.getOwnPropertySymbols(obj));
-};
+'use strict';
+
+/**
+ * @deprecated Use Reflect.ownKeys() instead
+ */
+
+const { ownKeys: getOwnPropertyKeys } = Reflect;
+
+module.exports = getOwnPropertyKeys;

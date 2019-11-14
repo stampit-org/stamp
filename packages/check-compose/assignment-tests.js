@@ -1,23 +1,25 @@
-const test = require("tape");
+'use strict';
 
-module.exports = compose => {
+const test = require('tape');
+
+module.exports = (compose) => {
   const assignmentProps = [
-    "methods",
-    "properties",
-    "deepProperties",
-    "staticProperties",
-    "staticDeepProperties",
-    "configuration",
-    "deepConfiguration"
+    'methods',
+    'properties',
+    'deepProperties',
+    'staticProperties',
+    'staticDeepProperties',
+    'configuration',
+    'deepConfiguration',
   ];
 
-  const symbol = Symbol.for("test");
+  const symbol = Symbol.for('test');
 
-  const build = num => {
+  const build = (num) => {
     const composable = () => {};
     composable.compose = () => {};
 
-    assignmentProps.forEach(prop => {
+    assignmentProps.forEach((prop) => {
       composable.compose[prop] = {
         [num]: num,
         override: num,
@@ -36,7 +38,7 @@ module.exports = compose => {
         },
         set getterAndSetter(val) {
           this.actualValue = val;
-        }
+        },
       };
     });
 
@@ -45,122 +47,74 @@ module.exports = compose => {
 
   // Loop over each property that is copied by assignment and ensure
   // that copy and priority are implemented correctly.
-  assignmentProps.forEach(prop => {
-    test(`${prop} assignment 1`, assert => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+  assignmentProps.forEach((prop) => {
+    test(`${prop} assignment 1`, (assert) => {
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       let actual = descr[prop][1];
       let expected = 1;
 
-      assert.equal(
-        actual,
-        expected,
-        `${prop} should be copied by assignment from first argument`
-      );
+      assert.equal(actual, expected, `${prop} should be copied by assignment from first argument`);
 
       actual = descr[prop][symbol];
       expected = 2;
 
-      assert.equal(
-        actual,
-        expected,
-        `${prop} should be copied by assignment from first argument via Symbol`
-      );
+      assert.equal(actual, expected, `${prop} should be copied by assignment from first argument via Symbol`);
 
       assert.end();
     });
 
-    test(`${prop} assignment 2`, assert => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+    test(`${prop} assignment 2`, (assert) => {
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       let actual = descr[prop][2];
       const expected = 2;
 
-      assert.equal(
-        actual,
-        expected,
-        `${prop} should be copied by assignment from 2nd argument`
-      );
+      assert.equal(actual, expected, `${prop} should be copied by assignment from 2nd argument`);
 
       actual = descr[prop][symbol];
 
-      assert.equal(
-        actual,
-        expected,
-        `${prop} should be copied by assignment from 2nd argument via Symbol`
-      );
+      assert.equal(actual, expected, `${prop} should be copied by assignment from 2nd argument via Symbol`);
 
       assert.end();
     });
 
-    test(`${prop} assignment 3`, assert => {
-      const subject = compose(
-        build(1),
-        build(2),
-        build(3)
-      );
+    test(`${prop} assignment 3`, (assert) => {
+      const subject = compose(build(1), build(2), build(3));
       const descr = subject.compose;
 
       let actual = descr[prop][3];
       const expected = 3;
 
-      assert.equal(
-        actual,
-        expected,
-        `${prop} should be copied by assignment from subsequent arguments`
-      );
+      assert.equal(actual, expected, `${prop} should be copied by assignment from subsequent arguments`);
 
       actual = descr[prop][symbol];
 
-      assert.equal(
-        actual,
-        expected,
-        `${prop} should be copied by assignment from subsequent arguments via Symbol`
-      );
+      assert.equal(actual, expected, `${prop} should be copied by assignment from subsequent arguments via Symbol`);
 
       assert.end();
     });
 
-    test(`${prop} assignment priority`, assert => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+    test(`${prop} assignment priority`, (assert) => {
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       let actual = descr[prop].override;
       const expected = 2;
 
-      assert.equal(
-        actual,
-        expected,
-        `${prop} should be copied by assignment with last-in priority`
-      );
+      assert.equal(actual, expected, `${prop} should be copied by assignment with last-in priority`);
 
       actual = descr[prop][symbol];
 
-      assert.equal(
-        actual,
-        expected,
-        `${prop} should be copied by assignment with last-in priority via Symbol`
-      );
+      assert.equal(actual, expected, `${prop} should be copied by assignment with last-in priority via Symbol`);
 
       assert.end();
     });
 
-    test(`${prop} getters copying`, assert => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+    test(`${prop} getters copying`, (assert) => {
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       const actual = descr[prop].getter;
@@ -171,11 +125,8 @@ module.exports = compose => {
       assert.end();
     });
 
-    test(`${prop} setters copying`, assert => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+    test(`${prop} setters copying`, (assert) => {
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       descr[prop].setter = 4;
@@ -187,11 +138,8 @@ module.exports = compose => {
       assert.end();
     });
 
-    test(`${prop} getter+setter copying`, assert => {
-      const subject = compose(
-        build(1),
-        build(2)
-      );
+    test(`${prop} getter+setter copying`, (assert) => {
+      const subject = compose(build(1), build(2));
       const descr = subject.compose;
 
       let actual = descr[prop].getterAndSetter;
@@ -203,21 +151,13 @@ module.exports = compose => {
       actual = descr[prop].actualValue;
       expected = 4;
 
-      assert.equal(
-        actual,
-        expected,
-        `${prop} setter after getter should be copied`
-      );
+      assert.equal(actual, expected, `${prop} setter after getter should be copied`);
 
       descr[prop].getterAndSetter = 5;
       actual = descr[prop].getterAndSetter;
       expected = 5;
 
-      assert.equal(
-        actual,
-        expected,
-        `${prop} getter should return setter's value`
-      );
+      assert.equal(actual, expected, `${prop} getter should return setter's value`);
 
       assert.end();
     });

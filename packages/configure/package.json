@@ -10,6 +10,6 @@
   ],
   "dependencies": {
     "@stamp/compose": "^1.0.2",
-    "@stamp/privatize": "^1.0.2"
+    "@stamp/privatize": "^1.0.3"
   }
 }

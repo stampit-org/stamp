@@ -1,10 +1,19 @@
-var compose = require('@stamp/compose');
+'use strict';
 
-module.exports = compose({
-  composers: [function (opts) {
-    opts.stamp.of = opts.stamp;
-    opts.stamp.constructor = opts.stamp;
-    opts.stamp.compose.methods = opts.stamp.compose.methods || {};
-    opts.stamp.compose.methods.constructor = opts.stamp;
-  }]
+const compose = require('@stamp/compose');
+
+const { get } = Reflect;
+
+const FpConstructor = compose({
+  composers: [
+    (opts) => {
+      const optsStamp = get(opts, 'stamp');
+      optsStamp.of = optsStamp;
+      optsStamp.constructor = optsStamp;
+      optsStamp.compose.methods = optsStamp.compose.methods || {};
+      optsStamp.compose.methods.constructor = optsStamp;
+    },
+  ],
 });
+
+module.exports = FpConstructor;

@@ -1,34 +1,36 @@
-var isComposable = require('../composable');
+'use strict';
+
+const isComposable = require('../composable');
 
 function getStamp(obj) {
-  var stamp = function () {};
-  stamp.compose = function () {};
+  const stamp = function() {};
+  stamp.compose = function() {};
   Object.assign(stamp.compose, obj);
   return stamp;
 }
 
-describe('isComposable', function () {
-  it('with objects', function () {
-    var emptyStamp = getStamp();
-    var rawObject = {};
-    var rawFunction = function () {};
-    var regExp = /x/;
+describe('isComposable', function() {
+  it('with objects', function() {
+    const emptyStamp = getStamp();
+    const rawObject = {};
+    const rawFunction = function() {};
+    const regExp = /x/;
 
-    expect(isComposable(emptyStamp)).toBeTruthy();
-    expect(isComposable(rawObject)).toBeTruthy();
-    expect(isComposable(rawFunction)).toBeTruthy();
-    expect(isComposable(regExp)).toBeTruthy();
+    expect(isComposable(emptyStamp)).toBe(true);
+    expect(isComposable(rawObject)).toBe(true);
+    expect(isComposable(rawFunction)).toBe(true);
+    expect(isComposable(regExp)).toBe(true);
   });
 
-  it('with non-objects', function () {
-    var undef;
-    var NULL = null;
-    var number = 42;
-    var string = 's';
+  it('with non-objects', function() {
+    let undef;
+    const NULL = null;
+    const number = 42;
+    const string = 's';
 
-    expect(isComposable(undef)).toBeFalsy();
-    expect(isComposable(NULL)).toBeFalsy();
-    expect(isComposable(number)).toBeFalsy();
-    expect(isComposable(string)).toBeFalsy();
+    expect(isComposable(undef)).toBe(false);
+    expect(isComposable(NULL)).toBe(false);
+    expect(isComposable(number)).toBe(false);
+    expect(isComposable(string)).toBe(false);
   });
 });

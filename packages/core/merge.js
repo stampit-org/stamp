@@ -1,6 +1,9 @@
-var isPlainObject = require('@stamp/is/plain-object');
-var isArray = require('@stamp/is/array');
-var getOwnPropertyKeys = require("./get-own-property-keys");
+'use strict';
+
+const isPlainObject = require('@stamp/is/plain-object');
+const isArray = require('@stamp/is/array');
+
+const { defineProperty, get, getOwnPropertyDescriptor, ownKeys, set } = Reflect;
 
 /**
  * The 'src' argument plays the command role.
@@ -10,41 +13,47 @@ var getOwnPropertyKeys = require("./get-own-property-keys");
  * @returns {*}
  */
 function mergeOne(dst, src) {
-  if (src === undefined) return dst;
+  if (src !== undefined) {
+    // According to specification arrays must be concatenated.
+    // Also, the '.concat' creates a new array instance. Overrides the 'dst'.
+    if (isArray(src)) return isArray(dst) ? [...dst, ...src] : [...src];
 
-  // According to specification arrays must be concatenated.
-  // Also, the '.concat' creates a new array instance. Overrides the 'dst'.
-  if (isArray(src)) return (isArray(dst) ? dst : []).concat(src);
-
-  // Now deal with non plain 'src' object. 'src' overrides 'dst'
-  // Note that functions are also assigned! We do not deep merge functions.
-  if (!isPlainObject(src)) return src;
-
-  var keys = getOwnPropertyKeys(src);
-  for (var i = 0; i < keys.length; i += 1) {
-    var key = keys[i];
-    var desc = Object.getOwnPropertyDescriptor(src, key);
-    // is this a regular property?
-    if (desc.hasOwnProperty('value')) { // eslint-disable-line
-      // Do not merge properties with the 'undefined' value.
-      if (desc.value === undefined) continue;
-
-      var srcValue = src[key];
-      // Recursive calls to mergeOne() must allow only plain objects or arrays in dst
-      var newDst = isPlainObject(dst[key]) || isArray(srcValue) ? dst[key] : {};
-      // deep merge each property. Recursion!
-      dst[key] = mergeOne(newDst, srcValue);
-    } else { // nope, it looks like a getter/setter
-      Object.defineProperty(dst, key, desc);
+    // Now deal with non plain 'src' object. 'src' overrides 'dst'
+    // Note that functions are also assigned! We do not deep merge functions.
+    if (isPlainObject(src)) {
+      const keys = ownKeys(src);
+      for (const key of keys) {
+        const desc = getOwnPropertyDescriptor(src, key);
+        // is this a regular property?
+        if (getOwnPropertyDescriptor(desc, 'value') !== undefined) {
+          // Do not merge properties with the 'undefined' value.
+          if (desc.value !== undefined) {
+            const dstValue = get(dst, key);
+            const srcValue = get(src, key);
+            // Recursive calls to mergeOne() must allow only plain objects or arrays in dst
+            const newDst = isPlainObject(dstValue) || isArray(srcValue) ? dstValue : {};
+            // deep merge each property. Recursion!
+            set(dst, key, mergeOne(newDst, srcValue));
+          }
+        } else {
+          // nope, it looks like a getter/setter
+          defineProperty(dst, key, desc);
+        }
+      }
+    } else {
+      return src;
     }
   }
 
   return dst;
 }
 
-module.exports = function (dst) {
-  for (var i = 1; i < arguments.length; i++) {
-    dst = mergeOne(dst, arguments[i]);
+const merge = (dst, ...args) => {
+  for (const arg of args) {
+    // eslint-disable-next-line no-param-reassign
+    dst = mergeOne(dst, arg);
   }
   return dst;
 };
+
+module.exports = merge;
