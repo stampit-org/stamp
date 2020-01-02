@@ -3,7 +3,10 @@
   "version": "1.0.2",
   "license": "MIT",
   "description": "Node.js' EventEmitter as a stamp",
-  "repository": "https://github.com/stampit-org/stamp/tree/master/packages/eventemittable",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stampit-org/stamp/tree/master/packages/eventemittable"
+  },
   "dependencies": {
     "@stamp/compose": "^1.0.2",
     "events": "^3.0.0"
