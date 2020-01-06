@@ -43,11 +43,14 @@
   },
   "reportUnusedDisableDirectives": true,
   "rules": {
+    "@typescript-eslint/interface-name-prefix": 0,
+    "@typescript-eslint/no-use-before-define": 1,
+
     "class-methods-use-this": 1,
-    "func-names": "off",
+    // "func-names": 0,
     "global-require": 1,
     "guard-for-in": 1,
-    "max-classes-per-file": "off",
+    "max-classes-per-file": 0,
     "no-array-constructor": 1,
     "no-continue": 1,
     "no-nested-ternary": 1,
@@ -73,10 +76,10 @@
     "no-return-assign": 1,
     "no-underscore-dangle": 1,
     "no-unreachable": 1,
-    "no-unused-vars": 1,
-    "no-use-before-define": 1,
+    "no-unused-vars": 0,
+    "no-use-before-define": 0,
     "prefer-destructuring": 1,
-    "prefer-object-spread": 0,
+    // "prefer-object-spread": 0,
     "prefer-rest-params": 1,
     "prefer-spread": 1,
     "strict": 0,
@@ -86,7 +89,9 @@
     // eslint-plugin-es - https://mysticatea.github.io/eslint-plugin-es/
 
     // eslint-plugin-import rules - https://github.com/benmosher/eslint-plugin-import/blob/master/README.md
+    "import/extensions": ["error", { "ts": "never" }],
     "import/no-dynamic-require": 1,
+    "import/no-extraneous-dependencies": 0,
     "import/prefer-default-export": 0,
 
     // eslint-plugin-jest - https://github.com/jest-community/eslint-plugin-jest/blob/master/README.md
@@ -103,10 +108,10 @@
     // eslint-plugin-jsdoc - https://github.com/gajus/eslint-plugin-jsdoc/blob/master/README.md
 
     // eslint-plugin-node - https://github.com/mysticatea/eslint-plugin-node
+    "node/no-extraneous-import": ["error", { "allowModules": ["ts-essentials"] }],
     "node/no-unpublished-require": 1,
     "node/no-unsupported-features/es-syntax": 0,
     "node/no-deprecated-api": 1,
-
     "prettier/prettier": "error"
   }
 }

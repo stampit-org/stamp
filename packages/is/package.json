@@ -3,5 +3,11 @@
   "version": "1.0.0",
   "license": "MIT",
   "description": "Various checking functions used with stamps",
-  "repository": "https://github.com/stampit-org/stamp/tree/master/packages/is"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stampit-org/stamp/tree/master/packages/is"
+  },
+  "engines": {
+    "node": ">= 10.18.0"
+  }
 }

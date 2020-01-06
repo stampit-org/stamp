@@ -9,6 +9,9 @@
   },
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">= 10.18.0"
+  },
   "dependencies": {
     "@stamp/compose": "^1.0.2",
     "@stamp/core": "^1.0.1",

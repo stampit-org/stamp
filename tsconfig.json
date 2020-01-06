@@ -21,7 +21,7 @@
     // "suppressExcessPropertyErrors": false,
     // "suppressImplicitAnyIndexErrors": false,
 
-    "target": "es2016",
+    "target": "es2017",
     "module": "commonjs",
     "moduleResolution": "node",
     "newLine": "LF",
@@ -37,6 +37,7 @@
 
     // "experimentalDecorators": true,
 
+    // "types": ["ts-essentials"],
     "pretty": true
   },
   "exclude": [

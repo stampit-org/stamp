@@ -3,7 +3,10 @@
   "version": "1.0.2",
   "license": "MIT",
   "description": "Access configuration of your stamps anywhere",
-  "repository": "https://github.com/stampit-org/stamp/tree/master/packages/configure",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stampit-org/stamp/tree/master/packages/configure"
+  },
   "keywords": [
     "compose",
     "configure"
