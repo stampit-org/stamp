@@ -1,3 +1,10 @@
+const { prototype } = Object;
+const { getPrototypeOf } = Reflect;
+
+/**
+ * @internal Checks if passed argument is a plain old javascrip object (POJO).
+ */
 export const isPlainObject = (value: unknown): value is {} =>
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  Boolean(value) && typeof value === 'object' && Reflect.getPrototypeOf(value!) === Object.prototype;
+  !!value && typeof value === 'object' && getPrototypeOf(value as {}) === prototype;
+
+export default isPlainObject;

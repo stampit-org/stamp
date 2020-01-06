@@ -1,4 +1,9 @@
-export const isObject = (value: unknown): value is {} => {
+/**
+ * @internal Checks if passed argument is considered an `object`.
+ */
+export const isObject = (value: unknown): value is object => {
   const type = typeof value;
-  return Boolean(value) && (type === 'object' || type === 'function');
+  return !!value && (type === 'object' || type === 'function');
 };
+
+export default isObject;

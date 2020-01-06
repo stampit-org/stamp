@@ -1,4 +1,4 @@
-import { isPlainObject, isArray } from '@stamp/is';
+import { isArray, isPlainObject } from '@stamp/is';
 
 const { defineProperty, get, getOwnPropertyDescriptor, ownKeys, set } = Reflect;
 
@@ -20,8 +20,7 @@ function mergeOne(dst: object, src: unknown): unknown {
     if (isPlainObject(src)) {
       const keys = ownKeys(src);
       for (const key of keys) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const desc = getOwnPropertyDescriptor(src, key)!;
+        const desc = getOwnPropertyDescriptor(src, key) as PropertyDescriptor;
         // is this a regular property?
         if (getOwnPropertyDescriptor(desc, 'value') !== undefined) {
           // Do not merge properties with the 'undefined' value.
@@ -46,6 +45,13 @@ function mergeOne(dst: object, src: unknown): unknown {
   return dst;
 }
 
+/**
+ * Mutates destination object by deeply merging passed source objects.
+ * Arrays are concatenated, not overwritten.
+ * Everything else but plain objects are copied by reference.
+ *
+ * Returns destination object/array or a new object/array in case it was not.
+ */
 export const merge = <T extends object = object>(dst: T, ...args: (object | undefined)[]): T => {
   for (const arg of args) {
     // eslint-disable-next-line no-param-reassign
@@ -53,3 +59,5 @@ export const merge = <T extends object = object>(dst: T, ...args: (object | unde
   }
   return dst;
 };
+
+export default merge;

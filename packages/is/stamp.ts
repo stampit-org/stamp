@@ -1,5 +1,10 @@
 import { isFunction } from './function';
 
-export const isStamp = (value: unknown): value is Stamp =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  isFunction(value) && isFunction(((value as unknown) as any).compose);
+/**
+ * Checks if passed argument is a function and has a `.compose()` property.
+ */
+// TODO: finer type guard
+export const isStamp = <T extends object = object>(value: unknown): value is T =>
+  isFunction(value) && isFunction(value.compose);
+
+export default isStamp;

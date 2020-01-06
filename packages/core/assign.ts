@@ -5,14 +5,16 @@ const assignOne = (dst: object, src: object | undefined): object => {
     // We need to copy regular properties, symbols, getters and setters.
     const keys = ownKeys(src);
     for (const key of keys) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      defineProperty(dst, key, getOwnPropertyDescriptor(src, key)!);
+      defineProperty(dst, key, getOwnPropertyDescriptor(src, key) as PropertyDescriptor);
     }
   }
 
   return dst;
 };
 
+/**
+ * Mutates destination object with shallow assign of passed source objects. Returns destination object.
+ */
 export const assign = <T extends object = object>(dst: T, ...args: (object | undefined)[]): T => {
   for (const arg of args) {
     // eslint-disable-next-line no-param-reassign
@@ -20,3 +22,5 @@ export const assign = <T extends object = object>(dst: T, ...args: (object | und
   }
   return dst;
 };
+
+export default assign;

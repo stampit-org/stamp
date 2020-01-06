@@ -1,5 +1,6 @@
-/**
- * @deprecated Use Reflect.ownKeys() instead
- */
+const { ownKeys } = Reflect;
 
-export const { ownKeys: getOwnPropertyKeys } = Reflect;
+/** @deprecated Use Reflect.ownKeys() instead */
+export const getOwnPropertyKeys = ownKeys;
+
+export default getOwnPropertyKeys;
