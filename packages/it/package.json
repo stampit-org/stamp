@@ -9,6 +9,10 @@
   },
   "author": "",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "link": "npm run build && lerna link"
+  },
   "engines": {
     "node": ">= 10.18.0"
   },

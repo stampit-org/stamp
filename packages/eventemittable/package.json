@@ -7,6 +7,10 @@
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/eventemittable"
   },
+  "scripts": {
+    "build": "tsc",
+    "link": "npm run build && lerna link"
+  },
   "dependencies": {
     "@stamp/compose": "^1.0.2",
     "events": "^3.0.0"

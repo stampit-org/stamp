@@ -11,6 +11,10 @@
     "compose",
     "configure"
   ],
+  "scripts": {
+    "build": "tsc",
+    "link": "npm run build && lerna link"
+  },
   "dependencies": {
     "@stamp/compose": "^1.0.2",
     "@stamp/privatize": "^1.0.3"
