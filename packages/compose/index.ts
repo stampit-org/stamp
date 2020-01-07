@@ -28,7 +28,7 @@ export type ComposableFactoryParams = Parameters<ComposableFactory>;
  * @returns {Stamp} A new stamp (aka composable factory function)
  */
 interface ComposeMethod {
-  (/* this: unknown, */ ...args: (Composable | undefined)[]): Stamp;
+  (this: Stamp | unknown, ...args: (Composable | undefined)[]): Stamp;
 }
 
 export type ComposeProperty = ComposeMethod & Descriptor;
@@ -129,7 +129,7 @@ export interface Composer {
  * The parameters received by the current `.composers` function.
  * @template S̤t̤a̤m̤p̤ The type of the `Stamp` produced by the `.compose()` method.
  */
-interface ComposerParams {
+export interface ComposerParams {
   /** The result of the `Composable`s composition. */
   stamp: Stamp;
   /** The list of composables the `Stamp` was just composed of. */
@@ -251,7 +251,7 @@ interface MergeComposable {
   (dstDescriptor: Descriptor, srcComposable: Composable): void;
 }
 const mergeComposable: MergeComposable = (dstDescriptor, srcComposable) => {
-  const srcDescriptor: Descriptor = (srcComposable && (srcComposable as Stamp).compose) || srcComposable;
+  const srcDescriptor: Descriptor = (srcComposable as Stamp)?.compose || srcComposable;
 
   mergeAssign(dstDescriptor, srcDescriptor, 'methods');
   mergeAssign(dstDescriptor, srcDescriptor, 'properties');

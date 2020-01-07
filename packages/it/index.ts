@@ -104,7 +104,6 @@ const baseStampit = Shortcut.compose({
 });
 
 const shortcuts = Shortcut.compose.staticProperties as PropertyMap;
-
 ownKeys(shortcuts).forEach((prop) => set(stampit, prop, get(shortcuts, prop).bind(baseStampit)));
 stampit.compose = (stampit.bind(undefined) as unknown) as ComposeProperty;
 

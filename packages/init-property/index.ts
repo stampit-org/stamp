@@ -8,7 +8,7 @@ const initializer: Initializer = function initializer(opts, ref) {
   (ownKeys(this) as string[]).forEach((key) => {
     const stamp = get(this, key);
     if (isStamp<Stamp>(stamp)) {
-      args[0] = opts && opts[key];
+      args[0] = opts?.[key];
       set(this, key, stamp(...(args as ComposableFactoryParams)));
     }
   });
