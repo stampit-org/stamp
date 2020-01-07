@@ -26,6 +26,7 @@
     "moduleResolution": "node",
     "newLine": "LF",
     "noEmitOnError": true,
+    "declaration": true,
     // "noImplicitAny": true,
     // "lib": ["dom", "es2018"],
     "lib": ["es2018"],
@@ -33,11 +34,9 @@
     // "rootDir": "src",
     // "typeRoots": ["src/types", "node_modules/@types"],
 
-    "stripInternal": true,
+    "stripInternal": false,
 
     // "experimentalDecorators": true,
-
-    // "types": ["ts-essentials"],
     "pretty": true
   },
   "exclude": [
