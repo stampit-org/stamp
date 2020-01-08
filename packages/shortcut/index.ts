@@ -12,8 +12,7 @@ const createShortcut: CreateShortcut = (propName) => {
   // eslint-disable-next-line func-names
   return function(arg) {
     const param = { [propName]: arg };
-    return this && this.compose ? this.compose(param) : compose(param);
-    // return this?.compose ? this.compose(param) : compose(param);
+    return this?.compose ? this.compose(param) : compose(param);
   } as ShortcutMethod;
 };
 
