@@ -37,7 +37,8 @@ interface ComposeMethod {
 /**
  * TODO
  */
-export type ComposeProperty = ComposeMethod & Descriptor;
+export interface ComposeProperty extends ComposeMethod, Descriptor {}
+// export type ComposeProperty = ComposeMethod & Descriptor;
 
 /**
  * The Stamp factory function
