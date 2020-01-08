@@ -3,8 +3,8 @@
 
 'use strict';
 
-const compose = require('@stamp/compose');
-const Collision = require('..');
+const { compose } = require('@stamp/compose');
+const { Collision } = require('..');
 
 describe('@stamp/collision', function() {
   it('defer', function() {

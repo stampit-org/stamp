@@ -3,7 +3,7 @@
 'use strict';
 
 const _ = require('lodash');
-const stampit = require('../');
+const { stampit } = require('../');
 
 // stampit.methods, stampit.statics, stampit.init, stampit.props, etc.
 describe('shortcuts', function() {

@@ -9,7 +9,7 @@ const checkCompose = require('@stamp/check-compose');
 
 describe('@stamp/compose', function() {
   it('passes official tests', function() {
-    const compose = require('..');
+    const { compose } = require('..');
     return checkCompose(compose).then(function(result) {
       const { failures } = result;
       if (failures && failures.length > 0) {

@@ -1,7 +1,7 @@
 'use strict';
 
-const compose = require('@stamp/compose');
-const Required = require('..');
+const { compose } = require('@stamp/compose');
+const { Required } = require('..');
 
 const { required } = Required;
 

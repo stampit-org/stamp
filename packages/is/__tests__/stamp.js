@@ -1,6 +1,6 @@
 'use strict';
 
-const isStamp = require('../stamp');
+const { isStamp } = require('../stamp');
 
 function getStamp(obj) {
   const stamp = function() {};

@@ -1,6 +1,6 @@
 'use strict';
 
-const isPlainObject = require('../plain-object');
+const { isPlainObject } = require('../plain-object');
 
 describe('isPlainObject', function() {
   it('with plain objects', function() {
@@ -10,7 +10,7 @@ describe('isPlainObject', function() {
 
   it('with non plain objects', function() {
     // eslint-disable-next-line no-array-constructor
-    expect(isPlainObject(new Array())).toBe(false);
+    expect(isPlainObject([])).toBe(false);
     expect(isPlainObject([])).toBe(false);
     expect(isPlainObject(new Promise(function() {}))).toBe(false);
     expect(isPlainObject(function() {})).toBe(false);

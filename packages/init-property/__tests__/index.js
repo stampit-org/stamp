@@ -1,7 +1,7 @@
 'use strict';
 
-const compose = require('@stamp/compose');
-const InitProperty = require('..');
+const { compose } = require('@stamp/compose');
+const { InitProperty } = require('..');
 
 describe('@stamp/init-property', function() {
   it('creates sub instance from stamps assigned to properties', function() {

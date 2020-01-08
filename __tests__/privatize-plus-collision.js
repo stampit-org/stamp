@@ -1,6 +1,6 @@
-var compose = require('../packages/compose');
-var Collision = require('../packages/collision');
-var Privatize = require('../packages/privatize');
+var { compose } = require('../packages/compose');
+var { Collision } = require('../packages/collision');
+var { Privatize } = require('../packages/privatize');
 
 describe('Collision + Privatize', function () {
   it('work together', function () {

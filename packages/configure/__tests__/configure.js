@@ -4,8 +4,8 @@
 
 'use strict';
 
-const compose = require('@stamp/compose');
-const Configure = require('..');
+const { compose } = require('@stamp/compose');
+const Configure = require('..').default;
 
 describe('configure', function() {
   it('should allow composition', function() {

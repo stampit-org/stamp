@@ -4,14 +4,14 @@
 
 describe('exports', function() {
   it('isComposable', function() {
-    expect(require('../composable')).toBe(require('../').isComposable);
+    expect(require('../composable').default).toBe(require('../').isComposable);
   });
 
   it('isDescriptor', function() {
-    expect(require('../descriptor')).toBe(require('../').isDescriptor);
+    expect(require('../descriptor').default).toBe(require('../').isDescriptor);
   });
 
   it('isStamp', function() {
-    expect(require('../stamp')).toBe(require('../').isStamp);
+    expect(require('../stamp').default).toBe(require('../').isStamp);
   });
 });
