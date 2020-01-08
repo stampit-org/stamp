@@ -25,6 +25,9 @@ const initializer: Initializer = function initializer(opts, ref) {
 
 const dedupe = <T>(array: T[]): T[] => [...new Set(array)];
 
+/**
+ * TODO
+ */
 export const ArgOverProp = compose({
   staticProperties: {
     argOverProp(...args: unknown[]): Stamp {

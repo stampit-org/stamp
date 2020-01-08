@@ -4,6 +4,9 @@ import { isArray, isComposable, isFunction, isObject, isStamp } from '@stamp/is'
 const { defineProperties } = Object;
 const { get, set } = Reflect;
 
+/**
+ * TODO
+ */
 export type PropertyMap = { [key: string]: unknown };
 
 /**
@@ -31,7 +34,11 @@ interface ComposeMethod {
   (this: Stamp | unknown, ...args: (Composable | undefined)[]): Stamp;
 }
 
+/**
+ * TODO
+ */
 export type ComposeProperty = ComposeMethod & Descriptor;
+
 /**
  * The Stamp factory function
  *
@@ -270,6 +277,9 @@ const mergeComposable: MergeComposable = (dstDescriptor, srcComposable) => {
   concatAssignFunctions(dstDescriptor, srcDescriptor.composers, 'composers');
 };
 
+/**
+ * TODO
+ */
 export const compose: ComposeMethod = function compose(this: unknown, ...args) {
   const descriptor: Descriptor = {};
   const composables: Composable[] = [];
@@ -298,4 +308,5 @@ export const compose: ComposeMethod = function compose(this: unknown, ...args) {
 
   return stamp;
 };
+
 export default compose;

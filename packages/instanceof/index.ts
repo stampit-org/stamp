@@ -8,6 +8,9 @@ interface Signature {
   [stampSymbol]: unknown;
 }
 
+/**
+ * TODO
+ */
 export const InstanceOf = compose({
   methods: {},
   composers: [

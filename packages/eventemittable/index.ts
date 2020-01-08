@@ -7,6 +7,9 @@ interface ListenerCount {
 
 const listenerCount: ListenerCount = (emitter, event) => emitter.listenerCount(event);
 
+/**
+ * TODO
+ */
 export const EventEmittable = compose({
   staticProperties: {
     defaultMaxListeners: EventEmitter.defaultMaxListeners,

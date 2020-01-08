@@ -26,11 +26,21 @@ const initializers = createShortcut('initializers');
 
 // TODO: enhance typing
 export type Composable = Stamp | Descriptor;
+
 interface ComposeMethod {
   (/* this: unknown, */ ...args: (Composable | undefined)[]): StampWithShortcuts;
 }
 
+// TODO: enhance typing
 export type ComposeProperty = ComposeMethod & Descriptor;
+
+/**
+ *TODO
+ *
+ * @export
+ * @interface StampWithShortcuts
+ * @extends {Stamp}
+ */
 export interface StampWithShortcuts extends Stamp {
   methods: ShortcutMethod;
   props: ShortcutMethod;
@@ -55,6 +65,9 @@ export interface StampWithShortcuts extends Stamp {
 
 // TODO: Stamp's `ComposeMethod` should issue StampWithShortcuts
 // TODO: Augment `Stamp` signature with `StampWithShortcuts`
+/**
+ *  TODO
+ */
 export const Shortcut = compose({
   staticProperties: {
     methods: createShortcut('methods'),

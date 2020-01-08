@@ -52,6 +52,9 @@ const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings
   }
 };
 
+/**
+ * TODO
+ */
 export const Required = compose({
   initializers: [
     (_, opts): void => {

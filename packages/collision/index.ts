@@ -206,6 +206,9 @@ const composer: Composer = (opts) => {
   }
 };
 
+/**
+ * TODO
+ */
 export const Collision = compose({
   deepConfiguration: { Collision: { defer: [], forbid: [] } },
   staticProperties: {

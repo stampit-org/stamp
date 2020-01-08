@@ -14,6 +14,9 @@ const initializer: Initializer = function initializer(opts, ref) {
   });
 };
 
+/**
+ * TODO
+ */
 export const InitProperty = compose({
   initializers: [initializer],
   composers: [

@@ -38,6 +38,9 @@ const init = (ctor: ObjectConstructor): Initializer =>
     if (this) assign(this, construct(ctor, args));
   } as Initializer;
 
+/**
+ * TODO
+ */
 export const convertClass = (ctor: ObjectConstructor): Stamp =>
   isClass(ctor)
     ? compose({

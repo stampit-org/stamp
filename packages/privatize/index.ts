@@ -51,6 +51,9 @@ const initializer: Initializer = function initializer(_, opts) {
   return newObject;
 };
 
+/**
+ * TODO
+ */
 export const Privatize = compose({
   initializers: [initializer],
   deepConfiguration: { Privatize: { methods: [] } },

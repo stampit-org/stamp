@@ -2,6 +2,9 @@ import { compose, Composer } from '@stamp/compose';
 
 const { get } = Reflect;
 
+/**
+ * TODO
+ */
 export const FpConstructor = compose({
   composers: [
     ((opts) => {

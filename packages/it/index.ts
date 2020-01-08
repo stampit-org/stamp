@@ -82,6 +82,12 @@ const standardiseDescriptor: StandardiseDescriptor = (descr) => {
   return descriptor;
 };
 
+/**
+ * TODO
+ *
+ * @interface StampIt
+ * @extends {StampWithShortcuts}
+ */
 interface StampIt extends StampWithShortcuts {
   (this: unknown, ...args: (ExtendedDescriptor | StampWithShortcuts)[]): StampWithShortcuts;
 }
