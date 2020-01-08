@@ -159,13 +159,17 @@ const createFactory: CreateFactory = () => {
     assign(instance, properties);
     defineProperties(instance, propertyDescriptors || {});
 
-    // if (!initializers || initializers.length === 0) return obj;
     if (initializers && initializers.length > 0) {
+      let returnedValue: void | object;
       const args = [options, ...moreArgs];
       for (const initializer of initializers) {
         if (isFunction<Initializer>(initializer)) {
-          instance = (initializer.call(instance, options, { instance, stamp: Stamp as Stamp, args }) ??
-            instance) as object;
+          returnedValue = initializer.call(instance, options, {
+            instance,
+            stamp: Stamp as Stamp,
+            args,
+          });
+          if (returnedValue !== undefined) instance = returnedValue;
         }
       }
     }

@@ -17,7 +17,7 @@ const ConfigurePublic: ConfigureStamp = compose({
   initializers: [configure],
 }) as ConfigureStamp;
 
-const ConfigurePrivate = ConfigurePublic.compose(Privatize) as ConfigureStamp;
+export const ConfigurePrivate = ConfigurePublic.compose(Privatize) as ConfigureStamp;
 
 ConfigurePrivate.noPrivatize = (): ConfigureStamp => ConfigurePublic;
 

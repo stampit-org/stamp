@@ -1,4 +1,4 @@
-import { compose, Composer, ComposerParams, Descriptor, PropertyMap, Stamp, ComposeProperty } from '@stamp/compose';
+import { compose, ComposeProperty, Composer, ComposerParams, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
 import { assign } from '@stamp/core';
 import { isArray, isObject, isStamp } from '@stamp/is';
 

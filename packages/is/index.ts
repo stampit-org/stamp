@@ -1,7 +1,7 @@
 // Public API
 export { isStamp } from './stamp';
 export { isComposable } from './composable';
-export { isDecriptor } from './descriptor';
+export { isDescriptor } from './descriptor';
 
 // The below are private for @stamp.
 export { isFunction } from './function';

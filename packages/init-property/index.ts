@@ -1,4 +1,4 @@
-import { compose, Descriptor, Initializer, Stamp, ComposableFactoryParams } from '@stamp/compose';
+import { ComposableFactoryParams, compose, Descriptor, Initializer, Stamp } from '@stamp/compose';
 import { isStamp } from '@stamp/is';
 
 const { get, ownKeys, set } = Reflect;

@@ -1,4 +1,4 @@
-import compose, { Stamp, Initializer, PropertyMap } from '@stamp/compose';
+import { compose, Initializer, PropertyMap, Stamp } from '@stamp/compose';
 
 const { prototype: functionPrototype } = Function;
 const { assign } = Object;

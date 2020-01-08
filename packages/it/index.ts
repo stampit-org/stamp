@@ -4,15 +4,14 @@ import { assign, merge } from '@stamp/core';
 import { isFunction, isObject, isStamp, isString } from '@stamp/is';
 import { ComposeProperty, Shortcut, StampWithShortcuts } from '@stamp/shortcut';
 
-// const { concat } = Array.prototype;
+const { concat } = Array.prototype;
 const { get, ownKeys, set } = Reflect;
 
 interface ExtractFunctions {
   (...args: unknown[]): Composer[] | Initializer[] | undefined;
 }
 const extractFunctions: ExtractFunctions = (...args) => {
-  const fns = [...args].filter(isFunction) as Composer[] | Initializer[];
-  // const fns = concat.apply([], args).filter(isFunction);
+  const fns = concat.apply([], [...args]).filter(isFunction) as Composer[] | Initializer[];
   return fns.length === 0 ? undefined : fns;
 };
 

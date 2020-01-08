@@ -1,4 +1,4 @@
-import compose, { Composer, Descriptor, Initializer, Stamp, PropertyMap } from '@stamp/compose';
+import { compose, Composer, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose';
 
 const { defineProperty, get, ownKeys, set } = Reflect;
 

@@ -1,5 +1,5 @@
 /* eslint @typescript-eslint/no-use-before-define: ["error", { "variables": false }] */
-import { Composable, compose, Descriptor, Stamp, PropertyMap } from '@stamp/compose';
+import { Composable, compose, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
 import { assign } from '@stamp/core';
 import { isObject } from '@stamp/is';
 
