@@ -19,7 +19,7 @@
   "scripts": {
     "build": "lerna run build",
     "build-clean": "del-cli **/*.tsbuildinfo & npm run build",
-    "ci": "npm run build-clean & npm run test",
+    "ci": "npm run test",
     "test": "jest",
     "posttest": "npm run lint",
     "postinstall": "npm run bootstrap & npm run build-clean",
