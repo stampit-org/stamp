@@ -1,4 +1,4 @@
-import { ComposableFactoryParams, compose, Descriptor, Initializer, Stamp } from '@stamp/compose';
+import compose, { ComposableFactoryParams, Descriptor, Initializer, Stamp } from '@stamp/compose';
 import { isStamp } from '@stamp/is';
 
 const { get, ownKeys, set } = Reflect;
@@ -17,7 +17,7 @@ const initializer: Initializer = function initializer(opts, ref) {
 /**
  * TODO
  */
-export const InitProperty = compose({
+const InitProperty = compose({
   initializers: [initializer],
   composers: [
     (opts): void => {
@@ -29,3 +29,7 @@ export const InitProperty = compose({
 });
 
 export default InitProperty;
+
+// For CommonJS default export support
+module.exports = InitProperty;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: InitProperty });

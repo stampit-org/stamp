@@ -15,7 +15,7 @@ const assignOne = (dst: object, src: object | undefined): object => {
 /**
  * Mutates destination object with shallow assign of passed source objects. Returns destination object.
  */
-export const assign = <T extends object = object>(dst: T, ...args: (object | undefined)[]): T => {
+const assign = <T extends object = object>(dst: T, ...args: (object | undefined)[]): T => {
   for (const arg of args) {
     // eslint-disable-next-line no-param-reassign
     dst = assignOne(dst, arg) as T;
@@ -24,3 +24,7 @@ export const assign = <T extends object = object>(dst: T, ...args: (object | und
 };
 
 export default assign;
+
+// For CommonJS default export support
+module.exports = assign;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: assign });

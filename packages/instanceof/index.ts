@@ -1,4 +1,4 @@
-import { compose } from '@stamp/compose';
+import compose from '@stamp/compose';
 
 const { defineProperty, set } = Reflect;
 
@@ -11,7 +11,7 @@ interface Signature {
 /**
  * TODO
  */
-export const InstanceOf = compose({
+const InstanceOf = compose({
   methods: {},
   composers: [
     ({ stamp }): void => {
@@ -29,3 +29,7 @@ export const InstanceOf = compose({
 });
 
 export default InstanceOf;
+
+// For CommonJS default export support
+module.exports = InstanceOf;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: InstanceOf });

@@ -1,8 +1,8 @@
 /* eslint @typescript-eslint/no-use-before-define: ["error", { "variables": false }] */
-import { Composable, compose, Composer, Descriptor, Initializer, PropertyMap } from '@stamp/compose';
+import compose, { Composable, Composer, Descriptor, Initializer, PropertyMap } from '@stamp/compose';
 import { assign, merge } from '@stamp/core';
 import { isFunction, isObject, isStamp, isString } from '@stamp/is';
-import { ComposeProperty, Shortcut, StampWithShortcuts } from '@stamp/shortcut';
+import Shortcut, { ComposeProperty, StampWithShortcuts } from '@stamp/shortcut';
 
 const { concat } = Array.prototype;
 const { get, ownKeys, set } = Reflect;
@@ -92,7 +92,7 @@ interface StampIt extends StampWithShortcuts {
   (this: unknown, ...args: (ExtendedDescriptor | StampWithShortcuts)[]): StampWithShortcuts;
 }
 // { (...args: any[]): StampWithShortcuts; compose: ComposeMethod & Descriptor; }
-export const stampit = function stampit(this: StampIt, ...args: (Composable | undefined)[]) {
+const stampit = function stampit(this: StampIt, ...args: (Composable | undefined)[]) {
   return compose.apply(
     this || baseStampit,
     args.map((arg) => (isStamp(arg) ? arg : standardiseDescriptor(arg)))
@@ -113,3 +113,7 @@ ownKeys(shortcuts).forEach((prop) => set(stampit, prop, get(shortcuts, prop).bin
 stampit.compose = (stampit.bind(undefined) as unknown) as ComposeProperty;
 
 export default stampit;
+
+// For CommonJS default export support
+module.exports = stampit;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: stampit });

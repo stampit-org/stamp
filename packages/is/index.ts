@@ -1,11 +1,11 @@
 // Public API
-export { isStamp } from './stamp';
-export { isComposable } from './composable';
-export { isDescriptor } from './descriptor';
+export { default as isStamp } from './stamp';
+export { default as isComposable } from './composable';
+export { default as isDescriptor } from './descriptor';
 
 // The below are private for @stamp.
-export { isFunction } from './function';
-export { isObject } from './object';
-export { isPlainObject } from './plain-object';
-export { isArray } from './array';
-export { isString } from './string';
+export { default as isFunction } from './function';
+export { default as isObject } from './object';
+export { default as isPlainObject } from './plain-object';
+export { default as isArray } from './array';
+export { default as isString } from './string';

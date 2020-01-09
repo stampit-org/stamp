@@ -1,4 +1,4 @@
-import { compose, Composer, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose';
+import compose, { Composer, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose';
 
 const { defineProperty, get, ownKeys, set } = Reflect;
 
@@ -54,7 +54,7 @@ const initializer: Initializer = function initializer(_, opts) {
 /**
  * TODO
  */
-export const Privatize = compose({
+const Privatize = compose({
   initializers: [initializer],
   deepConfiguration: { Privatize: { methods: [] } },
   staticProperties: {
@@ -85,3 +85,7 @@ export const Privatize = compose({
 });
 
 export default Privatize;
+
+// For CommonJS default export support
+module.exports = Privatize;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: Privatize });

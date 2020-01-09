@@ -1,11 +1,11 @@
-import { compose, Composer } from '@stamp/compose';
+import compose, { Composer } from '@stamp/compose';
 
 const { get } = Reflect;
 
 /**
  * TODO
  */
-export const FpConstructor = compose({
+const FpConstructor = compose({
   composers: [
     ((opts) => {
       const optsStamp = get(opts, 'stamp');
@@ -18,3 +18,7 @@ export const FpConstructor = compose({
 });
 
 export default FpConstructor;
+
+// For CommonJS default export support
+module.exports = FpConstructor;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: FpConstructor });

@@ -281,7 +281,7 @@ const mergeComposable: MergeComposable = (dstDescriptor, srcComposable) => {
 /**
  * TODO
  */
-export const compose: ComposeMethod = function compose(this: unknown, ...args) {
+const compose: ComposeMethod = function compose(this: unknown, ...args) {
   const descriptor: Descriptor = {};
   const composables: Composable[] = [];
 
@@ -311,3 +311,7 @@ export const compose: ComposeMethod = function compose(this: unknown, ...args) {
 };
 
 export default compose;
+
+// For CommonJS default export support
+module.exports = compose;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: compose });

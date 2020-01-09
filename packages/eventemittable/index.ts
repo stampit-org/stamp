@@ -1,4 +1,4 @@
-import { compose } from '@stamp/compose';
+import compose from '@stamp/compose';
 import { EventEmitter } from 'events';
 
 interface ListenerCount {
@@ -10,7 +10,7 @@ const listenerCount: ListenerCount = (emitter, event) => emitter.listenerCount(e
 /**
  * TODO
  */
-export const EventEmittable = compose({
+const EventEmittable = compose({
   staticProperties: {
     defaultMaxListeners: EventEmitter.defaultMaxListeners,
     listenerCount,
@@ -19,3 +19,7 @@ export const EventEmittable = compose({
 });
 
 export default EventEmittable;
+
+// For CommonJS default export support
+module.exports = EventEmittable;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: EventEmittable });

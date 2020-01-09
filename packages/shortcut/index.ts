@@ -1,4 +1,4 @@
-import { compose, Descriptor, Stamp } from '@stamp/compose';
+import compose, { Descriptor, Stamp } from '@stamp/compose';
 
 interface ShortcutMethod {
   (this: StampWithShortcuts, arg: unknown): StampWithShortcuts;
@@ -68,7 +68,7 @@ export interface StampWithShortcuts extends Stamp {
 /**
  *  TODO
  */
-export const Shortcut = compose({
+const Shortcut = compose({
   staticProperties: {
     methods: createShortcut('methods'),
     props: properties,
@@ -92,3 +92,7 @@ export const Shortcut = compose({
 }) as StampWithShortcuts;
 
 export default Shortcut;
+
+// For CommonJS default export support
+module.exports = Shortcut;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: Shortcut });

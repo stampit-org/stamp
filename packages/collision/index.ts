@@ -1,4 +1,4 @@
-import { compose, ComposeProperty, Composer, ComposerParams, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
+import compose, { ComposeProperty, Composer, ComposerParams, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
 import { assign } from '@stamp/core';
 import { isArray, isObject, isStamp } from '@stamp/is';
 
@@ -209,7 +209,7 @@ const composer: Composer = (opts) => {
 /**
  * TODO
  */
-export const Collision = compose({
+const Collision = compose({
   deepConfiguration: { Collision: { defer: [], forbid: [] } },
   staticProperties: {
     collisionSetup(this: Stamp | undefined, opts: CollisionSettings): CollisionStamp {
@@ -228,3 +228,7 @@ export const Collision = compose({
 });
 
 export default Collision;
+
+// For CommonJS default export support
+module.exports = Collision;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: Collision });

@@ -1,5 +1,5 @@
-export { assign } from './assign';
-export { merge } from './merge';
+export { default as assign } from './assign';
+export { default as merge } from './merge';
 
 /** @deprecated Use Reflect.ownKeys() instead */
-export { getOwnPropertyKeys } from './get-own-property-keys';
+export { default as getOwnPropertyKeys } from './get-own-property-keys';

@@ -1,4 +1,4 @@
-import { isObject } from './object';
+import isObject from './object';
 
 /**
  * Checks if passed argument is considered as composable (i.e. stamp or descriptor).
@@ -7,6 +7,10 @@ import { isObject } from './object';
 // isDescriptor(obj) || isStamp(obj)
 // but there is no sense since stamp is function and function is object.
 // TODO: finer type guard
-export const isComposable = isObject;
+const isComposable = isObject;
 
 export default isComposable;
+
+// For CommonJS default export support
+module.exports = isComposable;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: isComposable });

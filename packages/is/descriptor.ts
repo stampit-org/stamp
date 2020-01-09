@@ -1,9 +1,13 @@
-import { isObject } from './object';
+import isObject from './object';
 
 /**
  * Checks if passed argument is considered a descriptor.
  */
 // TODO: finer type guard
-export const isDescriptor = isObject;
+const isDescriptor = isObject;
 
 export default isDescriptor;
+
+// For CommonJS default export support
+module.exports = isDescriptor;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: isDescriptor });

@@ -52,7 +52,7 @@ function mergeOne(dst: object, src: unknown): unknown {
  *
  * Returns destination object/array or a new object/array in case it was not.
  */
-export const merge = <T extends object = object>(dst: T, ...args: (object | undefined)[]): T => {
+const merge = <T extends object = object>(dst: T, ...args: (object | undefined)[]): T => {
   for (const arg of args) {
     // eslint-disable-next-line no-param-reassign
     dst = mergeOne(dst, arg) as T;
@@ -61,3 +61,7 @@ export const merge = <T extends object = object>(dst: T, ...args: (object | unde
 };
 
 export default merge;
+
+// For CommonJS default export support
+module.exports = merge;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: merge });

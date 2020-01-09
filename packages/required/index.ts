@@ -1,5 +1,5 @@
 /* eslint @typescript-eslint/no-use-before-define: ["error", { "variables": false }] */
-import { Composable, compose, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
+import compose, { Composable, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
 import { assign } from '@stamp/core';
 import { isObject } from '@stamp/is';
 
@@ -55,7 +55,7 @@ const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings
 /**
  * TODO
  */
-export const Required = compose({
+const Required = compose({
   initializers: [
     (_, opts): void => {
       const descriptor = opts.stamp.compose as RequiredDescriptor;
@@ -69,6 +69,11 @@ export const Required = compose({
   },
 });
 
-freeze(Required);
-
 export default Required;
+
+// For CommonJS default export support
+module.exports = Required;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: Required });
+
+// Now is the time to freeze
+freeze(Required);

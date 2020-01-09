@@ -1,4 +1,4 @@
-import { compose, Initializer, PropertyMap, Stamp } from '@stamp/compose';
+import compose, { Initializer, PropertyMap, Stamp } from '@stamp/compose';
 
 const { prototype: functionPrototype } = Function;
 const { assign } = Object;
@@ -41,7 +41,7 @@ const init = (ctor: ObjectConstructor): Initializer =>
 /**
  * TODO
  */
-export const convertClass = (ctor: ObjectConstructor): Stamp =>
+const convertClass = (ctor: ObjectConstructor): Stamp =>
   isClass(ctor)
     ? compose({
         initializers: [init(ctor)],
@@ -52,3 +52,7 @@ export const convertClass = (ctor: ObjectConstructor): Stamp =>
     : compose();
 
 export default convertClass;
+
+// For CommonJS default export support
+module.exports = convertClass;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: convertClass });

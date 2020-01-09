@@ -1,4 +1,4 @@
-import { compose, ComposeProperty, Composer, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose';
+import compose, { ComposeProperty, Composer, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose';
 import { assign } from '@stamp/core';
 import { isArray, isObject, isString } from '@stamp/is';
 
@@ -28,7 +28,7 @@ const dedupe = <T>(array: T[]): T[] => [...new Set(array)];
 /**
  * TODO
  */
-export const ArgOverProp = compose({
+const ArgOverProp = compose({
   staticProperties: {
     argOverProp(...args: unknown[]): Stamp {
       let propNames: PropertyKey[] = [];
@@ -69,3 +69,7 @@ export const ArgOverProp = compose({
 });
 
 export default ArgOverProp;
+
+// For CommonJS default export support
+module.exports = ArgOverProp;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: ArgOverProp });

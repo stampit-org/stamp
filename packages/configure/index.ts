@@ -1,5 +1,5 @@
-import { compose, Stamp, Initializer, PropertyMap } from '@stamp/compose';
-import { Privatize } from '@stamp/privatize';
+import compose, { Stamp, Initializer, PropertyMap } from '@stamp/compose';
+import Privatize from '@stamp/privatize';
 
 interface HasConfig {
   config: PropertyMap;
@@ -20,8 +20,12 @@ const ConfigurePublic: ConfigureStamp = compose({
 /**
  * TODO
  */
-export const ConfigurePrivate = ConfigurePublic.compose(Privatize) as ConfigureStamp;
+const ConfigurePrivate = ConfigurePublic.compose(Privatize) as ConfigureStamp;
 
 ConfigurePrivate.noPrivatize = (): ConfigureStamp => ConfigurePublic;
 
 export default ConfigurePrivate;
+
+// For CommonJS default export support
+module.exports = ConfigurePrivate;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: ConfigurePrivate });
