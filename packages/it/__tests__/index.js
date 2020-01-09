@@ -6,11 +6,11 @@
 'use strict';
 
 const checkCompose = require('@stamp/check-compose');
-const { stampit } = require('../');
+const stampit = require('../');
 
 describe('@stamp/it', function() {
   it('passes official tests', function() {
-    const compose = require('..').default;
+    const compose = require('..');
     return checkCompose(compose).then(function(result) {
       const { failures } = result;
       if (failures && failures.length > 0) {

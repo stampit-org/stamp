@@ -1,7 +1,7 @@
 'use strict';
 
-const { compose } = require('@stamp/compose');
-const { FpConstructor } = require('..');
+const compose = require('@stamp/compose');
+const FpConstructor = require('..');
 
 describe('@stamp/fp-constructor Stamp.of', function() {
   it('should add .of static method referring to the stamp', function() {

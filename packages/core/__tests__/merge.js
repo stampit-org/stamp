@@ -1,6 +1,6 @@
 'use strict';
 
-const { merge } = require('../merge');
+const merge = require('../merge');
 
 describe('deep merge', function() {
   describe('argument safety', function() {

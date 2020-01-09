@@ -1,6 +1,6 @@
 'use strict';
 
-const { ArgOverProp } = require('..');
+const ArgOverProp = require('..');
 
 describe('@stamp/arg-over-prop', function() {
   it('can be used as a standalone function', function() {

@@ -1,6 +1,6 @@
 'use strict';
 
-const { isPlainObject } = require('../plain-object');
+const isPlainObject = require('../plain-object');
 
 describe('isPlainObject', function() {
   it('with plain objects', function() {

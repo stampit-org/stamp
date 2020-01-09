@@ -1,7 +1,7 @@
 'use strict';
 
-const { compose } = require('@stamp/compose');
-const { InstanceOf } = require('..');
+const compose = require('@stamp/compose');
+const InstanceOf = require('..');
 
 describe('instanceOf', function() {
   if (typeof Symbol === 'undefined') return;

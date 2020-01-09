@@ -2,8 +2,8 @@
 
 'use strict';
 
-const { compose } = require('@stamp/compose');
-const { EventEmittable } = require('..');
+const compose = require('@stamp/compose');
+const EventEmittable = require('..');
 
 // eslint-disable-next-line jest/lowercase-name
 describe('EventEmittable', function() {

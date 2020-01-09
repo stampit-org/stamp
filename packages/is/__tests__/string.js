@@ -1,6 +1,6 @@
 'use strict';
 
-const { isString } = require('../string');
+const isString = require('../string');
 
 describe('isString', function() {
   it('with strings', function() {

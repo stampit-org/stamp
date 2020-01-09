@@ -2,9 +2,9 @@
 
 'use strict';
 
-const { compose } = require('@stamp/compose');
-const { InstanceOf } = require('@stamp/instanceof');
-const { Privatize } = require('..');
+const compose = require('@stamp/compose');
+const InstanceOf = require('@stamp/instanceof');
+const Privatize = require('..');
 
 describe('@stamp/privatize', function() {
   it('applies access restrictions', function() {

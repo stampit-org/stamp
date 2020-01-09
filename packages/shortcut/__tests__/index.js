@@ -2,8 +2,8 @@
 
 'use strict';
 
-const { compose } = require('@stamp/compose');
-const { Shortcut } = require('..');
+const compose = require('@stamp/compose');
+const Shortcut = require('..');
 
 expect.extend({
   toBeA(received, argument) {

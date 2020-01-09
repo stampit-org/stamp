@@ -1,7 +1,7 @@
 'use strict';
 
-const { compose } = require('@stamp/compose');
-const { Named } = require('..');
+const compose = require('@stamp/compose');
+const Named = require('..');
 
 // This test can be executed by Jest testing framework only.
 // Its minimal node.js supported version is 4. Same as this stamp.

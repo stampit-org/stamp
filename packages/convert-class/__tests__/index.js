@@ -1,7 +1,7 @@
 'use strict';
 
-const { compose } = require('@stamp/compose');
-const { convertClass } = require('..');
+const compose = require('@stamp/compose');
+const convertClass = require('..');
 
 describe('@stamp/convert-class', function() {
   it('does not throw', function() {

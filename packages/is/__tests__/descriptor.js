@@ -1,6 +1,6 @@
 'use strict';
 
-const { isDescriptor } = require('../descriptor');
+const isDescriptor = require('../descriptor');
 
 function getStamp(obj) {
   const stamp = function() {};

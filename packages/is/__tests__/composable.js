@@ -1,6 +1,6 @@
 'use strict';
 
-const { isComposable } = require('../composable');
+const isComposable = require('../composable');
 
 function getStamp(obj) {
   const stamp = function() {};
