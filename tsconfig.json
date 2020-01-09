@@ -1,0 +1,45 @@
+{
+  // "compileOnSave": true,
+  "compilerOptions": {
+    "incremental": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "strictBindCallApply": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    // "noUnusedParameters": false,
+    // "suppressExcessPropertyErrors": false,
+    // "suppressImplicitAnyIndexErrors": false,
+
+    "target": "es2017",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "newLine": "LF",
+    "noEmitOnError": true,
+    "declaration": true,
+    // "noImplicitAny": true,
+    // "lib": ["dom", "es2018"],
+    "lib": ["es2018"],
+    // "outDir": "dist",
+    // "rootDir": "src",
+    // "typeRoots": ["src/types", "node_modules/@types"],
+
+    "stripInternal": false,
+
+    // "experimentalDecorators": true,
+    "pretty": true
+  },
+  "exclude": [
+    // "node_modules"
+  ]
+}

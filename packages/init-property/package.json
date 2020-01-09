@@ -9,6 +9,10 @@
   },
   "author": "",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "link": "npm run build && lerna link"
+  },
   "dependencies": {
     "@stamp/compose": "^1.0.2",
     "@stamp/is": "^1.0.0"

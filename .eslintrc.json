@@ -1,35 +1,56 @@
 {
   "env": {
+    "es6": true,
     "jest": true,
     "node": true
   },
   "extends": [
-    "plugin:es/no-2017", // NodeJS 8 support
     "eslint:recommended",
     "airbnb-base",
+    "plugin:@typescript-eslint/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:jest/all",
     "plugin:node/recommended",
     "plugin:prettier/recommended" // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
   ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 2016 //  NodeJS 8 support
+    "ecmaVersion": 2018,
+    "sourceType": "module"
   },
   "plugins": [
-    "es", // should be unnecessary with drop of Node 8 or switch to Typescript
+    "@typescript-eslint",
     "import",
     "jest", // relevancy to ensure correct unit tests to be evaluated
     "node",
+    "prefer-arrow",
     "prettier"
   ],
+  "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      // use <root>/tsconfig.json
+      "typescript": {
+        "alwaysTryTypes": true // always try to resolve types under `<roo/>@types` directory even it doesn't contain any source code, like `@types/unist`
+      }
+    },
+    "node": {
+      "tryExtensions": [".ts", ".js", ".json"]
+    }
+  },
   "reportUnusedDisableDirectives": true,
   "rules": {
+    "@typescript-eslint/interface-name-prefix": 0,
+    "@typescript-eslint/no-use-before-define": 1,
+
     "class-methods-use-this": 1,
-    "func-names": "off",
+    // "func-names": 0,
     "global-require": 1,
     "guard-for-in": 1,
-    "max-classes-per-file": "off",
+    "max-classes-per-file": 0,
     "no-array-constructor": 1,
     "no-continue": 1,
     "no-nested-ternary": 1,
@@ -55,10 +76,10 @@
     "no-return-assign": 1,
     "no-underscore-dangle": 1,
     "no-unreachable": 1,
-    "no-unused-vars": 1,
-    "no-use-before-define": 1,
+    "no-unused-vars": 0,
+    "no-use-before-define": 0,
     "prefer-destructuring": 1,
-    "prefer-object-spread": 0,
+    // "prefer-object-spread": 0,
     "prefer-rest-params": 1,
     "prefer-spread": 1,
     "strict": 0,
@@ -68,7 +89,10 @@
     // eslint-plugin-es - https://mysticatea.github.io/eslint-plugin-es/
 
     // eslint-plugin-import rules - https://github.com/benmosher/eslint-plugin-import/blob/master/README.md
+    "import/extensions": ["error", { "ts": "never" }],
     "import/no-dynamic-require": 1,
+    "import/no-extraneous-dependencies": 0,
+    "import/prefer-default-export": 0,
 
     // eslint-plugin-jest - https://github.com/jest-community/eslint-plugin-jest/blob/master/README.md
     "jest/expect-expect": 1,
@@ -84,9 +108,10 @@
     // eslint-plugin-jsdoc - https://github.com/gajus/eslint-plugin-jsdoc/blob/master/README.md
 
     // eslint-plugin-node - https://github.com/mysticatea/eslint-plugin-node
+    "node/no-extraneous-import": ["error", { "allowModules": ["ts-essentials"] }],
     "node/no-unpublished-require": 1,
+    "node/no-unsupported-features/es-syntax": 0,
     "node/no-deprecated-api": 1,
-
     "prettier/prettier": "error"
   }
 }

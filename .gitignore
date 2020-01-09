@@ -104,3 +104,6 @@ crashlytics-build.properties
 Session.vim
 .netrwhist
 *~
+
+# Typescript
+*.tsbuildinfo

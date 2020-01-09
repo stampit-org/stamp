@@ -17,33 +17,43 @@
     "url": "git@github.com:stampit-org/stamp.git"
   },
   "scripts": {
+    "build": "lerna run build",
+    "build-clean": "del-cli **/*.tsbuildinfo & npm run build",
     "ci": "npm run test",
     "test": "jest",
     "posttest": "npm run lint",
-    "postinstall": "npm run bootstrap",
+    "postinstall": "npm run bootstrap & npm run build-clean",
     "bootstrap": "lerna bootstrap",
     "publish": "lerna publish -i -- --access=public",
     "updated": "lerna updated",
     "clean": "lerna clean",
-    "lint": "eslint packages/*",
-    "lint-fix": "eslint --fix packages/*"
+    "lint": "npm run lint-ts & npm run lint-js",
+    "lint-js": "eslint --no-eslintrc --config .eslintrc-js.json --ext .js --ignore-path .eslintignore-js packages",
+    "lint-js-fix": "eslint --config .eslintrc-js.json --ext .js --fix --ignore-path .eslintignore-js packages",
+    "lint-ts": "eslint --ext .ts --ignore-path .eslintignore packages",
+    "lint-ts-fix": "eslint --config .eslintrc.json --ext .ts --fix --ignore-path .eslintignore packages",
+    "lint-fix": "npm run lint-ts-fix & npm run lint-js-fix"
   },
   "engines": {
     "node": ">= 10.18.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.15.0",
+    "@typescript-eslint/parser": "^2.15.0",
+    "del-cli": "^3.0.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.9.0",
-    "eslint-plugin-es": "^3.0.0",
+    "eslint-import-resolver-typescript": "^2.0.0",
     "eslint-plugin-import": "^2.19.1",
-    "eslint-plugin-jest": "^23.2.0",
-    "eslint-plugin-jsdoc": "^19.2.0",
+    "eslint-plugin-jest": "^23.3.0",
     "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-prefer-arrow": "^1.1.7",
     "eslint-plugin-prettier": "^3.1.2",
     "jest": "^24.9.0",
-    "lerna": "^3.20.1",
-    "prettier": "^1.19.1"
+    "lerna": "^3.20.2",
+    "prettier": "^1.19.1",
+    "typescript": "^3.7.4"
   },
   "jest": {
     "testEnvironment": "node",

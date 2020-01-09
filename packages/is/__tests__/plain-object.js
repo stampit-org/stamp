@@ -10,7 +10,7 @@ describe('isPlainObject', function() {
 
   it('with non plain objects', function() {
     // eslint-disable-next-line no-array-constructor
-    expect(isPlainObject(new Array())).toBe(false);
+    expect(isPlainObject([])).toBe(false);
     expect(isPlainObject([])).toBe(false);
     expect(isPlainObject(new Promise(function() {}))).toBe(false);
     expect(isPlainObject(function() {})).toBe(false);

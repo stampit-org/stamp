@@ -7,6 +7,10 @@
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/is"
   },
+  "scripts": {
+    "build": "tsc",
+    "link": "npm run build && lerna link"
+  },
   "engines": {
     "node": ">= 10.18.0"
   }
