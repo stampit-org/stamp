@@ -1,11 +1,15 @@
 {
   "name": "@stamp/compose",
   "version": "1.0.2",
-  "license": "MIT",
   "description": "Compose function implementation to create stamps",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/compose"
+  },
+  "scripts": {
+    "build": "tsc",
+    "link": "npm run build && lerna link"
   },
   "keywords": [
     "compose",
@@ -20,13 +24,10 @@
     "class",
     "stamp"
   ],
-  "scripts": {
-    "build": "tsc",
-    "link": "npm run build && lerna link"
-  },
   "dependencies": {
     "@stamp/core": "^1.0.1",
-    "@stamp/is": "^1.0.0"
+    "@stamp/is": "^1.0.0",
+    "@stamp/types": "^1.6.0"
   },
   "devDependencies": {
     "@stamp/check-compose": "^1.0.3"
