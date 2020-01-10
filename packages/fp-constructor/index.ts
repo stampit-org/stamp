@@ -7,12 +7,13 @@ const { get } = Reflect;
  */
 const FpConstructor = compose({
   composers: [
-    ((opts) => {
-      const optsStamp = get(opts, 'stamp');
-      optsStamp.of = optsStamp;
-      optsStamp.constructor = optsStamp;
-      optsStamp.compose.methods = optsStamp.compose.methods ?? {};
-      optsStamp.compose.methods.constructor = optsStamp;
+    ((parameters) => {
+      const parametersStamp = get(parameters, 'stamp');
+      // const parametersStamp = parameters.stamp;
+      parametersStamp.of = parametersStamp;
+      parametersStamp.constructor = parametersStamp;
+      parametersStamp.compose.methods = parametersStamp.compose.methods ?? {};
+      parametersStamp.compose.methods.constructor = parametersStamp;
     }) as Composer,
   ],
 });

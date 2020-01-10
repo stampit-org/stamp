@@ -1,7 +1,7 @@
 import compose, { Stamp } from '@stamp/compose';
 
 /**
- * @deprecated This feature is now available from the `@stamp/it` package which is prefered.
+ * @deprecated This feature is now available from the `@stamp/it` package which is preferred.
  */
 const Named = compose({
   staticProperties: {

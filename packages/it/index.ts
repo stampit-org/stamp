@@ -10,8 +10,8 @@ const { get, ownKeys, set } = Reflect;
 interface ExtractFunctions {
   (...args: unknown[]): Composer[] | Initializer[] | undefined;
 }
-const extractFunctions: ExtractFunctions = (...args) => {
-  const fns = concat.apply([], [...args]).filter(isFunction) as Composer[] | Initializer[];
+const extractFunctions: ExtractFunctions = (...arguments_) => {
+  const fns = concat.apply([], [...arguments_]).filter(isFunction) as Composer[] | Initializer[];
   return fns.length === 0 ? undefined : fns;
 };
 
@@ -27,10 +27,10 @@ interface ExtendedDescriptor extends Descriptor {
 }
 
 interface StandardiseDescriptor {
-  (descr: ExtendedDescriptor | undefined): Descriptor | undefined;
+  (descriptor: ExtendedDescriptor | undefined): Descriptor | undefined;
 }
-const standardiseDescriptor: StandardiseDescriptor = (descr) => {
-  if (!isObject(descr)) return descr;
+const standardiseDescriptor: StandardiseDescriptor = (descriptor) => {
+  if (!isObject(descriptor)) return descriptor;
 
   const {
     methods,
@@ -50,7 +50,7 @@ const standardiseDescriptor: StandardiseDescriptor = (descr) => {
     conf,
     deepConfiguration,
     deepConf,
-  } = descr;
+  } = descriptor;
 
   const p = isObject(props) || isObject(properties) ? assign({}, props, properties) : undefined;
   const dp = isObject(deepProps) || isObject(deepProperties) ? merge({}, deepProps, deepProperties) : undefined;
@@ -58,28 +58,28 @@ const standardiseDescriptor: StandardiseDescriptor = (descr) => {
   const sdp =
     isObject(deepStatics) || isObject(staticDeepProperties) ? merge({}, deepStatics, staticDeepProperties) : undefined;
 
-  let spd = descr.staticPropertyDescriptors;
-  if (isString(descr.name)) spd = assign({}, spd || {}, { name: { value: descr.name } });
+  let spd = descriptor.staticPropertyDescriptors;
+  if (isString(descriptor.name)) spd = assign({}, spd || {}, { name: { value: descriptor.name } });
 
   const c = isObject(conf) || isObject(configuration) ? assign({}, conf, configuration) : undefined;
   const dc = isObject(deepConf) || isObject(deepConfiguration) ? merge({}, deepConf, deepConfiguration) : undefined;
   const ii = extractFunctions(init, initializers) as Initializer[] | undefined;
   const cc = extractFunctions(composers) as Composer[] | undefined;
 
-  const descriptor: Descriptor = {};
-  if (methods) descriptor.methods = methods;
-  if (p) descriptor.properties = p;
-  if (ii) descriptor.initializers = ii;
-  if (cc) descriptor.composers = cc;
-  if (dp) descriptor.deepProperties = dp;
-  if (sp) descriptor.staticProperties = sp;
-  if (sdp) descriptor.staticDeepProperties = sdp;
-  if (propertyDescriptors) descriptor.propertyDescriptors = propertyDescriptors;
-  if (spd) descriptor.staticPropertyDescriptors = spd;
-  if (c) descriptor.configuration = c;
-  if (dc) descriptor.deepConfiguration = dc;
+  const standardDescriptor: Descriptor = {};
+  if (methods) standardDescriptor.methods = methods;
+  if (p) standardDescriptor.properties = p;
+  if (ii) standardDescriptor.initializers = ii;
+  if (cc) standardDescriptor.composers = cc;
+  if (dp) standardDescriptor.deepProperties = dp;
+  if (sp) standardDescriptor.staticProperties = sp;
+  if (sdp) standardDescriptor.staticDeepProperties = sdp;
+  if (propertyDescriptors) standardDescriptor.propertyDescriptors = propertyDescriptors;
+  if (spd) standardDescriptor.staticPropertyDescriptors = spd;
+  if (c) standardDescriptor.configuration = c;
+  if (dc) standardDescriptor.deepConfiguration = dc;
 
-  return descriptor;
+  return standardDescriptor;
 };
 
 /**
@@ -92,24 +92,24 @@ interface StampIt extends StampWithShortcuts {
   (this: unknown, ...args: (ExtendedDescriptor | StampWithShortcuts)[]): StampWithShortcuts;
 }
 // { (...args: any[]): StampWithShortcuts; compose: ComposeMethod & Descriptor; }
-const stampit = function stampit(this: StampIt, ...args: (Composable | undefined)[]) {
+const stampit = function stampit(this: StampIt, ...arguments_: (Composable | undefined)[]) {
   return compose.apply(
     this || baseStampit,
-    args.map((arg) => (isStamp(arg) ? arg : standardiseDescriptor(arg)))
+    arguments_.map((argument) => (isStamp(argument) ? argument : standardiseDescriptor(argument)))
   );
 } as StampIt;
 
 const baseStampit = Shortcut.compose({
   staticProperties: {
-    create(this: StampWithShortcuts, ...args: [(object | undefined)?, ...unknown[]]): object {
-      return this.apply(this, args);
+    create(this: StampWithShortcuts, ...arguments_: [(object | undefined)?, ...unknown[]]): object {
+      return this.apply(this, arguments_);
     },
     compose: stampit, // infecting
   },
 });
 
 const shortcuts = Shortcut.compose.staticProperties as PropertyMap;
-ownKeys(shortcuts).forEach((prop) => set(stampit, prop, get(shortcuts, prop).bind(baseStampit)));
+ownKeys(shortcuts).forEach((property) => set(stampit, property, get(shortcuts, property).bind(baseStampit)));
 stampit.compose = (stampit.bind(undefined) as unknown) as ComposeProperty;
 
 export default stampit;

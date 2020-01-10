@@ -4,9 +4,9 @@ import Privatize from '@stamp/privatize';
 interface HasConfig {
   config: PropertyMap;
 }
-const configure: Initializer = function configure(_, options) {
-  const { configuration } = options.stamp.compose;
-  const { deepConfiguration } = options.stamp.compose;
+const configure: Initializer = function configure(_options, context) {
+  const { configuration } = context.stamp.compose;
+  const { deepConfiguration } = context.stamp.compose;
   (this as HasConfig).config = Object.freeze({ ...deepConfiguration, ...configuration });
 };
 

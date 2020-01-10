@@ -1,4 +1,4 @@
-import compose from '@stamp/compose';
+import compose, { PropertyMap } from '@stamp/compose';
 import { EventEmitter } from 'events';
 
 interface ListenerCount {
@@ -15,7 +15,7 @@ const EventEmittable = compose({
     defaultMaxListeners: EventEmitter.defaultMaxListeners,
     listenerCount,
   },
-  methods: EventEmitter.prototype,
+  methods: (EventEmitter.prototype as unknown) as PropertyMap,
 });
 
 export default EventEmittable;

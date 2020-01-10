@@ -5,44 +5,44 @@ const { defineProperty, get, getOwnPropertyDescriptor, ownKeys, set } = Reflect;
 /**
  * The 'src' argument plays the command role.
  * The returned values is always of the same type as the 'src'.
- * @param dst The object to merge into
- * @param src The object to merge from
+ * @param destination The object to merge into
+ * @param source The object to merge from
  * @returns {*}
  */
-function mergeOne(dst: object, src: unknown): unknown {
-  if (src !== undefined) {
+function mergeOne(destination: object, source: unknown): unknown {
+  if (source !== undefined) {
     // According to specification arrays must be concatenated.
     // Also, the '.concat' creates a new array instance. Overrides the 'dst'.
-    if (isArray(src)) return isArray(dst) ? [...dst, ...src] : [...src];
+    if (isArray(source)) return isArray(destination) ? [...destination, ...source] : [...source];
 
     // Now deal with non plain 'src' object. 'src' overrides 'dst'
     // Note that functions are also assigned! We do not deep merge functions.
-    if (isPlainObject(src)) {
-      const keys = ownKeys(src);
+    if (isPlainObject(source)) {
+      const keys = ownKeys(source);
       for (const key of keys) {
-        const desc = getOwnPropertyDescriptor(src, key) as PropertyDescriptor;
+        const desc = getOwnPropertyDescriptor(source, key) as PropertyDescriptor;
         // is this a regular property?
         if (getOwnPropertyDescriptor(desc, 'value') !== undefined) {
           // Do not merge properties with the 'undefined' value.
           if (desc.value !== undefined) {
-            const dstValue = get(dst, key);
-            const srcValue = get(src, key);
+            const dstValue = get(destination, key);
+            const sourceValue = get(source, key);
             // Recursive calls to mergeOne() must allow only plain objects or arrays in dst
-            const newDst = isPlainObject(dstValue) || isArray(srcValue) ? dstValue : {};
+            const newDst = isPlainObject(dstValue) || isArray(sourceValue) ? dstValue : {};
             // deep merge each property. Recursion!
-            set(dst, key, mergeOne(newDst, srcValue));
+            set(destination, key, mergeOne(newDst, sourceValue));
           }
         } else {
           // nope, it looks like a getter/setter
-          defineProperty(dst, key, desc);
+          defineProperty(destination, key, desc);
         }
       }
     } else {
-      return src;
+      return source;
     }
   }
 
-  return dst;
+  return destination;
 }
 
 /**
@@ -52,10 +52,10 @@ function mergeOne(dst: object, src: unknown): unknown {
  *
  * Returns destination object/array or a new object/array in case it was not.
  */
-const merge = <T extends object = object>(dst: T, ...args: (object | undefined)[]): T => {
-  for (const arg of args) {
+const merge = <T extends object = object>(dst: T, ...arguments_: (object | undefined)[]): T => {
+  for (const argument of arguments_) {
     // eslint-disable-next-line no-param-reassign
-    dst = mergeOne(dst, arg) as T;
+    dst = mergeOne(dst, argument) as T;
   }
   return dst;
 };

@@ -20,8 +20,8 @@ const InstanceOf = compose({
       set(stamp.compose.methods!, stampSymbol, stamp);
 
       defineProperty(stamp, Symbol.hasInstance, {
-        value(obj: Signature | undefined) {
-          return obj && obj[stampSymbol] === stamp;
+        value(instance: Signature | undefined) {
+          return instance && instance[stampSymbol] === stamp;
         },
       });
     },

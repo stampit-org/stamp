@@ -1,5 +1,5 @@
 // TODO: finer type guard
-interface SomeFunction {
+interface FunctionMaybeAStamp {
   (): unknown;
   compose?: unknown;
 }
@@ -7,7 +7,8 @@ interface SomeFunction {
 /**
  * @internal Checks if passed argument is considered a `function`.
  */
-const isFunction = <T extends Function = SomeFunction>(value: unknown): value is T => typeof value === 'function';
+const isFunction = <T extends Function = FunctionMaybeAStamp>(value: unknown): value is T =>
+  typeof value === 'function';
 
 export default isFunction;
 

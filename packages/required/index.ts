@@ -16,10 +16,10 @@ interface StampMethodRequired {
 export const required: StampMethodRequired = function required(settings): Stamp {
   const localStamp = this?.compose ? this : Required;
   const { deepConfiguration } = localStamp.compose as RequiredDescriptor;
-  const prevSettings = deepConfiguration?.Required;
+  const previousSettings = deepConfiguration?.Required;
 
   // filter out non stamp things
-  const newSettings = assign<Descriptor>({}, compose(prevSettings, settings).compose);
+  const newSettings = assign<Descriptor>({}, compose(previousSettings, settings).compose);
 
   return localStamp.compose({ deepConfiguration: { Required: newSettings } });
 };
@@ -57,8 +57,8 @@ const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings
  */
 const Required = compose({
   initializers: [
-    (_, opts): void => {
-      const descriptor = opts.stamp.compose as RequiredDescriptor;
+    (_, options): void => {
+      const descriptor = options.stamp.compose as RequiredDescriptor;
       const { deepConfiguration } = descriptor;
       const settings = deepConfiguration?.Required;
       checkDescriptorHaveThese(descriptor, settings);

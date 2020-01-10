@@ -1,150 +1,24 @@
 import { assign, merge } from '@stamp/core';
 import { isArray, isComposable, isFunction, isObject, isStamp } from '@stamp/is';
+import { Composable, ComposeMethod, Composer, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/types';
+
+export {
+  Composable,
+  ComposableFactory,
+  ComposableFactoryParams,
+  ComposeMethod,
+  ComposeProperty,
+  Composer,
+  ComposerParams,
+  Descriptor,
+  Initializer,
+  InitializerContext,
+  PropertyMap,
+  Stamp,
+} from '@stamp/types';
 
 const { defineProperties } = Object;
 const { get, set } = Reflect;
-
-/**
- * TODO
- */
-export type PropertyMap = { [key: string]: unknown };
-
-/**
- * A composable object - stamp or descriptor
- * @typedef {Stamp|Descriptor} Composable
- */
-export type Composable = Stamp | Descriptor;
-
-/**
- * @internal A composable factory function that returns object instances based on its **descriptor**
- */
-export interface ComposableFactory {
-  (options?: object, ...args: unknown[]): object;
-}
-export type ComposableFactoryParams = Parameters<ComposableFactory>;
-
-/**
- * Given the list of composables (stamp descriptors and stamps) returns
- * a new stamp (composable factory function).
- * @typedef {Function} Compose
- * @param {...(Composable)} [arguments] The list of composables.
- * @returns {Stamp} A new stamp (aka composable factory function)
- */
-interface ComposeMethod {
-  (this: Stamp | unknown, ...args: (Composable | undefined)[]): Stamp;
-}
-
-/**
- * TODO
- */
-export interface ComposeProperty extends ComposeMethod, Descriptor {}
-// export type ComposeProperty = ComposeMethod & Descriptor;
-
-/**
- * The Stamp factory function
- *
- * A factory function to create plain object instances.
- * It also has a `.compose()` method which is a copy of the `ComposeMethod` function and a `.compose` accessor to its `Descriptor`.
- * @typedef {Function} Stamp
- * @returns {*} Instantiated object
- * @property {Descriptor} compose - The Stamp descriptor and composition function
- * @template Obj The object type that the `Stamp` will create.
- */
-export interface Stamp extends ComposableFactory {
-  /**
-   * A method which creates a new stamp from a list of `Composable`s.
-   * @template Obj The type of the object instance being produced by the `Stamp`. or the type of the `Stamp` being created.
-   */
-  compose: ComposeProperty;
-}
-
-// /** @internal Signature common to every `Stamp`s. */
-// type StampSignature = Stamp;
-
-/**
- * The Stamp Descriptor
- * @typedef {Function|Object} Descriptor
- * @returns {Stamp} A new stamp based on this Stamp
- * @property {Object} [methods] Methods or other data used as object instances' prototype
- * @property {Array<Function>} [initializers] List of initializers called for each object instance
- * @property {Array<Function>} [composers] List of callbacks called each time a composition happens
- * @property {Object} [properties] Shallow assigned properties of object instances
- * @property {Object} [deepProperties] Deeply merged properties of object instances
- * @property {Object} [staticProperties] Shallow assigned properties of Stamps
- * @property {Object} [staticDeepProperties] Deeply merged properties of Stamps
- * @property {Object} [configuration] Shallow assigned properties of Stamp arbitrary metadata
- * @property {Object} [deepConfiguration] Deeply merged properties of Stamp arbitrary metadata
- * @property {Object} [propertyDescriptors] ES5 Property Descriptors applied to object instances
- * @property {Object} [staticPropertyDescriptors] ES5 Property Descriptors applied to Stamps
- */
-export interface Descriptor {
-  /** A set of methods that will be added to the object's delegate prototype. */
-  methods?: object;
-  /** A set of properties that will be added to new object instances by assignment. */
-  properties?: PropertyMap;
-  /** A set of properties that will be added to new object instances by deep property merge. */
-  deepProperties?: PropertyMap;
-  /** A set of object property descriptors (`PropertyDescriptor`) used for fine-grained control over object property behaviors. */
-  propertyDescriptors?: PropertyDescriptorMap;
-  /** A set of static properties that will be copied by assignment to the `Stamp`. */
-  staticProperties?: PropertyMap;
-  /** A set of static properties that will be added to the `Stamp` by deep property merge. */
-  staticDeepProperties?: PropertyMap;
-  /** A set of object property descriptors (`PropertyDescriptor`) to apply to the `Stamp`. */
-  staticPropertyDescriptors?: PropertyDescriptorMap;
-  /** An array of functions that will run in sequence while creating an object instance from a `Stamp`. `Stamp` details and arguments get passed to initializers. */
-  initializers?: Initializer[];
-  /** An array of functions that will run in sequence while creating a new `Stamp` from a list of `Composable`s. The resulting `Stamp` and the `Composable`s get passed to composers. */
-  composers?: Composer[];
-  /** A set of options made available to the `Stamp` and its initializers during object instance creation. These will be copied by assignment. */
-  configuration?: PropertyMap;
-  /** A set of options made available to the `Stamp` and its initializers during object instance creation. These will be deep merged. */
-  deepConfiguration?: PropertyMap;
-}
-
-/**
- * A function used as `.initializers` argument.
- * @template Obj The type of the object instance being produced by the `Stamp`.
- * @template S̤t̤a̤m̤p̤ The type of the `Stamp` producing the instance.
- */
-export interface Initializer {
-  (this: object, options: PropertyMap, context: InitializerContext): object | void;
-}
-
-/**
- * The `Initializer` function context.
- * @template Obj The type of the object instance being produced by the `Stamp`.
- * @template S̤t̤a̤m̤p̤ The type of the `Stamp` producing the instance.
- */
-interface InitializerContext {
-  /** The object instance being produced by the `Stamp`. If the initializer returns a value other than `undefined`, it replaces the instance. */
-  instance: object;
-  /** A reference to the `Stamp` producing the instance. */
-  stamp: Stamp;
-  /** An array of the arguments passed into the `Stamp`, including the options argument. */
-  args: unknown[];
-}
-
-/**
- * A function used as `.composers` argument.
- * @template S̤t̤a̤m̤p̤ The type of the `Stamp` produced by the `.compose()` method.
- */
-export interface Composer {
-  (parameters: ComposerParams): Stamp | void;
-}
-
-/**
- * The parameters received by the current `.composers` function.
- * @template S̤t̤a̤m̤p̤ The type of the `Stamp` produced by the `.compose()` method.
- */
-export interface ComposerParams {
-  /** The result of the `Composable`s composition. */
-  stamp: Stamp;
-  /** The list of composables the `Stamp` was just composed of. */
-  composables: Composable[];
-}
-
-// ----- // ----- // ----- // ----- // ----- //
 
 /**
  * Creates new factory instance.
@@ -155,7 +29,8 @@ interface CreateFactory {
   (): Stamp;
 }
 const createFactory: CreateFactory = () => {
-  return function Stamp(options: PropertyMap = {}, ...moreArgs): object {
+  // eslint-disable-next-line no-shadow
+  return function Stamp(options: PropertyMap = {}, ...arguments_): object {
     const descriptor: Descriptor = (Stamp as Stamp).compose || {};
     const { methods, properties, deepProperties, propertyDescriptors, initializers } = descriptor;
     // Next line was optimized for most JS VMs. Please, be careful here!
@@ -169,7 +44,8 @@ const createFactory: CreateFactory = () => {
 
     if (initializers && initializers.length > 0) {
       let returnedValue: void | object;
-      const args = [options, ...moreArgs];
+      // eslint-disable-next-line unicorn/prevent-abbreviations
+      const args = [options, ...arguments_];
       for (const initializer of initializers) {
         if (isFunction<Initializer>(initializer)) {
           returnedValue = initializer.call(instance, options, {
@@ -196,6 +72,7 @@ interface CreateStamp {
   (descriptor: Descriptor, composeFunction: ComposeMethod): Stamp;
 }
 const createStamp: CreateStamp = (descriptor, composeFunction) => {
+  // eslint-disable-next-line no-shadow
   const Stamp = createFactory();
 
   const { staticDeepProperties, staticProperties, staticPropertyDescriptors } = descriptor;
@@ -205,8 +82,8 @@ const createStamp: CreateStamp = (descriptor, composeFunction) => {
   if (staticPropertyDescriptors) defineProperties(Stamp, staticPropertyDescriptors);
 
   const composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
-  Stamp.compose = function _compose(this: unknown, ...args) {
-    return composeImplementation.apply(this, args);
+  Stamp.compose = function _compose(this: unknown, ...arguments_) {
+    return composeImplementation.apply(this, arguments_);
   } as ComposeMethod;
   assign(Stamp.compose, descriptor);
 
@@ -218,70 +95,70 @@ interface ActionFunction {
 }
 
 interface ConcatAssignFunctions {
-  (dstObject: object, srcArray: (Initializer | Composer)[] | undefined, propName: PropertyKey): void;
+  (dstObject: object, sourceArray: (Initializer | Composer)[] | undefined, propertyKey: PropertyKey): void;
 }
-const concatAssignFunctions: ConcatAssignFunctions = (dstObject, srcArray, propName) => {
-  if (isArray(srcArray)) {
-    const deduped = new Set(get(dstObject, propName) || []);
-    for (const fn of srcArray) {
-      if (isFunction(fn)) deduped.add(fn);
+const concatAssignFunctions: ConcatAssignFunctions = (dstObject, sourceArray, propertyKey) => {
+  if (isArray(sourceArray)) {
+    const deDuped = new Set(get(dstObject, propertyKey) || []);
+    for (const fn of sourceArray) {
+      if (isFunction(fn)) deDuped.add(fn);
     }
-    set(dstObject, propName, [...deduped]);
+    set(dstObject, propertyKey, [...deDuped]);
   }
 };
 
 interface CombineProperties {
-  (dstObject: object, srcObject: object, propName: PropertyKey, action: ActionFunction): void;
+  (dstObject: object, sourceObject: object, propertyKey: PropertyKey, action: ActionFunction): void;
 }
-const combineProperties: CombineProperties = (dstObject, srcObject, propName, action) => {
-  const srcValue = get(srcObject, propName);
-  if (isObject(srcValue)) {
-    if (!isObject(get(dstObject, propName))) set(dstObject, propName, {});
-    action(get(dstObject, propName), srcValue);
+const combineProperties: CombineProperties = (dstObject, sourceObject, propertyKey, action) => {
+  const sourceValue = get(sourceObject, propertyKey);
+  if (isObject(sourceValue)) {
+    if (!isObject(get(dstObject, propertyKey))) set(dstObject, propertyKey, {});
+    action(get(dstObject, propertyKey), sourceValue);
   }
 };
 
 interface DeepMergeAssign {
-  (dstObject: object, srcObject: object, propName: PropertyKey): void;
+  (dstObject: object, sourceObject: object, propertyKey: PropertyKey): void;
 }
-const deepMergeAssign: DeepMergeAssign = (dstObject, srcObject, propName) =>
-  combineProperties(dstObject, srcObject, propName, merge);
+const deepMergeAssign: DeepMergeAssign = (dstObject, sourceObject, propertyKey) =>
+  combineProperties(dstObject, sourceObject, propertyKey, merge);
 
 interface MergeAssign {
-  (dstObject: object, srcObject: object, propName: PropertyKey): void;
+  (dstObject: object, sourceObject: object, propertyKey: PropertyKey): void;
 }
-const mergeAssign: MergeAssign = (dstObject, srcObject, propName) =>
-  combineProperties(dstObject, srcObject, propName, assign);
+const mergeAssign: MergeAssign = (dstObject, sourceObject, propertyKey) =>
+  combineProperties(dstObject, sourceObject, propertyKey, assign);
 
 /**
- * Mutates the dstDescriptor by merging the srcComposable data into it.
+ * Mutates the dstDescriptor by merging the sourceComposable data into it.
  * @param {Descriptor} dstDescriptor The descriptor object to merge into.
- * @param {Composable} [srcComposable] The composable
+ * @param {Composable} [sourceComposable] The composable
  * (either descriptor or stamp) to merge data form.
  */
 interface MergeComposable {
-  (dstDescriptor: Descriptor, srcComposable: Composable): void;
+  (dstDescriptor: Descriptor, sourceComposable: Composable): void;
 }
-const mergeComposable: MergeComposable = (dstDescriptor, srcComposable) => {
-  const srcDescriptor: Descriptor = (srcComposable as Stamp)?.compose || srcComposable;
+const mergeComposable: MergeComposable = (dstDescriptor, sourceComposable) => {
+  const sourceDescriptor: Descriptor = (sourceComposable as Stamp)?.compose || sourceComposable;
 
-  mergeAssign(dstDescriptor, srcDescriptor, 'methods');
-  mergeAssign(dstDescriptor, srcDescriptor, 'properties');
-  deepMergeAssign(dstDescriptor, srcDescriptor, 'deepProperties');
-  mergeAssign(dstDescriptor, srcDescriptor, 'propertyDescriptors');
-  mergeAssign(dstDescriptor, srcDescriptor, 'staticProperties');
-  deepMergeAssign(dstDescriptor, srcDescriptor, 'staticDeepProperties');
-  mergeAssign(dstDescriptor, srcDescriptor, 'staticPropertyDescriptors');
-  mergeAssign(dstDescriptor, srcDescriptor, 'configuration');
-  deepMergeAssign(dstDescriptor, srcDescriptor, 'deepConfiguration');
-  concatAssignFunctions(dstDescriptor, srcDescriptor.initializers, 'initializers');
-  concatAssignFunctions(dstDescriptor, srcDescriptor.composers, 'composers');
+  mergeAssign(dstDescriptor, sourceDescriptor, 'methods');
+  mergeAssign(dstDescriptor, sourceDescriptor, 'properties');
+  deepMergeAssign(dstDescriptor, sourceDescriptor, 'deepProperties');
+  mergeAssign(dstDescriptor, sourceDescriptor, 'propertyDescriptors');
+  mergeAssign(dstDescriptor, sourceDescriptor, 'staticProperties');
+  deepMergeAssign(dstDescriptor, sourceDescriptor, 'staticDeepProperties');
+  mergeAssign(dstDescriptor, sourceDescriptor, 'staticPropertyDescriptors');
+  mergeAssign(dstDescriptor, sourceDescriptor, 'configuration');
+  deepMergeAssign(dstDescriptor, sourceDescriptor, 'deepConfiguration');
+  concatAssignFunctions(dstDescriptor, sourceDescriptor.initializers, 'initializers');
+  concatAssignFunctions(dstDescriptor, sourceDescriptor.composers, 'composers');
 };
 
 /**
  * TODO
  */
-const compose: ComposeMethod = function compose(this: unknown, ...args) {
+const compose: ComposeMethod = function compose(this: unknown, ...arguments_) {
   const descriptor: Descriptor = {};
   const composables: Composable[] = [];
 
@@ -290,10 +167,10 @@ const compose: ComposeMethod = function compose(this: unknown, ...args) {
     composables.push(this);
   }
 
-  for (const arg of args) {
-    if (isComposable(arg)) {
-      mergeComposable(descriptor, arg);
-      composables.push(arg);
+  for (const argument of arguments_) {
+    if (isComposable(argument)) {
+      mergeComposable(descriptor, argument);
+      composables.push(argument);
     }
   }
 

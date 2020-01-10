@@ -8,9 +8,12 @@ const isClass = (value: unknown): unknown => typeof value === 'function' && /^\s
 
 const isFunction = (value: unknown): value is Function => value === functionPrototype;
 
-const copyPropertiesFrom = (srcObj: object) => (destObj: PropertyMap, key: PropertyKey): PropertyMap => {
-  if (key !== 'length' && key !== 'name' && key !== 'prototype') set(destObj, key, get(srcObj, key));
-  return destObj;
+const copyPropertiesFrom = (sourceObject: object) => (
+  destinationObject: PropertyMap,
+  key: PropertyKey
+): PropertyMap => {
+  if (key !== 'length' && key !== 'name' && key !== 'prototype') set(destinationObject, key, get(sourceObject, key));
+  return destinationObject;
 };
 
 const classStaticProperties = (ctor: object): PropertyMap =>
@@ -19,9 +22,9 @@ const classStaticProperties = (ctor: object): PropertyMap =>
 interface ObjectWithPrototype extends PropertyMap {
   prototype: object;
 }
-const copyMethodsFrom = (srcObj: object) => (destObj: object, key: PropertyKey): object => {
-  if (key !== 'constructor') set(destObj, key, get(srcObj, key));
-  return destObj;
+const copyMethodsFrom = (sourceObject: object) => (destinationObject: object, key: PropertyKey): object => {
+  if (key !== 'constructor') set(destinationObject, key, get(sourceObject, key));
+  return destinationObject;
 };
 
 const classMethods = (ctor: ObjectConstructor | ObjectWithPrototype): ObjectWithPrototype =>
@@ -32,9 +35,8 @@ const classMethods = (ctor: ObjectConstructor | ObjectWithPrototype): ObjectWith
         classMethods(getPrototypeOf(ctor) as ObjectWithPrototype)
       )) as ObjectWithPrototype;
 
-const init = (ctor: ObjectConstructor): Initializer =>
-  // eslint-disable-next-line func-names,,@typescript-eslint/no-unused-vars
-  function(_, { instance, args }) {
+const initializerFactory = (ctor: ObjectConstructor): Initializer =>
+  function initializer(_options, { args }) {
     if (this) assign(this, construct(ctor, args));
   } as Initializer;
 
@@ -44,7 +46,7 @@ const init = (ctor: ObjectConstructor): Initializer =>
 const convertClass = (ctor: ObjectConstructor): Stamp =>
   isClass(ctor)
     ? compose({
-        initializers: [init(ctor)],
+        initializers: [initializerFactory(ctor)],
         methods: classMethods(ctor),
         staticProperties: classStaticProperties(ctor),
         staticPropertyDescriptors: { name: { value: ctor.name } },

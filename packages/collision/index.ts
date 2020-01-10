@@ -4,14 +4,14 @@ import { isArray, isObject, isStamp } from '@stamp/is';
 
 const { defineProperty, get, ownKeys, set } = Reflect;
 
-const dedupe = <T>(array: T[]): T[] => [...new Set(array)];
+const deDupe = <T>(array: T[]): T[] => [...new Set(array)];
 
 interface MakeProxyFunction {
   (functions: Function[], name: string | number | symbol): (this: object, ...args: unknown[]) => unknown[];
 }
 const makeProxyFunction: MakeProxyFunction = (functions, name) => {
-  function deferredFn(this: object, ...args: unknown[]): unknown[] {
-    return [...functions.map((func) => func.apply(this, [...args]))];
+  function deferredFn(this: object, ...arguments_: unknown[]): unknown[] {
+    return [...functions.map((func) => Reflect.apply(func, this, [...arguments_]))];
   }
 
   defineProperty(deferredFn, 'name', { value: name, configurable: true });
@@ -46,7 +46,7 @@ interface CheckIf {
 const checkIf: CheckIf = (descriptor, setting, methodName: PropertyKey) => {
   const settings = getSettings(descriptor);
   const settingsFor = settings && get(settings, setting);
-  return isArray(settingsFor) && settingsFor.indexOf(methodName) >= 0;
+  return isArray(settingsFor) && settingsFor.includes(methodName);
 };
 
 interface IsForbidden {
@@ -65,20 +65,26 @@ const isDeferred: IsDeferred = (descriptor, methodName) => checkIf(descriptor, '
 interface SetMethodsMetadata {
   (opts: ComposerParams, methodsMetadata: PropertyMap): void;
 }
-const setMethodsMetadata: SetMethodsMetadata = (opts, methodsMetadata) => {
-  const { methods } = opts.stamp.compose as Required<Descriptor>;
+const setMethodsMetadata: SetMethodsMetadata = (options, methodsMetadata) => {
+  const { methods } = options.stamp.compose as Required<Descriptor>;
 
   const setMethodCallback = (key: PropertyKey): void => {
     const metadata = get(methodsMetadata, key);
-    const value =
-      // eslint-disable-next-line no-nested-ternary
-      isArray(metadata)
-        ? metadata.length === 1
-          ? // Some collisions aggregated to a single method
-            // Mutating the resulting stamp
-            metadata[0]
-          : makeProxyFunction(metadata, key)
-        : metadata;
+    let value: unknown;
+    if (isArray(metadata)) {
+      // Some collisions aggregated to a single method
+      value = metadata.length === 1 ? metadata[0] : makeProxyFunction(metadata, key);
+    } else {
+      value = metadata;
+    }
+    // const value =
+    //   isArray(metadata)
+    //     ? metadata.length === 1
+    //       ? // Some collisions aggregated to a single method
+    //         // Mutating the resulting stamp
+    //         metadata[0]
+    //       : makeProxyFunction(metadata, key)
+    //     : metadata;
 
     set(methods, key, value);
   };
@@ -90,9 +96,9 @@ interface RemoveDuplicates {
   (settings: CollisionSettings): void;
 }
 const removeDuplicates: RemoveDuplicates = (settings) => {
-  if (isArray(settings.defer)) set(settings, 'defer', dedupe(settings.defer));
-  if (isArray(settings.forbid)) set(settings, 'forbid', dedupe(settings.forbid));
-  if (isArray(settings.allow)) set(settings, 'allow', dedupe(settings.allow));
+  if (isArray(settings.defer)) set(settings, 'defer', deDupe(settings.defer));
+  if (isArray(settings.forbid)) set(settings, 'forbid', deDupe(settings.forbid));
+  if (isArray(settings.allow)) set(settings, 'allow', deDupe(settings.allow));
 };
 
 interface ThrowIfAmbiguous {
@@ -100,7 +106,7 @@ interface ThrowIfAmbiguous {
 }
 const throwIfAmbiguous: ThrowIfAmbiguous = (settings) => {
   if (isArray(settings.forbid)) {
-    const intersect = (value: PropertyKey): boolean => settings.forbid.indexOf(value) >= 0;
+    const intersect = (value: PropertyKey): boolean => settings.forbid.includes(value);
     const deferredAndForbidden = isArray(settings.defer) ? settings.defer.filter(intersect) : [];
     if (deferredAndForbidden.length > 0) {
       throw new Error(`Ambiguous Collision settings. [${deferredAndForbidden.join(', ')}] both deferred and forbidden`);
@@ -143,12 +149,12 @@ const throwIfForbiddenOrAmbiguous: ThrowIfForbiddenOrAmbiguous = (
   }
 };
 
-const composer: Composer = (opts) => {
-  const descriptor = opts.stamp.compose as CollisionDescriptor;
+const composer: Composer = (parameters) => {
+  const descriptor = parameters.stamp.compose as CollisionDescriptor;
   const settings = getSettings(descriptor);
 
   if (isObject(settings)) {
-    // Deduping is an important part of the logic
+    // De-duplicating is an important part of the logic
     removeDuplicates(settings);
 
     // Make sure settings are not ambiguous
@@ -171,17 +177,17 @@ const composer: Composer = (opts) => {
 
         // Process Collision.defer
         if (isDeferred(composable, methodName)) {
-          const arr = existingMetadata || [];
-          arr.push(method);
+          const array = existingMetadata || [];
+          array.push(method);
 
-          value = arr;
+          value = array;
         }
 
         set(methodsMetadata, methodName, value);
       };
 
-      opts.composables
-        .map((composable) => (isStamp<Stamp>(composable) ? composable.compose : composable))
+      parameters.composables
+        .map((composable) => (isStamp(composable) ? composable.compose : composable))
         .filter((composable) => isObject(composable.methods))
         .forEach((composable) => {
           const { methods } = composable as Required<Descriptor>;
@@ -194,14 +200,13 @@ const composer: Composer = (opts) => {
               return (
                 method !== undefined &&
                 (existingMetadata === undefined ||
-                  (existingMetadata !== method &&
-                    (!isArray(existingMetadata) || existingMetadata.indexOf(method) === -1)))
+                  (existingMetadata !== method && (!isArray(existingMetadata) || !existingMetadata.includes(method))))
               );
             })
             .forEach(setMethodCallback);
         });
 
-      setMethodsMetadata(opts, methodsMetadata);
+      setMethodsMetadata(parameters, methodsMetadata);
     }
   }
 };
@@ -212,16 +217,16 @@ const composer: Composer = (opts) => {
 const Collision = compose({
   deepConfiguration: { Collision: { defer: [], forbid: [] } },
   staticProperties: {
-    collisionSetup(this: Stamp | undefined, opts: CollisionSettings): CollisionStamp {
+    collisionSetup(this: Stamp | undefined, settings: CollisionSettings): CollisionStamp {
       return (this?.compose ? this : Collision).compose({
-        deepConfiguration: { Collision: opts },
+        deepConfiguration: { Collision: settings },
       }) as CollisionStamp;
     },
     collisionSettingsReset(this: CollisionStamp): CollisionStamp {
       return this.collisionSetup(null);
     },
-    collisionProtectAnyMethod(this: CollisionStamp, opts: CollisionSettings): CollisionStamp {
-      return this.collisionSetup(assign({}, opts, { forbidAll: true }) as CollisionSettings);
+    collisionProtectAnyMethod(this: CollisionStamp, settings: CollisionSettings): CollisionStamp {
+      return this.collisionSetup(assign({}, settings, { forbidAll: true }) as CollisionSettings);
     },
   },
   composers: [composer],

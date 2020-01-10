@@ -11,8 +11,8 @@ const makeProxyFunction = function makeProxyFunction<T extends Function>(
   fn: T,
   name: PropertyKey
 ): (this: object, ...args: unknown[]) => unknown {
-  function proxiedFn(this: object, ...args: unknown[]): unknown {
-    return fn.apply(privates.get(this), args);
+  function proxiedFn(this: object, ...arguments_: unknown[]): unknown {
+    return fn.apply(privates.get(this), arguments_);
   }
 
   defineProperty(proxiedFn, 'name', {
@@ -27,8 +27,8 @@ interface PrivatizeDescriptor extends Descriptor {
   deepConfiguration?: PropertyMap & { Privatize: { methods: PropertyKey[] } };
 }
 
-const initializer: Initializer = function initializer(_, opts) {
-  const descriptor = opts.stamp.compose as PrivatizeDescriptor;
+const initializer: Initializer = function initializer(_options, context) {
+  const descriptor = context.stamp.compose as PrivatizeDescriptor;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const privateMethodKeys = descriptor.deepConfiguration!.Privatize.methods;
 
@@ -38,14 +38,14 @@ const initializer: Initializer = function initializer(_, opts) {
   const { methods } = descriptor;
   if (methods) {
     ownKeys(methods).forEach((name) => {
-      if (privateMethodKeys.indexOf(name) < 0) {
+      if (!privateMethodKeys.includes(name)) {
         // not private, thus wrap
         set(newObject, name, makeProxyFunction(get(methods, name), name));
       }
     });
 
     // Integration with @stamp/instanceof
-    if (get(methods, stampSymbol)) set(newObject, stampSymbol, opts.stamp);
+    if (get(methods, stampSymbol)) set(newObject, stampSymbol, context.stamp);
   }
 
   return newObject;
@@ -58,11 +58,11 @@ const Privatize = compose({
   initializers: [initializer],
   deepConfiguration: { Privatize: { methods: [] } },
   staticProperties: {
-    privatizeMethods(this: Stamp | undefined, ...args: string[]): Stamp {
+    privatizeMethods(this: Stamp | undefined, ...arguments_: string[]): Stamp {
       const methodNames: string[] = [];
-      args.forEach((arg) => {
-        if (typeof arg === 'string' && arg.length > 0) {
-          methodNames.push(arg);
+      arguments_.forEach((argument) => {
+        if (typeof argument === 'string' && argument.length > 0) {
+          methodNames.push(argument);
         }
       });
       return (this?.compose ? this : Privatize).compose({
@@ -75,8 +75,8 @@ const Privatize = compose({
     },
   },
   composers: [
-    ((opts) => {
-      const { initializers } = opts.stamp.compose as Required<Descriptor>;
+    ((parameters) => {
+      const { initializers } = parameters.stamp.compose as Required<Descriptor>;
       // Keep our initializer the last to return proxy object
       initializers.splice(initializers.indexOf(initializer), 1);
       initializers.push(initializer);

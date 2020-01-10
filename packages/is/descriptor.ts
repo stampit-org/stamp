@@ -1,10 +1,12 @@
+import { Descriptor } from '@stamp/types';
+
 import isObject from './object';
 
 /**
  * Checks if passed argument is considered a descriptor.
  */
 // TODO: finer type guard
-const isDescriptor = isObject;
+const isDescriptor: (value: unknown) => value is Descriptor = isObject;
 
 export default isDescriptor;
 

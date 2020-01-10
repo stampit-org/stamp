@@ -1,11 +1,16 @@
-const { prototype } = Object;
-const { getPrototypeOf } = Reflect;
+const { getPrototypeOf, prototype } = Object;
 
 /**
- * @internal Checks if passed argument is a plain old javascrip object (POJO).
+ * @internal Checks if passed argument is a plain old javascript object (POJO).
  */
-const isPlainObject = (value: unknown): value is {} =>
-  !!value && typeof value === 'object' && getPrototypeOf(value as {}) === prototype;
+const isPlainObject = (value: unknown): value is object => {
+  if (prototype.toString.call(value) !== '[object Object]') {
+    return false;
+  }
+
+  const unknownPrototype = getPrototypeOf(value);
+  return unknownPrototype === null || unknownPrototype === prototype;
+};
 
 export default isPlainObject;
 

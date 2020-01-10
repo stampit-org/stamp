@@ -5,14 +5,13 @@ interface ShortcutMethod {
 }
 
 interface CreateShortcut {
-  (propName: string): ShortcutMethod;
+  (propertyKey: PropertyKey): ShortcutMethod;
 }
-
-const createShortcut: CreateShortcut = (propName) => {
+const createShortcut: CreateShortcut = (propertyKey) => {
   // eslint-disable-next-line func-names
-  return function(arg) {
-    const param = { [propName]: arg };
-    return this?.compose ? this.compose(param) : compose(param);
+  return function(argument) {
+    const parameter = { [propertyKey]: argument };
+    return this?.compose ? this.compose(parameter) : compose(parameter);
   } as ShortcutMethod;
 };
 
@@ -63,7 +62,7 @@ export interface StampWithShortcuts extends Stamp {
   compose: ComposeProperty;
 }
 
-// TODO: Stamp's `ComposeMethod` should issue StampWithShortcuts
+// TODO: Stamp `ComposeMethod` should issue StampWithShortcuts
 // TODO: Augment `Stamp` signature with `StampWithShortcuts`
 /**
  *  TODO
