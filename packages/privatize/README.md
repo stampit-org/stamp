@@ -34,8 +34,8 @@ const Original = compose({
     this.bar = function () {}; // THIS WILL BE PRIVATE TOO
   }
 });
-Original().foo === undefined; 
-Original().bar === undefined; 
+Original().foo === undefined;
+Original().bar === undefined;
 ```
 This is a neat feature since you don't need to use JS closures to hide variables from external users.
 
@@ -53,7 +53,7 @@ const Original = compose({
   }
 });
 
-// Add Privatize behavior, additionally protect the 'setPassword' method 
+// Add Privatize behavior, additionally protect the 'setPassword' method
 const Stamp = Original.compose(Privatize).privatizeMethods('setPassword');
 
 // All properties and the method 'setPassword' are undefined
@@ -87,7 +87,7 @@ Then you can use for your other stamps and being able to access configuration wi
 ```js
 compose(ConfiguredPrivatize, {
     configuration: {
-        secret: 'mykey'
+        secret: 'myKey'
     },
     methods: {
         encrypt(value) {
