@@ -3,6 +3,9 @@
   "version": "1.0.1",
   "description": "Insist on a method/property/staticProperty/configuration presence",
   "main": "index.js",
+  "files": [
+    "index.d.ts"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/required"

@@ -3,6 +3,10 @@
   "version": "1.0.1",
   "license": "MIT",
   "description": "Enables `obj instanceof MyStamp` in ES6 environments",
+  "main": "index.js",
+  "files": [
+    "index.d.ts"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/instanceof"

@@ -3,6 +3,9 @@
   "version": "1.0.4",
   "description": "Assign properties passed to the stamp factory",
   "main": "index.js",
+  "files": [
+    "index.d.ts"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/arg-over-prop"

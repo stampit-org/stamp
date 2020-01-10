@@ -3,6 +3,23 @@
   "version": "1.0.3",
   "license": "MIT",
   "description": "Command line tool to test your 'compose' function implementation",
+  "files": [
+    "assignment-tests.js",
+    "compose-basic-tests.js",
+    "compose-tests.js",
+    "composers-tests.js",
+    "descriptor-tests.js",
+    "getters-setters-tests.js",
+    "index.js",
+    "initializer-tests.js",
+    "instance-replacement-tests.js",
+    "merge-tests.js",
+    "priority-tests.js",
+    "property-descriptor-tests.js",
+    "property-safety-tests.js",
+    "stamp-tests.js",
+    "static-properties-tests.js"
+  ],
   "repository": "https://github.com/stampit-org/stamp/tree/master/packages/check-compose",
   "bin": {
     "check-compose": "./bin/check-compose.js"
@@ -10,6 +27,6 @@
   "dependencies": {
     "lodash": "^4.17.15",
     "prettyjson": "^1.2.1",
-    "tape": "^4.11.0"
+    "tape": "^4.13.0"
   }
 }

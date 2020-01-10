@@ -3,6 +3,16 @@
   "version": "1.0.1",
   "license": "MIT",
   "description": "Core functions for creating stamps",
+  "main": "index.js",
+  "files": [
+    "assign.js",
+    "get-own-property-keys.js",
+    "merge.js",
+    "assign.d.ts",
+    "get-own-property-keys.d.ts",
+    "index.d.ts",
+    "merge.d.ts"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/core"
