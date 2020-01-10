@@ -15,7 +15,6 @@ ehthumbs.db
 Thumbs.db
 
 
-
 ##### node.js
 # Logs
 logs
@@ -46,7 +45,6 @@ build/Release
 node_modules
 .npmrc
 # package-lock.json
-
 
 
 ##### Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion
@@ -95,8 +93,6 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 
-
-
 ##### VIM editor
 [._]*.s[a-w][a-z]
 [_]s[a-w][a-z]
@@ -105,5 +101,9 @@ Session.vim
 .netrwhist
 *~
 
+
 # Typescript
 *.tsbuildinfo
+*.d.ts
+packages/*/*.js
+!packages/check-compose/*.js
