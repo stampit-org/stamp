@@ -4,6 +4,7 @@
   "license": "MIT",
   "description": "Command line tool to test your 'compose' function implementation",
   "files": [
+    "bin/check-compose.js",
     "assignment-tests.js",
     "compose-basic-tests.js",
     "compose-tests.js",

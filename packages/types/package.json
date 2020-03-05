@@ -4,17 +4,13 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "Stamp specification Typescript definitions",
+  "description": "Typescript definition of the Stamp specification",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/types"
   },
-  "author": "PopGoesTheWza <PopGoesTheWza@gmail.com>",
-  "homepage": "https://github.com/stampit-org/stamp",
-  "bugs": {
-    "url": "https://github.com/stampit-org/stamp/issues"
-  },
+  "author": "",
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
@@ -22,6 +18,15 @@
     "index.d.ts"
   ],
   "keywords": [
+    "compose",
+    "object",
+    "object oriented",
+    "prototype",
+    "inheritance",
+    "oop",
+    "node",
+    "factory",
+    "class",
     "stamp",
     "typescript",
     "types"
