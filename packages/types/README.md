@@ -1,11 +1,11 @@
 # `@stamp/types`
 
-> TODO: description
+_Typescript definition of the Stamp specification._
+
+_This package is used internally by other `@stamp` packages._
 
 ## Usage
 
-```typescript
-import from '@stamp/types';
-
-// TODO: DEMONSTRATE API
+```shell
+npm install --save-dev @stamp/types
 ```
