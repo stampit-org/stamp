@@ -1,9 +1,7 @@
 import compose, { PropertyMap } from '@stamp/compose';
 import { EventEmitter } from 'events';
 
-interface ListenerCount {
-  (emitter: EventEmitter, event: string): number;
-}
+type ListenerCount = (emitter: EventEmitter, event: string) => number;
 
 const listenerCount: ListenerCount = (emitter, event) => emitter.listenerCount(event);
 

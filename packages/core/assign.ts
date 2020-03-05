@@ -1,6 +1,7 @@
 const { defineProperty, getOwnPropertyDescriptor, ownKeys } = Reflect;
 
 const assignOne = (destination: object, source: object | undefined): object => {
+  // eslint-disable-next-line eqeqeq,no-eq-null
   if (source != null) {
     // We need to copy regular properties, symbols, getters and setters.
     const keys = ownKeys(source);
@@ -15,11 +16,11 @@ const assignOne = (destination: object, source: object | undefined): object => {
 /**
  * Mutates destination object with shallow assign of passed source objects. Returns destination object.
  */
-const assign = <T extends object = object>(dst: T, ...arguments_: (object | undefined)[]): T => {
+const assign = <T extends object = object>(dst: T, ...arguments_: Array<object | undefined>): T => {
   for (const argument of arguments_) {
-    // eslint-disable-next-line no-param-reassign
     dst = assignOne(dst, argument) as T;
   }
+
   return dst;
 };
 

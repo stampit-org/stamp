@@ -21,20 +21,18 @@ function mergeOne(destination: object, source: unknown): unknown {
       const keys = ownKeys(source);
       for (const key of keys) {
         const desc = getOwnPropertyDescriptor(source, key) as PropertyDescriptor;
-        // is this a regular property?
-        if (getOwnPropertyDescriptor(desc, 'value') !== undefined) {
-          // Do not merge properties with the 'undefined' value.
-          if (desc.value !== undefined) {
-            const dstValue = get(destination, key);
-            const sourceValue = get(source, key);
-            // Recursive calls to mergeOne() must allow only plain objects or arrays in dst
-            const newDst = isPlainObject(dstValue) || isArray(sourceValue) ? dstValue : {};
-            // deep merge each property. Recursion!
-            set(destination, key, mergeOne(newDst, sourceValue));
-          }
-        } else {
-          // nope, it looks like a getter/setter
+        // Is this a regular property?
+        if (getOwnPropertyDescriptor(desc, 'value') === undefined) {
+          // Nope, it looks like a getter/setter
           defineProperty(destination, key, desc);
+        } else if (desc.value !== undefined) {
+          // Do not merge properties with the 'undefined' value.
+          const dstValue = get(destination, key);
+          const sourceValue = get(source, key);
+          // Recursive calls to mergeOne() must allow only plain objects or arrays in dst
+          const newDst = isPlainObject(dstValue) || isArray(sourceValue) ? dstValue : {};
+          // Deep merge each property. Recursion!
+          set(destination, key, mergeOne(newDst, sourceValue));
         }
       }
     } else {
@@ -52,11 +50,11 @@ function mergeOne(destination: object, source: unknown): unknown {
  *
  * Returns destination object/array or a new object/array in case it was not.
  */
-const merge = <T extends object = object>(dst: T, ...arguments_: (object | undefined)[]): T => {
+const merge = <T extends object = object>(dst: T, ...arguments_: Array<object | undefined>): T => {
   for (const argument of arguments_) {
-    // eslint-disable-next-line no-param-reassign
     dst = mergeOne(dst, argument) as T;
   }
+
   return dst;
 };
 

@@ -3,7 +3,7 @@ import { isStamp } from '@stamp/is';
 
 const { get, ownKeys, set } = Reflect;
 
-const initializer: Initializer = function initializer(options, context) {
+const initializer: Initializer = function(options, context) {
   const contextArguments = context.args.slice();
   (ownKeys(this) as string[]).forEach((key) => {
     const stamp = get(this, key);

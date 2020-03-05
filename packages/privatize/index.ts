@@ -6,12 +6,12 @@ const stampSymbol = Symbol.for('stamp');
 
 const privates = new WeakMap<object, object>(); // WeakMap works in IE11, node 0.12
 
-const makeProxyFunction = function makeProxyFunction<T extends Function>(
+const makeProxyFunction = function<T extends (this: unknown, ...args: any) => any>(
   this: unknown,
   fn: T,
   name: PropertyKey
-): (this: object, ...args: unknown[]) => unknown {
-  function proxiedFn(this: object, ...arguments_: unknown[]): unknown {
+): (this: object, ...args: any) => ReturnType<T> {
+  function proxiedFn(this: object, ...arguments_: any): ReturnType<T> {
     return fn.apply(privates.get(this), arguments_);
   }
 
@@ -27,19 +27,18 @@ interface PrivatizeDescriptor extends Descriptor {
   deepConfiguration?: PropertyMap & { Privatize: { methods: PropertyKey[] } };
 }
 
-const initializer: Initializer = function initializer(_options, context) {
+const initializer: Initializer = function(_options, context) {
   const descriptor = context.stamp.compose as PrivatizeDescriptor;
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const privateMethodKeys = descriptor.deepConfiguration!.Privatize.methods;
 
-  const newObject = {}; // our proxy object
+  const newObject = {}; // Our proxy object
   privates.set(newObject, this);
 
   const { methods } = descriptor;
   if (methods) {
     ownKeys(methods).forEach((name) => {
       if (!privateMethodKeys.includes(name)) {
-        // not private, thus wrap
+        // Not private, thus wrap
         set(newObject, name, makeProxyFunction(get(methods, name), name));
       }
     });

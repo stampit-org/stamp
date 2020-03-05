@@ -6,9 +6,10 @@ const { defineProperty, get, ownKeys, set } = Reflect;
 
 const deDupe = <T>(array: T[]): T[] => [...new Set(array)];
 
-interface MakeProxyFunction {
-  (functions: Function[], name: string | number | symbol): (this: object, ...args: unknown[]) => unknown[];
-}
+type MakeProxyFunction = (
+  functions: Array<(arg0: any[]) => any>,
+  name: string | number | symbol
+) => (this: object, ...args: unknown[]) => unknown[];
 const makeProxyFunction: MakeProxyFunction = (functions, name) => {
   function deferredFn(this: object, ...arguments_: unknown[]): unknown[] {
     return [...functions.map((func) => Reflect.apply(func, this, [...arguments_]))];
@@ -31,40 +32,30 @@ interface CollisionDescriptor extends Descriptor {
 }
 
 interface CollisionStamp extends Stamp {
-  collisionSetup(this: CollisionStamp | undefined, opts: CollisionSettings | null | undefined): CollisionStamp;
   compose: ComposeProperty & CollisionDescriptor;
+  collisionSetup(this: CollisionStamp | undefined, opts: CollisionSettings | null | undefined): CollisionStamp;
 }
 
-interface GetSettings {
-  (descriptor: CollisionDescriptor): CollisionSettings | undefined;
-}
+type GetSettings = (descriptor: CollisionDescriptor) => CollisionSettings | undefined;
 const getSettings: GetSettings = (descriptor) => descriptor?.deepConfiguration?.Collision;
 
-interface CheckIf {
-  (descriptor: CollisionDescriptor, setting: PropertyKey, methodName: PropertyKey): boolean;
-}
+type CheckIf = (descriptor: CollisionDescriptor, setting: PropertyKey, methodName: PropertyKey) => boolean;
 const checkIf: CheckIf = (descriptor, setting, methodName: PropertyKey) => {
   const settings = getSettings(descriptor);
   const settingsFor = settings && get(settings, setting);
   return isArray(settingsFor) && settingsFor.includes(methodName);
 };
 
-interface IsForbidden {
-  (descriptor: CollisionDescriptor, methodName: PropertyKey): boolean;
-}
+type IsForbidden = (descriptor: CollisionDescriptor, methodName: PropertyKey) => boolean;
 const isForbidden: IsForbidden = (descriptor, methodName) =>
   getSettings(descriptor)?.forbidAll
     ? !checkIf(descriptor, 'allow', methodName)
     : checkIf(descriptor, 'forbid', methodName);
 
-interface IsDeferred {
-  (descriptor: CollisionDescriptor, methodName: PropertyKey): boolean;
-}
+type IsDeferred = (descriptor: CollisionDescriptor, methodName: PropertyKey) => boolean;
 const isDeferred: IsDeferred = (descriptor, methodName) => checkIf(descriptor, 'defer', methodName);
 
-interface SetMethodsMetadata {
-  (opts: ComposerParams, methodsMetadata: PropertyMap): void;
-}
+type SetMethodsMetadata = (opts: ComposerParams, methodsMetadata: PropertyMap) => void;
 const setMethodsMetadata: SetMethodsMetadata = (options, methodsMetadata) => {
   const { methods } = options.stamp.compose as Required<Descriptor>;
 
@@ -92,18 +83,14 @@ const setMethodsMetadata: SetMethodsMetadata = (options, methodsMetadata) => {
   ownKeys(methodsMetadata).forEach(setMethodCallback);
 };
 
-interface RemoveDuplicates {
-  (settings: CollisionSettings): void;
-}
+type RemoveDuplicates = (settings: CollisionSettings) => void;
 const removeDuplicates: RemoveDuplicates = (settings) => {
   if (isArray(settings.defer)) set(settings, 'defer', deDupe(settings.defer));
   if (isArray(settings.forbid)) set(settings, 'forbid', deDupe(settings.forbid));
   if (isArray(settings.allow)) set(settings, 'allow', deDupe(settings.allow));
 };
 
-interface ThrowIfAmbiguous {
-  (settings: CollisionSettings): void;
-}
+type ThrowIfAmbiguous = (settings: CollisionSettings) => void;
 const throwIfAmbiguous: ThrowIfAmbiguous = (settings) => {
   if (isArray(settings.forbid)) {
     const intersect = (value: PropertyKey): boolean => settings.forbid.includes(value);
@@ -111,6 +98,7 @@ const throwIfAmbiguous: ThrowIfAmbiguous = (settings) => {
     if (deferredAndForbidden.length > 0) {
       throw new Error(`Ambiguous Collision settings. [${deferredAndForbidden.join(', ')}] both deferred and forbidden`);
     }
+
     const allowedAndForbidden = isArray(settings.allow) ? settings.allow.filter(intersect) : [];
     if (allowedAndForbidden.length > 0) {
       throw new Error(`Ambiguous Collision settings. [${allowedAndForbidden.join(', ')}] both allowed and forbidden`);
@@ -118,14 +106,12 @@ const throwIfAmbiguous: ThrowIfAmbiguous = (settings) => {
   }
 };
 
-interface ThrowIfForbiddenOrAmbiguous {
-  (
-    existingMetadata: unknown[],
-    descriptor: CollisionDescriptor,
-    composable: Required<CollisionDescriptor>,
-    methodName: PropertyKey
-  ): void;
-}
+type ThrowIfForbiddenOrAmbiguous = (
+  existingMetadata: unknown[],
+  descriptor: CollisionDescriptor,
+  composable: Required<CollisionDescriptor>,
+  methodName: PropertyKey
+) => void;
 const throwIfForbiddenOrAmbiguous: ThrowIfForbiddenOrAmbiguous = (
   existingMetadata,
   descriptor,
@@ -165,7 +151,7 @@ const composer: Composer = (parameters) => {
       (isArray(settings.defer) && settings.defer.length > 0) ||
       (isArray(settings.forbid) && settings.forbid.length > 0)
     ) {
-      const methodsMetadata: PropertyMap = {}; // methods aggregation
+      const methodsMetadata: PropertyMap = {}; // Methods aggregation
 
       const getCallbackFor = (composable: Required<CollisionDescriptor>) => (methodName: PropertyKey): void => {
         const method = get(composable.methods, methodName);

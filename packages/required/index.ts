@@ -10,15 +10,13 @@ interface RequiredDescriptor extends Descriptor {
   deepConfiguration?: PropertyMap & { Required: Descriptor };
 }
 
-interface StampMethodRequired {
-  (this: Stamp, settings: Composable): Stamp;
-}
-export const required: StampMethodRequired = function required(settings): Stamp {
+type StampMethodRequired = (this: Stamp, settings: Composable) => Stamp;
+export const required: StampMethodRequired = function(settings): Stamp {
   const localStamp = this?.compose ? this : Required;
   const { deepConfiguration } = localStamp.compose as RequiredDescriptor;
   const previousSettings = deepConfiguration?.Required;
 
-  // filter out non stamp things
+  // Filter out non stamp things
   const newSettings = assign<Descriptor>({}, compose(previousSettings, settings).compose);
 
   return localStamp.compose({ deepConfiguration: { Required: newSettings } });
@@ -26,9 +24,7 @@ export const required: StampMethodRequired = function required(settings): Stamp 
 
 freeze(required);
 
-interface CheckDescriptorHaveThese {
-  (descriptor: Descriptor, settings: Descriptor | undefined): void;
-}
+type CheckDescriptorHaveThese = (descriptor: Descriptor, settings: Descriptor | undefined) => void;
 const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings) => {
   if (descriptor && settings) {
     // Traverse settings and find if there is anything required.

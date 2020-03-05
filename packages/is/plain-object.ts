@@ -12,6 +12,7 @@ const isPlainObject = (value: unknown): value is object => {
   return unknownPrototype === null || unknownPrototype === prototype;
 };
 
+// For Typescript .d.ts
 export default isPlainObject;
 
 // For CommonJS default export support

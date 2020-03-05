@@ -8,7 +8,7 @@ interface ArgOverPropDescriptor extends Descriptor {
   deepConfiguration?: PropertyMap & { ArgOverProp: PropertyKey[] };
 }
 
-const initializer: Initializer = function initializer(options, context) {
+const initializer: Initializer = function(options, context) {
   if (isObject(options)) {
     const { deepConfiguration } = context.stamp.compose as ArgOverPropDescriptor;
     const keysToAssign = deepConfiguration?.ArgOverProp;
@@ -28,7 +28,6 @@ const deDupe = <T>(array: T[]): T[] => [...new Set(array)];
 /**
  * TODO
  */
-// eslint-disable-next-line unicorn/prevent-abbreviations
 const ArgOverProp = compose({
   staticProperties: {
     argOverProp(...arguments_: unknown[]): Stamp {
@@ -40,7 +39,7 @@ const ArgOverProp = compose({
         } else if (isArray(argument)) {
           propertyKeys = [...propertyKeys, ...argument.filter(isString)];
         } else if (isObject(argument)) {
-          defaultProperties = assign(defaultProperties || {}, argument);
+          defaultProperties = assign(defaultProperties ?? {}, argument);
           propertyKeys = [...propertyKeys, ...ownKeys(argument)];
         }
       });
@@ -48,7 +47,7 @@ const ArgOverProp = compose({
       const localStamp = (this?.compose ? this : ArgOverProp) as Stamp;
       return localStamp.compose({
         deepConfiguration: { ArgOverProp: propertyKeys },
-        properties: defaultProperties, // default property values
+        properties: defaultProperties, // Default property values
       });
     },
   },
@@ -63,7 +62,6 @@ const ArgOverProp = compose({
 
       const { deepConfiguration } = descriptor as ArgOverPropDescriptor;
       const propertyNames = deepConfiguration?.ArgOverProp;
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       if (isArray(propertyNames)) deepConfiguration!.ArgOverProp = deDupe(propertyNames);
     }) as Composer,
   ],

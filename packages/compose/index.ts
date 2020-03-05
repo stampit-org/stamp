@@ -24,12 +24,8 @@ const { get, set } = Reflect;
  * Creates new factory instance.
  * @returns {Function} The new factory function.
  */
-interface CreateFactory {
-  // (): ComposableFactory;
-  (): Stamp;
-}
+type CreateFactory = () => Stamp;
 const createFactory: CreateFactory = () => {
-  // eslint-disable-next-line no-shadow
   return function Stamp(options: PropertyMap = {}, ...arguments_): object {
     const descriptor: Descriptor = (Stamp as Stamp).compose || {};
     const { methods, properties, deepProperties, propertyDescriptors, initializers } = descriptor;
@@ -40,11 +36,10 @@ const createFactory: CreateFactory = () => {
 
     merge(instance, deepProperties);
     assign(instance, properties);
-    defineProperties(instance, propertyDescriptors || {});
+    defineProperties(instance, propertyDescriptors ?? {});
 
     if (initializers && initializers.length > 0) {
       let returnedValue: void | object;
-      // eslint-disable-next-line unicorn/prevent-abbreviations
       const args = [options, ...arguments_];
       for (const initializer of initializers) {
         if (isFunction<Initializer>(initializer)) {
@@ -68,11 +63,8 @@ const createFactory: CreateFactory = () => {
  * @param {ComposeMethod} composeFunction The "compose" function implementation.
  * @returns {Stamp}
  */
-interface CreateStamp {
-  (descriptor: Descriptor, composeFunction: ComposeMethod): Stamp;
-}
+type CreateStamp = (descriptor: Descriptor, composeFunction: ComposeMethod) => Stamp;
 const createStamp: CreateStamp = (descriptor, composeFunction) => {
-  // eslint-disable-next-line no-shadow
   const Stamp = createFactory();
 
   const { staticDeepProperties, staticProperties, staticPropertyDescriptors } = descriptor;
@@ -82,7 +74,7 @@ const createStamp: CreateStamp = (descriptor, composeFunction) => {
   if (staticPropertyDescriptors) defineProperties(Stamp, staticPropertyDescriptors);
 
   const composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
-  Stamp.compose = function _compose(this: unknown, ...arguments_) {
+  Stamp.compose = function(this: unknown, ...arguments_) {
     return composeImplementation.apply(this, arguments_);
   } as ComposeMethod;
   assign(Stamp.compose, descriptor);
@@ -90,26 +82,30 @@ const createStamp: CreateStamp = (descriptor, composeFunction) => {
   return Stamp;
 };
 
-interface ActionFunction {
-  <T extends object = object>(dst: T, ...args: (object | undefined)[]): T;
-}
+type ActionFunction = <T extends object = object>(dst: T, ...args: Array<object | undefined>) => T;
 
-interface ConcatAssignFunctions {
-  (dstObject: object, sourceArray: (Initializer | Composer)[] | undefined, propertyKey: PropertyKey): void;
-}
+type ConcatAssignFunctions = (
+  dstObject: object,
+  sourceArray: Array<Initializer | Composer> | undefined,
+  propertyKey: PropertyKey
+) => void;
 const concatAssignFunctions: ConcatAssignFunctions = (dstObject, sourceArray, propertyKey) => {
   if (isArray(sourceArray)) {
     const deDuped = new Set(get(dstObject, propertyKey) || []);
     for (const fn of sourceArray) {
       if (isFunction(fn)) deDuped.add(fn);
     }
+
     set(dstObject, propertyKey, [...deDuped]);
   }
 };
 
-interface CombineProperties {
-  (dstObject: object, sourceObject: object, propertyKey: PropertyKey, action: ActionFunction): void;
-}
+type CombineProperties = (
+  dstObject: object,
+  sourceObject: object,
+  propertyKey: PropertyKey,
+  action: ActionFunction
+) => void;
 const combineProperties: CombineProperties = (dstObject, sourceObject, propertyKey, action) => {
   const sourceValue = get(sourceObject, propertyKey);
   if (isObject(sourceValue)) {
@@ -118,15 +114,11 @@ const combineProperties: CombineProperties = (dstObject, sourceObject, propertyK
   }
 };
 
-interface DeepMergeAssign {
-  (dstObject: object, sourceObject: object, propertyKey: PropertyKey): void;
-}
+type DeepMergeAssign = (dstObject: object, sourceObject: object, propertyKey: PropertyKey) => void;
 const deepMergeAssign: DeepMergeAssign = (dstObject, sourceObject, propertyKey) =>
   combineProperties(dstObject, sourceObject, propertyKey, merge);
 
-interface MergeAssign {
-  (dstObject: object, sourceObject: object, propertyKey: PropertyKey): void;
-}
+type MergeAssign = (dstObject: object, sourceObject: object, propertyKey: PropertyKey) => void;
 const mergeAssign: MergeAssign = (dstObject, sourceObject, propertyKey) =>
   combineProperties(dstObject, sourceObject, propertyKey, assign);
 
@@ -136,9 +128,7 @@ const mergeAssign: MergeAssign = (dstObject, sourceObject, propertyKey) =>
  * @param {Composable} [sourceComposable] The composable
  * (either descriptor or stamp) to merge data form.
  */
-interface MergeComposable {
-  (dstDescriptor: Descriptor, sourceComposable: Composable): void;
-}
+type MergeComposable = (dstDescriptor: Descriptor, sourceComposable: Composable) => void;
 const mergeComposable: MergeComposable = (dstDescriptor, sourceComposable) => {
   const sourceDescriptor: Descriptor = (sourceComposable as Stamp)?.compose || sourceComposable;
 

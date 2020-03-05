@@ -6,7 +6,7 @@ const { construct, get, getPrototypeOf, ownKeys, set } = Reflect;
 
 const isClass = (value: unknown): unknown => typeof value === 'function' && /^\s*class\s/.test(value.toString());
 
-const isFunction = (value: unknown): value is Function => value === functionPrototype;
+const isFunction = (value: unknown): value is () => void => value === functionPrototype;
 
 const copyPropertiesFrom = (sourceObject: object) => (
   destinationObject: PropertyMap,
@@ -36,7 +36,7 @@ const classMethods = (ctor: ObjectConstructor | ObjectWithPrototype): ObjectWith
       )) as ObjectWithPrototype;
 
 const initializerFactory = (ctor: ObjectConstructor): Initializer =>
-  function initializer(_options, { args }) {
+  function(_options, { args }) {
     if (this) assign(this, construct(ctor, args));
   } as Initializer;
 
