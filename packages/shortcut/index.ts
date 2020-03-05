@@ -1,14 +1,68 @@
-import compose, { Descriptor, Stamp } from '@stamp/compose';
+import compose, { Composable, ComposeMethod, Descriptor, Stamp } from '@stamp/compose';
 
-interface ShortcutMethod {
-  (this: StampWithShortcuts, arg: unknown): StampWithShortcuts;
+/**
+ *TODO: Doc
+ *
+ * @extends {Stamp}
+ */
+export interface ShortcutStamp extends Stamp {
+  /** TODO: Doc */
+  methods: ShortcutMethod;
+  /** TODO: Doc */
+  props: ShortcutMethod;
+  /** TODO: Doc */
+  properties: ShortcutMethod;
+  /** TODO: Doc */
+  statics: ShortcutMethod;
+  /** TODO: Doc */
+  staticProperties: ShortcutMethod;
+  /** TODO: Doc */
+  conf: ShortcutMethod;
+  /** TODO: Doc */
+  configuration: ShortcutMethod;
+  /** TODO: Doc */
+  deepProps: ShortcutMethod;
+  /** TODO: Doc */
+  deepProperties: ShortcutMethod;
+  /** TODO: Doc */
+  deepStatics: ShortcutMethod;
+  /** TODO: Doc */
+  staticDeepProperties: ShortcutMethod;
+  /** TODO: Doc */
+  deepConf: ShortcutMethod;
+  /** TODO: Doc */
+  deepConfiguration: ShortcutMethod;
+  /** TODO: Doc */
+  init: ShortcutMethod;
+  /** TODO: Doc */
+  initializers: ShortcutMethod;
+  /** TODO: Doc */
+  composers: ShortcutMethod;
+  /** TODO: Doc */
+  propertyDescriptors: ShortcutMethod;
+  /** TODO: Doc */
+  staticPropertyDescriptors: ShortcutMethod;
+  compose: ShortcutComposeProperty;
 }
 
-interface CreateShortcut {
-  (propertyKey: PropertyKey): ShortcutMethod;
+/**
+ * TODO: Doc
+ */
+export interface ShortcutComposeProperty extends ShortcutComposeMethod, Descriptor {}
+
+/** @internal */
+interface ShortcutComposeMethod extends ComposeMethod {
+  (this: Stamp | unknown, ...args: Array<Composable | undefined>): ShortcutStamp;
 }
-const createShortcut: CreateShortcut = (propertyKey) => {
-  // eslint-disable-next-line func-names
+
+/** @internal */
+type ShortcutMethod = (this: ShortcutStamp, arg: unknown) => ShortcutStamp;
+
+/**
+ * @internal
+ */
+type ShortcutMethodFactory = (propertyKey: PropertyKey) => ShortcutMethod;
+const createShortcut: ShortcutMethodFactory = (propertyKey) => {
   return function(argument) {
     const parameter = { [propertyKey]: argument };
     return this?.compose ? this.compose(parameter) : compose(parameter);
@@ -23,49 +77,8 @@ const staticDeepProperties = createShortcut('staticDeepProperties');
 const deepConfiguration = createShortcut('deepConfiguration');
 const initializers = createShortcut('initializers');
 
-// TODO: enhance typing
-export type Composable = Stamp | Descriptor;
-
-interface ComposeMethod {
-  (/* this: unknown, */ ...args: (Composable | undefined)[]): StampWithShortcuts;
-}
-
-// TODO: enhance typing
-export type ComposeProperty = ComposeMethod & Descriptor;
-
 /**
- *TODO
- *
- * @export
- * @interface StampWithShortcuts
- * @extends {Stamp}
- */
-export interface StampWithShortcuts extends Stamp {
-  methods: ShortcutMethod;
-  props: ShortcutMethod;
-  properties: ShortcutMethod;
-  statics: ShortcutMethod;
-  staticProperties: ShortcutMethod;
-  conf: ShortcutMethod;
-  configuration: ShortcutMethod;
-  deepProps: ShortcutMethod;
-  deepProperties: ShortcutMethod;
-  deepStatics: ShortcutMethod;
-  staticDeepProperties: ShortcutMethod;
-  deepConf: ShortcutMethod;
-  deepConfiguration: ShortcutMethod;
-  init: ShortcutMethod;
-  initializers: ShortcutMethod;
-  composers: ShortcutMethod;
-  propertyDescriptors: ShortcutMethod;
-  staticPropertyDescriptors: ShortcutMethod;
-  compose: ComposeProperty;
-}
-
-// TODO: Stamp `ComposeMethod` should issue StampWithShortcuts
-// TODO: Augment `Stamp` signature with `StampWithShortcuts`
-/**
- *  TODO
+ *  TODO: Doc
  */
 const Shortcut = compose({
   staticProperties: {
@@ -88,7 +101,7 @@ const Shortcut = compose({
     propertyDescriptors: createShortcut('propertyDescriptors'),
     staticPropertyDescriptors: createShortcut('staticPropertyDescriptors'),
   },
-}) as StampWithShortcuts;
+}) as ShortcutStamp;
 
 export default Shortcut;
 
