@@ -1,4 +1,0 @@
-*.ts
-!*.d.ts
-*.tsbuildinfo
-tsconfig.json
