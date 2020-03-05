@@ -106,4 +106,3 @@ Session.vim
 *.tsbuildinfo
 *.d.ts
 packages/*/*.js
-!packages/check-compose/*.js

@@ -1,0 +1,14 @@
+{
+  "ignores": [".js"],
+  "space": 2,
+  "rules": {
+    "capitalized-comments": "warn",
+    "@typescript-eslint/consistent-type-assertions": "warn",
+    "@typescript-eslint/restrict-plus-operands": "warn",
+    "@typescript-eslint/restrict-template-expressions": ["warn", { "allowBoolean": true, "allowNullable": true, "allowNumber": true }],
+    "eslint-comments/no-unused-disable": "warn",
+    "import/no-unassigned-import": "warn",
+    "unicorn/no-process-exit": "warn"
+  },
+  "prettier": true
+}
