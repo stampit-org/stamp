@@ -70,7 +70,6 @@
     "jest": "^25.1.0",
     "lerna": "^3.20.2",
     "prettier": "^1.19.1",
-    "prettier-plugin-package": "^0.3.1",
     "typescript": "^3.8.3",
     "xo": "^0.27.2"
   },

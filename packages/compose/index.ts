@@ -1,12 +1,10 @@
 import { assign, merge } from '@stamp/core';
 import { isArray, isComposable, isFunction, isObject, isStamp } from '@stamp/is';
-import { Composable, ComposeMethod, Composer, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/types';
+import { Composable, ComposeFunction, Composer, Descriptor, Initializer, ObjectInstance, PropertyMap, Stamp } from '@stamp/types';
 
 export {
   Composable,
-  ComposableFactory,
-  ComposableFactoryParams,
-  ComposeMethod,
+  ComposeFunction,
   ComposeProperty,
   Composer,
   ComposerParams,
@@ -26,20 +24,20 @@ const { get, set } = Reflect;
  */
 type CreateFactory = () => Stamp;
 const createFactory: CreateFactory = () => {
-  return function Stamp(options: PropertyMap = {}, ...arguments_): object {
+  return function Stamp(options: PropertyMap = {}, ...arguments_): ObjectInstance {
     const descriptor: Descriptor = (Stamp as Stamp).compose || {};
     const { methods, properties, deepProperties, propertyDescriptors, initializers } = descriptor;
     // Next line was optimized for most JS VMs. Please, be careful here!
-    let instance: object = { __proto__: methods };
+    let instance: ObjectInstance = { __proto__: methods };
     // let obj = {};
     // if (methods) setPrototypeOf(obj, methods);
 
-    merge(instance, deepProperties);
-    assign(instance, properties);
-    defineProperties(instance, propertyDescriptors ?? {});
+    if (deepProperties) merge(instance as ObjectInstance, deepProperties);
+    if (properties) assign(instance as ObjectInstance, properties);
+    if (propertyDescriptors) defineProperties(instance, propertyDescriptors);
 
     if (initializers && initializers.length > 0) {
-      let returnedValue: void | object;
+      let returnedValue: ObjectInstance | void;
       const args = [options, ...arguments_];
       for (const initializer of initializers) {
         if (isFunction<Initializer>(initializer)) {
@@ -60,10 +58,10 @@ const createFactory: CreateFactory = () => {
 /**
  * Returns a new stamp given a descriptor and a compose function implementation.
  * @param {Descriptor} [descriptor={}] The information about the object the stamp will be creating.
- * @param {ComposeMethod} composeFunction The "compose" function implementation.
+ * @param {ComposeFunction} composeFunction The "compose" function implementation.
  * @returns {Stamp}
  */
-type CreateStamp = (descriptor: Descriptor, composeFunction: ComposeMethod) => Stamp;
+type CreateStamp = (descriptor: Descriptor, composeFunction: ComposeFunction) => Stamp;
 const createStamp: CreateStamp = (descriptor, composeFunction) => {
   const Stamp = createFactory();
 
@@ -74,9 +72,9 @@ const createStamp: CreateStamp = (descriptor, composeFunction) => {
   if (staticPropertyDescriptors) defineProperties(Stamp, staticPropertyDescriptors);
 
   const composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
-  Stamp.compose = function(this: unknown, ...arguments_) {
+  Stamp.compose = function(this: Stamp | undefined, ...arguments_) {
     return composeImplementation.apply(this, arguments_);
-  } as ComposeMethod;
+  } as ComposeFunction;
   assign(Stamp.compose, descriptor);
 
   return Stamp;
@@ -148,7 +146,7 @@ const mergeComposable: MergeComposable = (dstDescriptor, sourceComposable) => {
 /**
  * TODO
  */
-const compose: ComposeMethod = function compose(this: unknown, ...arguments_) {
+const compose: ComposeFunction = function compose(...arguments_) {
   const descriptor: Descriptor = {};
   const composables: Composable[] = [];
 

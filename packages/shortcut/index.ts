@@ -1,4 +1,4 @@
-import compose, { Composable, ComposeMethod, Descriptor, Stamp } from '@stamp/compose';
+import compose, { Composable, ComposeFunction, Descriptor, Stamp } from '@stamp/compose';
 
 /**
  *TODO: Doc
@@ -51,7 +51,7 @@ export interface ShortcutStamp extends Stamp {
 export interface ShortcutComposeProperty extends ShortcutComposeMethod, Descriptor {}
 
 /** @internal */
-interface ShortcutComposeMethod extends ComposeMethod {
+interface ShortcutComposeMethod extends ComposeFunction {
   (this: Stamp | unknown, ...args: Array<Composable | undefined>): ShortcutStamp;
 }
 
