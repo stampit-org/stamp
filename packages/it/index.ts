@@ -91,7 +91,7 @@ interface StampIt extends ShortcutStamp {
 const stampit = function(this: StampIt, ...arguments_: Array<Composable | undefined>) {
   return compose.apply(
     this || baseStampit,
-    arguments_.map((argument) => (isStamp(argument) ? argument : standardiseDescriptor(argument)))
+    arguments_.map((argument) => (isStamp(argument) ? argument : (standardiseDescriptor(argument) as Descriptor)))
   );
 } as StampIt;
 

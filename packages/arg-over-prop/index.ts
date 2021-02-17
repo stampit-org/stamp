@@ -44,7 +44,7 @@ const ArgOverProp = compose({
         }
       });
 
-      const localStamp = (this?.compose ? this : ArgOverProp) as Stamp;
+      const localStamp = ((this as Stamp | undefined)?.compose ? this : ArgOverProp) as Stamp;
       return localStamp.compose({
         deepConfiguration: { ArgOverProp: propertyKeys },
         properties: defaultProperties, // Default property values

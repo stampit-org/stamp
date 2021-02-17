@@ -1,7 +1,9 @@
-import compose, { Stamp, Initializer, PropertyMap } from '@stamp/compose';
+import compose, { Initializer, PropertyMap, Stamp } from '@stamp/compose';
 import Privatize from '@stamp/privatize';
 
-interface HasConfig {
+import { ObjectInstance } from '../is/node_modules/@stamp/types';
+
+interface HasConfig extends ObjectInstance {
   config: PropertyMap;
 }
 const configure: Initializer = function(_options, context) {
