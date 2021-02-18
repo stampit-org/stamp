@@ -1,5 +1,5 @@
-packages/*/*.js
-packages/*/*.d.ts
+packages/**.js
+packages/**.d.ts
 
 !packages/check-compose/*.js
 !packages/types/**.d.ts

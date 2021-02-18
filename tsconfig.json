@@ -28,7 +28,7 @@
     "noEmitOnError": true,
     "declaration": true,
     // "noImplicitAny": true,
-    "lib": ["es2020"],
+    "lib": ["ESNext"],
     // "outDir": "dist",
     // "rootDir": "src",
     // "typeRoots": ["src/types", "node_modules/@types"],

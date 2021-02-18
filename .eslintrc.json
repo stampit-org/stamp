@@ -1,113 +1,39 @@
 {
   "env": {
-    "es6": true,
-    "jest": true,
+    // "jest": true,
     "node": true
   },
   "extends": [
+    "plugin:es/no-2017", // NodeJS 8 support
     "eslint:recommended",
     "airbnb-base",
-    "plugin:package-json/recommended",
-    "plugin:@typescript-eslint/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
-    "plugin:jest/all",
+    // "plugin:jest/all",
     "plugin:node/recommended",
     "plugin:prettier/recommended" // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
   ],
-  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 2020,
-    "sourceType": "module"
+    "ecmaVersion": 2016 //  NodeJS 8 support
   },
   "plugins": [
-    "unicorn",
-    "package-json",
-    "@typescript-eslint",
+    "es", // should be unnecessary with drop of Node 8 or switch to Typescript
     "import",
-    "jest", // relevancy to ensure correct unit tests to be evaluated
+    // "jest", // relevancy to ensure correct unit tests to be evaluated
     "node",
-    "prefer-arrow",
     "prettier"
   ],
-  "settings": {
-    "import/parsers": {
-      "@typescript-eslint/parser": [".ts", ".tsx"]
-    },
-    "import/resolver": {
-      // use <root>/tsconfig.json
-      "typescript": {
-        "alwaysTryTypes": true // always try to resolve types under `<roo/>@types` directory even it doesn't contain any source code, like `@types/unist`
-      }
-    },
-    "node": {
-      "tryExtensions": [".ts", ".js", ".json"]
-    }
-  },
   "reportUnusedDisableDirectives": true,
   "rules": {
-    "unicorn/catch-error-name": "error",
-    "unicorn/consistent-function-scoping": "error",
-    "unicorn/custom-error-definition": "off",
-    "unicorn/error-message": "error",
-    "unicorn/escape-case": "error",
-    "unicorn/expiring-todo-comments": "error",
-    "unicorn/explicit-length-check": "error",
-    "unicorn/filename-case": "error",
-    "unicorn/import-index": "error",
-    "unicorn/new-for-builtins": "error",
-    "unicorn/no-abusive-eslint-disable": "error",
-    "unicorn/no-array-instanceof": "error",
-    "unicorn/no-console-spaces": "error",
-    "unicorn/no-fn-reference-in-iterator": "off",
-    "unicorn/no-for-loop": "error",
-    "unicorn/no-hex-escape": "error",
-    "unicorn/no-keyword-prefix": "off",
-    "no-nested-ternary": "off",
-    "unicorn/no-nested-ternary": "error",
-    "unicorn/no-new-buffer": "error",
-    "unicorn/no-process-exit": "error",
-    "unicorn/no-unreadable-array-destructuring": "error",
-    "unicorn/no-unsafe-regex": "off",
-    "unicorn/no-unused-properties": "off",
-    "unicorn/no-zero-fractions": "error",
-    "unicorn/number-literal-case": "error",
-    "unicorn/prefer-add-event-listener": "error",
-    "unicorn/prefer-dataset": "error",
-    "unicorn/prefer-event-key": "error",
-    "unicorn/prefer-flat-map": "error",
-    "unicorn/prefer-includes": "error",
-    "unicorn/prefer-modern-dom-apis": "error",
-    "unicorn/prefer-negative-index": "error",
-    "unicorn/prefer-node-append": "error",
-    "unicorn/prefer-node-remove": "error",
-    "unicorn/prefer-query-selector": "error",
-    "unicorn/prefer-reflect-apply": "error",
-    "unicorn/prefer-spread": "error",
-    "unicorn/prefer-starts-ends-with": "error",
-    "unicorn/prefer-string-slice": "error",
-    "unicorn/prefer-text-content": "error",
-    "unicorn/prefer-trim-start-end": "error",
-    "unicorn/prefer-type-error": "error",
-    // "unicorn/prevent-abbreviations": "error",
-    "unicorn/regex-shorthand": "error",
-    "unicorn/throw-new-error": "error",
-
-    "@typescript-eslint/interface-name-prefix": 0,
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/no-use-before-define": 1,
-
     "class-methods-use-this": 1,
     "func-names": "off",
     "global-require": 1,
     "guard-for-in": 1,
-    "max-classes-per-file": 0,
+    "max-classes-per-file": "off",
     "no-array-constructor": 1,
     "no-continue": 1,
-    // "no-nested-ternary": 1,
-    // "no-param-reassign": 1,
-    "no-param-reassign": "off",
+    "no-nested-ternary": 1,
+    "no-param-reassign": 1,
     "no-plusplus": 1,
     "no-process-exit": 1,
     "no-proto": 1,
@@ -127,13 +53,12 @@
       }
     ],
     "no-return-assign": 1,
-    "no-shadow": "off",
     "no-underscore-dangle": 1,
     "no-unreachable": 1,
-    "no-unused-vars": 0,
-    "no-use-before-define": 0,
+    "no-unused-vars": 1,
+    "no-use-before-define": 1,
     "prefer-destructuring": 1,
-    // "prefer-object-spread": 0,
+    "prefer-object-spread": 0,
     "prefer-rest-params": 1,
     "prefer-spread": 1,
     "strict": 0,
@@ -143,34 +68,25 @@
     // eslint-plugin-es - https://mysticatea.github.io/eslint-plugin-es/
 
     // eslint-plugin-import rules - https://github.com/benmosher/eslint-plugin-import/blob/master/README.md
-    "import/extensions": ["error", { "ts": "never" }],
     "import/no-dynamic-require": 1,
-    "import/no-extraneous-dependencies": 0,
-    "import/prefer-default-export": 0,
 
     // eslint-plugin-jest - https://github.com/jest-community/eslint-plugin-jest/blob/master/README.md
-    "jest/expect-expect": 1,
-    "jest/no-test-return-statement": 1,
-    "jest/no-truthy-falsy": 1,
-    "jest/prefer-called-with": 1,
-    "jest/prefer-expect-assertions": 0,
-    "jest/require-to-throw-message": 1,
-    "jest/require-top-level-describe": 1,
-    "jest/no-export": 1,
+    // "jest/expect-expect": 1,
+    // "jest/no-test-return-statement": 1,
+    // "jest/no-truthy-falsy": 1,
+    // "jest/prefer-called-with": 1,
+    // "jest/prefer-expect-assertions": 0,
+    // "jest/require-to-throw-message": 1,
+    // "jest/require-top-level-describe": 1,
+    // "jest/no-export": 1,
 
     // for reference. Might be useful with switch to Typescript
     // eslint-plugin-jsdoc - https://github.com/gajus/eslint-plugin-jsdoc/blob/master/README.md
 
     // eslint-plugin-node - https://github.com/mysticatea/eslint-plugin-node
-    "node/no-missing-import": [
-      "error",
-      {
-        "allowModules": ["@stamp/types"]
-      }
-    ],
     "node/no-unpublished-require": 1,
-    "node/no-unsupported-features/es-syntax": 0,
     "node/no-deprecated-api": 1,
+
     "prettier/prettier": "error"
   }
 }
