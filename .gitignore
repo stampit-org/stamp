@@ -101,8 +101,8 @@ Session.vim
 .netrwhist
 *~
 
-
 # Typescript
 *.tsbuildinfo
 *.d.ts
 packages/*/*.js
+!.xo-config.js

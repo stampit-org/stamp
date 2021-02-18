@@ -26,8 +26,11 @@
     "check-compose": "./bin/check-compose.js"
   },
   "dependencies": {
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.20",
     "prettyjson": "^1.2.1",
-    "tape": "^4.13.0"
+    "tape": "^5.1.1"
+  },
+  "devDependencies": {
+    "xo": "^0.37.1"
   }
 }

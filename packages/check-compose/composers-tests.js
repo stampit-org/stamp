@@ -155,10 +155,7 @@ module.exports = (compose) => {
     const stamp2 = compose();
     const stamp = compose({ composers: [function composers() {}] });
 
-    const result = stamp
-      .compose(stamp2)
-      .compose({})
-      .compose(stamp);
+    const result = stamp.compose(stamp2).compose({}).compose(stamp);
     const { composers } = result.compose;
     t.equal(_.uniq(composers).length, composers.length, 'should dedupe composers');
 

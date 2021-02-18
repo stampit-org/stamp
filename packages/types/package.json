@@ -30,5 +30,8 @@
     "stamp",
     "typescript",
     "types"
-  ]
+  ],
+  "devDependencies": {
+    "xo": "^0.37.1"
+  }
 }

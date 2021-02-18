@@ -23,5 +23,8 @@
   },
   "dependencies": {
     "@stamp/is": "^1.0.0"
+  },
+  "devDependencies": {
+    "xo": "^0.37.1"
   }
 }

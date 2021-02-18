@@ -22,5 +22,9 @@
   "dependencies": {
     "@stamp/compose": "^1.0.2",
     "@stamp/privatize": "^1.0.3"
+  },
+  "devDependencies": {
+    "@stamp/types": "^1.6.0",
+    "xo": "^0.37.1"
   }
 }

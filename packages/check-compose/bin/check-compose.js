@@ -47,7 +47,7 @@
       // return;
     }
 
-    require('../')(compose).then((result) => {
+    require('..')(compose).then((result) => {
       const { failures } = result;
       if (failures && failures.length > 0) {
         console.error(require('prettyjson').render(failures));

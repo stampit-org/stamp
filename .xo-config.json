@@ -1,5 +1,5 @@
 {
-  "ignores": [".js"],
+  "ignores": ["**.js","**/__tests__","**/check-compose"],
   "space": 2,
   "rules": {
     "capitalized-comments": "warn",
@@ -7,6 +7,17 @@
     "@typescript-eslint/restrict-plus-operands": "warn",
     "@typescript-eslint/restrict-template-expressions": ["warn", { "allowBoolean": true, "allowNullable": true, "allowNumber": true }],
     "eslint-comments/no-unused-disable": "warn",
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "mjs": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
+    ],
     "import/no-unassigned-import": "warn",
     "unicorn/no-process-exit": "warn"
   },
