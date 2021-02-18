@@ -4,6 +4,9 @@ import { isArray, isObject, isStamp } from '@stamp/is';
 
 import type { ComposeProperty, Composer, ComposerParams, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
 
+/** Workaround for `object` type */
+type anyObject = Record<string, unknown>;
+
 const { defineProperty, get, ownKeys, set } = Reflect;
 
 const deDupe = <T>(array: T[]): T[] => [...new Set(array)];
@@ -11,11 +14,9 @@ const deDupe = <T>(array: T[]): T[] => [...new Set(array)];
 type MakeProxyFunction = (
   functions: Array<(arg0: any[]) => any>,
   name: string | number | symbol
-  // eslint-disable-next-line @typescript-eslint/ban-types
-) => (this: object, ...args: unknown[]) => unknown[];
+) => (this: anyObject, ...args: unknown[]) => unknown[];
 const makeProxyFunction: MakeProxyFunction = (functions, name) => {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  function deferredFn(this: object, ...arguments_: unknown[]): unknown[] {
+  function deferredFn(this: anyObject, ...arguments_: unknown[]): unknown[] {
     return [...functions.map((func) => Reflect.apply(func, this, [...arguments_]))];
   }
 
@@ -24,7 +25,7 @@ const makeProxyFunction: MakeProxyFunction = (functions, name) => {
   return deferredFn;
 };
 
-interface CollisionSettings {
+interface CollisionSettings extends anyObject {
   allow?: PropertyKey[];
   defer: PropertyKey[];
   forbid: PropertyKey[];
@@ -72,15 +73,6 @@ const setMethodsMetadata: SetMethodsMetadata = (options, methodsMetadata) => {
     } else {
       value = metadata;
     }
-    // TODO: investigate code below
-    // const value =
-    //   isArray(metadata)
-    //     ? metadata.length === 1
-    //       ? // Some collisions aggregated to a single method
-    //         // Mutating the resulting stamp
-    //         metadata[0]
-    //       : makeProxyFunction(metadata, key)
-    //     : metadata;
 
     set(methods, key, value);
   };

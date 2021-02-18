@@ -1,10 +1,12 @@
+/** Workaround for `object` type */
+type anyObject = Record<string, unknown>;
+
 /**
  * @internal Checks if passed argument is considered an `object`.
  *
  * > Note that functions are `object`s too.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
-const isObject = (value: unknown): value is object => {
+const isObject = (value: unknown): value is anyObject => {
   const type = typeof value;
   return Boolean(value) && (type === 'object' || type === 'function');
 };

@@ -1,10 +1,9 @@
-// TODO: export as namespace StampSpecificationV1_6;
+/** Workaround for `Function` type */
+type anyFunction = (...args: any[]) => any;
+/** Workaround for `object` type */
+type anyObject = Record<string, unknown>;
 
 export type CompositionStaticMethod = (this: Stamp | void, ...args: unknown[]) => Stamp;
-// TODO: remove below
-// export interface CompositionStaticMethod {
-//   (this: Stamp | void, ...args: unknown[]): Stamp;
-// }
 
 /**
  * TODO
@@ -12,12 +11,10 @@ export type CompositionStaticMethod = (this: Stamp | void, ...args: unknown[]) =
 export type PropertyMap = Record<string, unknown>;
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 export type DeepPropertyMap = { [key: string]: DeepPropertyMap | unknown };
-// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
-export type StaticPropertyMap = { [key: string]: CompositionStaticMethod | unknown };
+export type StaticPropertyMap = Record<string, CompositionStaticMethod | unknown>;
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 export type StaticDeepPropertyMap = { [key: string]: StaticDeepPropertyMap | unknown };
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type MethodMap = Record<string, Function | unknown>;
+export type MethodMap = Record<string, anyFunction | unknown>;
 
 export interface ObjectInstance extends PropertyMap, DeepPropertyMap, MethodMap {}
 
@@ -43,8 +40,7 @@ export interface Stamp extends StaticPropertyMap, StaticDeepPropertyMap /* exten
    * @template Obj The type of the object instance being produced by the `Stamp`. or the type of the `Stamp` being created.
    */
   compose: ComposeProperty;
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  (options?: object | unknown, ...args: unknown[]): ObjectInstance;
+  (options?: anyObject | unknown, ...args: unknown[]): ObjectInstance;
 }
 
 /**
@@ -60,10 +56,6 @@ export interface ComposeProperty extends ComposeFunction, Descriptor {}
  * @returns {Stamp} A new stamp (aka composable factory function)
  */
 export type ComposeFunction = (this: Stamp | void, ...args: Composable[]) => Stamp;
-// TODO: remove below
-// export interface ComposeFunction {
-//   (this: Stamp | void, ...args: Composable[]): Stamp;
-// }
 
 /**
  * The Stamp Descriptor
@@ -81,7 +73,7 @@ export type ComposeFunction = (this: Stamp | void, ...args: Composable[]) => Sta
  * @property {Object} [propertyDescriptors] ES5 Property Descriptors applied to object instances
  * @property {Object} [staticPropertyDescriptors] ES5 Property Descriptors applied to Stamps
  */
-export interface Descriptor {
+export interface Descriptor extends anyObject {
   /** A set of methods that will be added to the object's delegate prototype. */
   methods?: MethodMap;
   /** A set of properties that will be added to new object instances by assignment. */
@@ -116,10 +108,6 @@ export type Initializer = (
   options: PropertyMap,
   context: InitializerContext
 ) => ObjectInstance | void;
-// TODO: remove below
-// export interface Initializer {
-//   (this: ObjectInstance, options: PropertyMap, context: InitializerContext): ObjectInstance | void;
-// }
 
 /**
  * The `Initializer` function context.
@@ -140,10 +128,6 @@ export interface InitializerContext {
  * @template S̤t̤a̤m̤p̤ The type of the `Stamp` produced by the `.compose()` method.
  */
 export type Composer = (this: void, parameters: ComposerParameters) => Stamp | void;
-// TODO: remove below
-// export interface Composer {
-//   (this: void, parameters: ComposerParameters): Stamp | void;
-// }
 
 /**
  * The parameters received by the current `.composers` function.

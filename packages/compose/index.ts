@@ -4,6 +4,7 @@ import { isArray, isComposable, isFunction, isObject, isStamp } from '@stamp/is'
 import type {
   Composable,
   ComposeFunction,
+  ComposeProperty,
   Composer,
   Descriptor,
   Initializer,
@@ -25,6 +26,9 @@ export type {
   Stamp,
 } from '@stamp/types';
 
+/** Workaround for `object` type */
+type anyObject = Record<string, unknown>;
+
 const { defineProperties } = Object;
 const { get, set } = Reflect;
 
@@ -39,9 +43,6 @@ const createFactory: CreateFactory = () => {
     const { methods, properties, deepProperties, propertyDescriptors, initializers } = descriptor;
     // Next line was optimized for most JS VMs. Please, be careful here!
     let instance: ObjectInstance = { __proto__: methods };
-    // TODO: investigate code below
-    // let obj = {};
-    // if (methods) setPrototypeOf(obj, methods);
 
     if (deepProperties) merge(instance, deepProperties);
     if (properties) assign(instance, properties);
@@ -85,18 +86,16 @@ const createStamp: CreateStamp = (descriptor, composeFunction) => {
   const composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
   Stamp.compose = function (this: Stamp | undefined, ...arguments_) {
     return composeImplementation.apply(this, arguments_);
-  } as ComposeFunction;
+  } as ComposeProperty;
   assign(Stamp.compose, descriptor);
 
   return Stamp;
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type ActionFunction = <T extends object = object>(dst: T, ...args: Array<object | undefined>) => T;
+type ActionFunction = <T extends anyObject = anyObject>(dst: T, ...args: Array<anyObject | undefined>) => T;
 
 type ConcatAssignFunctions = (
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  dstObject: object,
+  dstObject: anyObject,
   sourceArray: Array<Initializer | Composer> | undefined,
   propertyKey: PropertyKey
 ) => void;
@@ -112,10 +111,8 @@ const concatAssignFunctions: ConcatAssignFunctions = (dstObject, sourceArray, pr
 };
 
 type CombineProperties = (
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  dstObject: object,
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  sourceObject: object,
+  dstObject: anyObject,
+  sourceObject: anyObject,
   propertyKey: PropertyKey,
   action: ActionFunction
 ) => void;
@@ -127,14 +124,12 @@ const combineProperties: CombineProperties = (dstObject, sourceObject, propertyK
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type DeepMergeAssign = (dstObject: object, sourceObject: object, propertyKey: PropertyKey) => void;
+type DeepMergeAssign = (dstObject: anyObject, sourceObject: anyObject, propertyKey: PropertyKey) => void;
 const deepMergeAssign: DeepMergeAssign = (dstObject, sourceObject, propertyKey) => {
   combineProperties(dstObject, sourceObject, propertyKey, merge);
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type MergeAssign = (dstObject: object, sourceObject: object, propertyKey: PropertyKey) => void;
+type MergeAssign = (dstObject: anyObject, sourceObject: anyObject, propertyKey: PropertyKey) => void;
 const mergeAssign: MergeAssign = (dstObject, sourceObject, propertyKey) => {
   combineProperties(dstObject, sourceObject, propertyKey, assign);
 };

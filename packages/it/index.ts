@@ -4,8 +4,11 @@ import { assign, merge } from '@stamp/core';
 import { isFunction, isObject, isStamp, isString } from '@stamp/is';
 import Shortcut from '@stamp/shortcut';
 
-import type { Composable, Composer, Descriptor, Initializer, PropertyMap } from '@stamp/compose';
+import type { Composable, Composer, Descriptor, Initializer } from '@stamp/compose';
 import type { ShortcutComposeProperty, ShortcutStamp } from '@stamp/shortcut';
+
+/** Workaround for `object` type */
+type anyObject = Record<string, unknown>;
 
 const { concat } = Array.prototype;
 const { get, ownKeys, set } = Reflect;
@@ -29,7 +32,7 @@ interface ExtendedDescriptor extends Descriptor {
 }
 
 type StandardiseDescriptor = (descriptor: ExtendedDescriptor | undefined) => Descriptor | undefined;
-// eslint-disable-next-line complexity
+/* eslint-disable complexity */
 const standardiseDescriptor: StandardiseDescriptor = (descriptor) => {
   if (!isObject(descriptor)) return descriptor;
 
@@ -83,6 +86,7 @@ const standardiseDescriptor: StandardiseDescriptor = (descriptor) => {
 
   return standardDescriptor;
 };
+/* eslint-enable complexity */
 
 /**
  * TODO
@@ -103,15 +107,14 @@ const stampit = function (this: StampIt, ...arguments_: Array<Composable | undef
 
 const baseStampit = Shortcut.compose({
   staticProperties: {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    create(this: ShortcutStamp, ...arguments_: [(object | undefined)?, ...unknown[]]): object {
+    create(this: ShortcutStamp, ...arguments_: [(anyObject | undefined)?, ...unknown[]]): anyObject {
       return this.apply(this, arguments_);
     },
     compose: stampit, // Infecting
   },
 });
 
-const shortcuts = Shortcut.compose.staticProperties as PropertyMap;
+const shortcuts = Shortcut.compose.staticProperties!;
 for (const property of ownKeys(shortcuts)) {
   set(stampit, property, get(shortcuts, property).bind(baseStampit));
 }

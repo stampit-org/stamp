@@ -28,20 +28,17 @@ freeze(required);
 
 type CheckDescriptorHaveThese = (descriptor: Descriptor, settings: Descriptor | undefined) => void;
 const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings) => {
+  /* eslint-disable max-depth */
   if (descriptor && settings) {
     // Traverse settings and find if there is anything required.
-    const settingsKeys = ownKeys(settings);
-    for (const settingsKey of settingsKeys) {
+    for (const settingsKey of ownKeys(settings)) {
       const settingsValue = get(settings, settingsKey);
       if (isObject(settingsValue)) {
-        const metadataKeys = ownKeys(settingsValue);
-        for (const metadataKey of metadataKeys) {
+        for (const metadataKey of ownKeys(settingsValue)) {
           const metadataValue = get(settingsValue, metadataKey);
-          // eslint-disable-next-line max-depth
           if (metadataValue === Required || metadataValue === required) {
             // We found one thing which have to be provided. Let's check if it exists.
             const descValue = get(descriptor, settingsKey);
-            // eslint-disable-next-line max-depth
             if (!descValue || get(descValue, metadataKey) === undefined) {
               throw new Error(`Required: There must be ${String(metadataKey)} in this stamp ${String(settingsKey)}`);
             }
@@ -50,6 +47,7 @@ const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings
       }
     }
   }
+  /* eslint-enable max-depth */
 };
 
 /**

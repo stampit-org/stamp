@@ -2,6 +2,9 @@ import compose from '@stamp/compose';
 
 import type { Initializer, PropertyMap, Stamp } from '@stamp/compose';
 
+/** Workaround for `object` type */
+type anyObject = Record<string, unknown>;
+
 const { prototype: functionPrototype } = Function;
 const { assign } = Object;
 const { construct, get, getPrototypeOf, ownKeys, set } = Reflect;
@@ -10,8 +13,7 @@ const isClass = (value: unknown): unknown => typeof value === 'function' && /^\s
 
 const isFunction = (value: unknown): value is () => void => value === functionPrototype;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-const copyPropertiesFrom = (sourceObject: object) => (
+const copyPropertiesFrom = (sourceObject: anyObject) => (
   destinationObject: PropertyMap,
   key: PropertyKey
 ): PropertyMap => {
@@ -19,16 +21,15 @@ const copyPropertiesFrom = (sourceObject: object) => (
   return destinationObject;
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-const classStaticProperties = (ctor: object): PropertyMap =>
-  isFunction(ctor) ? {} : ownKeys(ctor).reduce(copyPropertiesFrom(ctor), classStaticProperties(getPrototypeOf(ctor)));
+const classStaticProperties = (ctor: ObjectConstructor | anyObject): PropertyMap =>
+  isFunction(ctor)
+    ? {}
+    : ownKeys(ctor).reduce(copyPropertiesFrom(ctor), classStaticProperties(getPrototypeOf(ctor) as ObjectConstructor));
 
 interface ObjectWithPrototype extends PropertyMap {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  prototype: object;
+  prototype: anyObject;
 }
-// eslint-disable-next-line @typescript-eslint/ban-types
-const copyMethodsFrom = (sourceObject: object) => (destinationObject: object, key: PropertyKey): object => {
+const copyMethodsFrom = (sourceObject: anyObject) => (destinationObject: anyObject, key: PropertyKey): anyObject => {
   if (key !== 'constructor') set(destinationObject, key, get(sourceObject, key));
   return destinationObject;
 };

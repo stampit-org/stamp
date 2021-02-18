@@ -1,5 +1,8 @@
 import { isArray, isPlainObject } from '@stamp/is';
 
+/** Workaround for `object` type */
+type anyObject = Record<string, unknown>;
+
 const { defineProperty, get, getOwnPropertyDescriptor, ownKeys, set } = Reflect;
 
 /**
@@ -9,8 +12,7 @@ const { defineProperty, get, getOwnPropertyDescriptor, ownKeys, set } = Reflect;
  * @param source The object to merge from
  * @returns {*}
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
-function mergeOne(destination: object, source: unknown): unknown {
+function mergeOne(destination: anyObject, source: unknown): unknown {
   if (source !== undefined) {
     // According to specification arrays must be concatenated.
     // Also, the '.concat' creates a new array instance. Overrides the 'dst'.
@@ -51,8 +53,7 @@ function mergeOne(destination: object, source: unknown): unknown {
  *
  * Returns destination object/array or a new object/array in case it was not.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
-const merge = <T extends object = object>(dst: T, ...arguments_: Array<object | undefined>): T => {
+const merge = <T extends anyObject = anyObject>(dst: T, ...arguments_: Array<anyObject | undefined>): T => {
   for (const argument of arguments_) {
     dst = mergeOne(dst, argument) as T;
   }
