@@ -1,5 +1,5 @@
 {
-  "ignores": ["**.js","**/__tests__","**/check-compose"],
+  "ignores": ["**.js", "**.d.ts", "**/__tests__", "**/check-compose"],
   "space": 2,
   "rules": {
     "capitalized-comments": "warn",
