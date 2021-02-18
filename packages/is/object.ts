@@ -3,6 +3,7 @@
  *
  * > Note that functions are `object`s too.
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 const isObject = (value: unknown): value is object => {
   const type = typeof value;
   return Boolean(value) && (type === 'object' || type === 'function');

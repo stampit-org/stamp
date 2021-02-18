@@ -1,17 +1,23 @@
-// export as namespace StampSpecificationV1_6;
+// TODO: export as namespace StampSpecificationV1_6;
 
-export interface CompositionStaticMethod {
-  (this: Stamp | void, ...args: unknown[]): Stamp;
-}
+export type CompositionStaticMethod = (this: Stamp | void, ...args: unknown[]) => Stamp;
+// TODO: remove below
+// export interface CompositionStaticMethod {
+//   (this: Stamp | void, ...args: unknown[]): Stamp;
+// }
 
 /**
  * TODO
  */
-export type PropertyMap = { [key: string]: unknown };
+export type PropertyMap = Record<string, unknown>;
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 export type DeepPropertyMap = { [key: string]: DeepPropertyMap | unknown };
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 export type StaticPropertyMap = { [key: string]: CompositionStaticMethod | unknown };
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 export type StaticDeepPropertyMap = { [key: string]: StaticDeepPropertyMap | unknown };
-export type MethodMap = { [key: string]: Function | unknown };
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type MethodMap = Record<string, Function | unknown>;
 
 export interface ObjectInstance extends PropertyMap, DeepPropertyMap, MethodMap {}
 
@@ -31,13 +37,13 @@ export type Composable = Stamp | Descriptor;
  * @property {Descriptor} compose - The Stamp descriptor and composition function
  * @template Obj The object type that the `Stamp` will create.
  */
-export interface Stamp extends StaticPropertyMap, StaticDeepPropertyMap /*extends ComposableFactory*/ {
+export interface Stamp extends StaticPropertyMap, StaticDeepPropertyMap /* extends ComposableFactory */ {
   /**
    * A method which creates a new stamp from a list of `Composable`s.
    * @template Obj The type of the object instance being produced by the `Stamp`. or the type of the `Stamp` being created.
    */
   compose: ComposeProperty;
-
+  // eslint-disable-next-line @typescript-eslint/ban-types
   (options?: object | unknown, ...args: unknown[]): ObjectInstance;
 }
 
@@ -53,9 +59,11 @@ export interface ComposeProperty extends ComposeFunction, Descriptor {}
  * @param {...(Composable)} [arguments] The list of composables.
  * @returns {Stamp} A new stamp (aka composable factory function)
  */
-export interface ComposeFunction {
-  (this: Stamp | void, ...args: Composable[]): Stamp;
-}
+export type ComposeFunction = (this: Stamp | void, ...args: Composable[]) => Stamp;
+// TODO: remove below
+// export interface ComposeFunction {
+//   (this: Stamp | void, ...args: Composable[]): Stamp;
+// }
 
 /**
  * The Stamp Descriptor
@@ -103,9 +111,15 @@ export interface Descriptor {
  * @template Obj The type of the object instance being produced by the `Stamp`.
  * @template S̤t̤a̤m̤p̤ The type of the `Stamp` producing the instance.
  */
-export interface Initializer {
-  (this: ObjectInstance, options: PropertyMap, context: InitializerContext): ObjectInstance | void;
-}
+export type Initializer = (
+  this: ObjectInstance,
+  options: PropertyMap,
+  context: InitializerContext
+) => ObjectInstance | void;
+// TODO: remove below
+// export interface Initializer {
+//   (this: ObjectInstance, options: PropertyMap, context: InitializerContext): ObjectInstance | void;
+// }
 
 /**
  * The `Initializer` function context.
@@ -125,15 +139,17 @@ export interface InitializerContext {
  * A function used as `.composers` argument.
  * @template S̤t̤a̤m̤p̤ The type of the `Stamp` produced by the `.compose()` method.
  */
-export interface Composer {
-  (this: void, parameters: ComposerParams): Stamp | void;
-}
+export type Composer = (this: void, parameters: ComposerParameters) => Stamp | void;
+// TODO: remove below
+// export interface Composer {
+//   (this: void, parameters: ComposerParameters): Stamp | void;
+// }
 
 /**
  * The parameters received by the current `.composers` function.
  * @template S̤t̤a̤m̤p̤ The type of the `Stamp` produced by the `.compose()` method.
  */
-export interface ComposerParams {
+export interface ComposerParameters {
   /** The result of the `Composable`s composition. */
   stamp: Stamp;
   /** The list of composables the `Stamp` was just composed of. */

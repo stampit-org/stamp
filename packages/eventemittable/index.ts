@@ -1,5 +1,7 @@
-import compose, { PropertyMap } from '@stamp/compose';
+import compose from '@stamp/compose';
 import { EventEmitter } from 'events';
+
+import type { PropertyMap } from '@stamp/compose';
 
 type ListenerCount = (emitter: EventEmitter, event: string) => number;
 

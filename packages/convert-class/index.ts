@@ -1,4 +1,6 @@
-import compose, { Initializer, PropertyMap, Stamp } from '@stamp/compose';
+import compose from '@stamp/compose';
+
+import type { Initializer, PropertyMap, Stamp } from '@stamp/compose';
 
 const { prototype: functionPrototype } = Function;
 const { assign } = Object;
@@ -8,6 +10,7 @@ const isClass = (value: unknown): unknown => typeof value === 'function' && /^\s
 
 const isFunction = (value: unknown): value is () => void => value === functionPrototype;
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 const copyPropertiesFrom = (sourceObject: object) => (
   destinationObject: PropertyMap,
   key: PropertyKey
@@ -16,12 +19,15 @@ const copyPropertiesFrom = (sourceObject: object) => (
   return destinationObject;
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 const classStaticProperties = (ctor: object): PropertyMap =>
   isFunction(ctor) ? {} : ownKeys(ctor).reduce(copyPropertiesFrom(ctor), classStaticProperties(getPrototypeOf(ctor)));
 
 interface ObjectWithPrototype extends PropertyMap {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   prototype: object;
 }
+// eslint-disable-next-line @typescript-eslint/ban-types
 const copyMethodsFrom = (sourceObject: object) => (destinationObject: object, key: PropertyKey): object => {
   if (key !== 'constructor') set(destinationObject, key, get(sourceObject, key));
   return destinationObject;
@@ -36,7 +42,7 @@ const classMethods = (ctor: ObjectConstructor | ObjectWithPrototype): ObjectWith
       )) as ObjectWithPrototype;
 
 const initializerFactory = (ctor: ObjectConstructor): Initializer =>
-  function(_options, { args }) {
+  function (_options, { args }) {
     if (this) assign(this, construct(ctor, args));
   } as Initializer;
 

@@ -1,6 +1,8 @@
-import compose, { ComposeProperty, Composer, ComposerParams, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
+import compose from '@stamp/compose';
 import { assign } from '@stamp/core';
 import { isArray, isObject, isStamp } from '@stamp/is';
+
+import type { ComposeProperty, Composer, ComposerParams, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
 
 const { defineProperty, get, ownKeys, set } = Reflect;
 
@@ -9,8 +11,10 @@ const deDupe = <T>(array: T[]): T[] => [...new Set(array)];
 type MakeProxyFunction = (
   functions: Array<(arg0: any[]) => any>,
   name: string | number | symbol
+  // eslint-disable-next-line @typescript-eslint/ban-types
 ) => (this: object, ...args: unknown[]) => unknown[];
 const makeProxyFunction: MakeProxyFunction = (functions, name) => {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   function deferredFn(this: object, ...arguments_: unknown[]): unknown[] {
     return [...functions.map((func) => Reflect.apply(func, this, [...arguments_]))];
   }
@@ -33,7 +37,7 @@ interface CollisionDescriptor extends Descriptor {
 
 interface CollisionStamp extends Stamp {
   compose: ComposeProperty & CollisionDescriptor;
-  collisionSetup(this: CollisionStamp | undefined, opts: CollisionSettings | null | undefined): CollisionStamp;
+  collisionSetup(this: CollisionStamp | undefined, options: CollisionSettings | null | undefined): CollisionStamp;
 }
 
 type GetSettings = (descriptor: CollisionDescriptor) => CollisionSettings | undefined;
@@ -55,7 +59,7 @@ const isForbidden: IsForbidden = (descriptor, methodName) =>
 type IsDeferred = (descriptor: CollisionDescriptor, methodName: PropertyKey) => boolean;
 const isDeferred: IsDeferred = (descriptor, methodName) => checkIf(descriptor, 'defer', methodName);
 
-type SetMethodsMetadata = (opts: ComposerParams, methodsMetadata: PropertyMap) => void;
+type SetMethodsMetadata = (options: ComposerParams, methodsMetadata: PropertyMap) => void;
 const setMethodsMetadata: SetMethodsMetadata = (options, methodsMetadata) => {
   const { methods } = options.stamp.compose as Required<Descriptor>;
 
@@ -68,6 +72,7 @@ const setMethodsMetadata: SetMethodsMetadata = (options, methodsMetadata) => {
     } else {
       value = metadata;
     }
+    // TODO: investigate code below
     // const value =
     //   isArray(metadata)
     //     ? metadata.length === 1
@@ -80,7 +85,9 @@ const setMethodsMetadata: SetMethodsMetadata = (options, methodsMetadata) => {
     set(methods, key, value);
   };
 
-  ownKeys(methodsMetadata).forEach(setMethodCallback);
+  for (const name of ownKeys(methodsMetadata)) {
+    setMethodCallback(name);
+  }
 };
 
 type RemoveDuplicates = (settings: CollisionSettings) => void;
@@ -94,11 +101,13 @@ type ThrowIfAmbiguous = (settings: CollisionSettings) => void;
 const throwIfAmbiguous: ThrowIfAmbiguous = (settings) => {
   if (isArray(settings.forbid)) {
     const intersect = (value: PropertyKey): boolean => settings.forbid.includes(value);
+    // eslint-disable-next-line unicorn/no-array-callback-reference
     const deferredAndForbidden = isArray(settings.defer) ? settings.defer.filter(intersect) : [];
     if (deferredAndForbidden.length > 0) {
       throw new Error(`Ambiguous Collision settings. [${deferredAndForbidden.join(', ')}] both deferred and forbidden`);
     }
 
+    // eslint-disable-next-line unicorn/no-array-callback-reference
     const allowedAndForbidden = isArray(settings.allow) ? settings.allow.filter(intersect) : [];
     if (allowedAndForbidden.length > 0) {
       throw new Error(`Ambiguous Collision settings. [${allowedAndForbidden.join(', ')}] both allowed and forbidden`);
@@ -172,25 +181,24 @@ const composer: Composer = (parameters) => {
         set(methodsMetadata, methodName, value);
       };
 
-      parameters.composables
+      for (const composable of parameters.composables
         .map((composable) => (isStamp(composable) ? composable.compose : composable))
-        .filter((composable) => isObject(composable.methods))
-        .forEach((composable) => {
-          const { methods } = composable as Required<Descriptor>;
-          const setMethodCallback = getCallbackFor(composable as Required<CollisionDescriptor>);
-          ownKeys(methods)
-            .filter((methodName) => {
-              const method = get(methods, methodName);
-              const existingMetadata = get(methodsMetadata, methodName);
-              // Checking by reference if the method is already present
-              return (
-                method !== undefined &&
-                (existingMetadata === undefined ||
-                  (existingMetadata !== method && (!isArray(existingMetadata) || !existingMetadata.includes(method))))
-              );
-            })
-            .forEach(setMethodCallback);
-        });
+        .filter((composable) => isObject(composable.methods))) {
+        const { methods } = composable as Required<Descriptor>;
+        const setMethodCallback = getCallbackFor(composable as Required<CollisionDescriptor>);
+        for (const name of ownKeys(methods).filter((methodName) => {
+          const method = get(methods, methodName);
+          const existingMetadata = get(methodsMetadata, methodName);
+          // Checking by reference if the method is already present
+          return (
+            method !== undefined &&
+            (existingMetadata === undefined ||
+              (existingMetadata !== method && (!isArray(existingMetadata) || !existingMetadata.includes(method))))
+          );
+        })) {
+          setMethodCallback(name);
+        }
+      }
 
       setMethodsMetadata(parameters, methodsMetadata);
     }

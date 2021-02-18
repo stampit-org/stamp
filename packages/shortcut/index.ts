@@ -1,4 +1,6 @@
-import compose, { Composable, ComposeFunction, Descriptor, Stamp } from '@stamp/compose';
+import compose from '@stamp/compose';
+
+import type { Composable, ComposeFunction, Descriptor, Stamp } from '@stamp/compose';
 
 /**
  *TODO: Doc
@@ -63,7 +65,7 @@ type ShortcutMethod = (this: ShortcutStamp, arg: unknown) => ShortcutStamp;
  */
 type ShortcutMethodFactory = (propertyKey: PropertyKey) => ShortcutMethod;
 const createShortcut: ShortcutMethodFactory = (propertyKey) => {
-  return function(argument) {
+  return function (argument) {
     const parameter = { [propertyKey]: argument };
     return this?.compose ? this.compose(parameter) : compose(parameter);
   } as ShortcutMethod;

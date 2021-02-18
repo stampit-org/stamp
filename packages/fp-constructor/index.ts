@@ -1,4 +1,6 @@
-import compose, { Composer } from '@stamp/compose';
+import compose from '@stamp/compose';
+
+import type { Composer } from '@stamp/compose';
 
 const { get } = Reflect;
 
@@ -9,7 +11,6 @@ const FpConstructor = compose({
   composers: [
     ((parameters) => {
       const parametersStamp = get(parameters, 'stamp');
-      // const parametersStamp = parameters.stamp;
       parametersStamp.of = parametersStamp;
       parametersStamp.constructor = parametersStamp;
       parametersStamp.compose.methods = parametersStamp.compose.methods ?? {};

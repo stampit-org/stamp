@@ -1,4 +1,6 @@
-import compose, { Stamp } from '@stamp/compose';
+import compose from '@stamp/compose';
+
+import type { Stamp } from '@stamp/compose';
 
 /**
  * @deprecated This feature is now available from the `@stamp/it` package which is preferred.

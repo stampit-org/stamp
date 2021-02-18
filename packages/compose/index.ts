@@ -1,13 +1,23 @@
 import { assign, merge } from '@stamp/core';
 import { isArray, isComposable, isFunction, isObject, isStamp } from '@stamp/is';
-import { Composable, ComposeFunction, Composer, Descriptor, Initializer, ObjectInstance, PropertyMap, Stamp } from '@stamp/types';
 
-export {
+import type {
+  Composable,
+  ComposeFunction,
+  Composer,
+  Descriptor,
+  Initializer,
+  ObjectInstance,
+  PropertyMap,
+  Stamp,
+} from '@stamp/types';
+
+export type {
   Composable,
   ComposeFunction,
   ComposeProperty,
   Composer,
-  ComposerParams,
+  ComposerParameters as ComposerParams,
   Descriptor,
   Initializer,
   InitializerContext,
@@ -29,11 +39,12 @@ const createFactory: CreateFactory = () => {
     const { methods, properties, deepProperties, propertyDescriptors, initializers } = descriptor;
     // Next line was optimized for most JS VMs. Please, be careful here!
     let instance: ObjectInstance = { __proto__: methods };
+    // TODO: investigate code below
     // let obj = {};
     // if (methods) setPrototypeOf(obj, methods);
 
-    if (deepProperties) merge(instance as ObjectInstance, deepProperties);
-    if (properties) assign(instance as ObjectInstance, properties);
+    if (deepProperties) merge(instance, deepProperties);
+    if (properties) assign(instance, properties);
     if (propertyDescriptors) defineProperties(instance, propertyDescriptors);
 
     if (initializers && initializers.length > 0) {
@@ -72,7 +83,7 @@ const createStamp: CreateStamp = (descriptor, composeFunction) => {
   if (staticPropertyDescriptors) defineProperties(Stamp, staticPropertyDescriptors);
 
   const composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
-  Stamp.compose = function(this: Stamp | undefined, ...arguments_) {
+  Stamp.compose = function (this: Stamp | undefined, ...arguments_) {
     return composeImplementation.apply(this, arguments_);
   } as ComposeFunction;
   assign(Stamp.compose, descriptor);
@@ -80,9 +91,11 @@ const createStamp: CreateStamp = (descriptor, composeFunction) => {
   return Stamp;
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 type ActionFunction = <T extends object = object>(dst: T, ...args: Array<object | undefined>) => T;
 
 type ConcatAssignFunctions = (
+  // eslint-disable-next-line @typescript-eslint/ban-types
   dstObject: object,
   sourceArray: Array<Initializer | Composer> | undefined,
   propertyKey: PropertyKey
@@ -99,7 +112,9 @@ const concatAssignFunctions: ConcatAssignFunctions = (dstObject, sourceArray, pr
 };
 
 type CombineProperties = (
+  // eslint-disable-next-line @typescript-eslint/ban-types
   dstObject: object,
+  // eslint-disable-next-line @typescript-eslint/ban-types
   sourceObject: object,
   propertyKey: PropertyKey,
   action: ActionFunction
@@ -112,13 +127,17 @@ const combineProperties: CombineProperties = (dstObject, sourceObject, propertyK
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 type DeepMergeAssign = (dstObject: object, sourceObject: object, propertyKey: PropertyKey) => void;
-const deepMergeAssign: DeepMergeAssign = (dstObject, sourceObject, propertyKey) =>
+const deepMergeAssign: DeepMergeAssign = (dstObject, sourceObject, propertyKey) => {
   combineProperties(dstObject, sourceObject, propertyKey, merge);
+};
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 type MergeAssign = (dstObject: object, sourceObject: object, propertyKey: PropertyKey) => void;
-const mergeAssign: MergeAssign = (dstObject, sourceObject, propertyKey) =>
+const mergeAssign: MergeAssign = (dstObject, sourceObject, propertyKey) => {
   combineProperties(dstObject, sourceObject, propertyKey, assign);
+};
 
 /**
  * Mutates the dstDescriptor by merging the sourceComposable data into it.

@@ -1,14 +1,18 @@
 /* eslint @typescript-eslint/no-use-before-define: ["error", { "variables": false }] */
-import compose, { Composable, Composer, Descriptor, Initializer, PropertyMap } from '@stamp/compose';
+import compose from '@stamp/compose';
 import { assign, merge } from '@stamp/core';
 import { isFunction, isObject, isStamp, isString } from '@stamp/is';
-import Shortcut, { ShortcutComposeProperty, ShortcutStamp } from '@stamp/shortcut';
+import Shortcut from '@stamp/shortcut';
+
+import type { Composable, Composer, Descriptor, Initializer, PropertyMap } from '@stamp/compose';
+import type { ShortcutComposeProperty, ShortcutStamp } from '@stamp/shortcut';
 
 const { concat } = Array.prototype;
 const { get, ownKeys, set } = Reflect;
 
 type ExtractFunctions = (...args: unknown[]) => Composer[] | Initializer[] | undefined;
 const extractFunctions: ExtractFunctions = (...arguments_) => {
+  // eslint-disable-next-line unicorn/no-array-callback-reference
   const fns = concat.apply([], [...arguments_]).filter(isFunction) as Composer[] | Initializer[];
   return fns.length === 0 ? undefined : fns;
 };
@@ -25,6 +29,7 @@ interface ExtendedDescriptor extends Descriptor {
 }
 
 type StandardiseDescriptor = (descriptor: ExtendedDescriptor | undefined) => Descriptor | undefined;
+// eslint-disable-next-line complexity
 const standardiseDescriptor: StandardiseDescriptor = (descriptor) => {
   if (!isObject(descriptor)) return descriptor;
 
@@ -46,6 +51,7 @@ const standardiseDescriptor: StandardiseDescriptor = (descriptor) => {
     conf,
     deepConfiguration,
     deepConf,
+    name,
   } = descriptor;
 
   const p = isObject(props) || isObject(properties) ? assign({}, props, properties) : undefined;
@@ -54,8 +60,8 @@ const standardiseDescriptor: StandardiseDescriptor = (descriptor) => {
   const sdp =
     isObject(deepStatics) || isObject(staticDeepProperties) ? merge({}, deepStatics, staticDeepProperties) : undefined;
 
-  let spd = descriptor.staticPropertyDescriptors;
-  if (isString(descriptor.name)) spd = assign({}, spd ?? {}, { name: { value: descriptor.name } });
+  let { staticPropertyDescriptors: spd } = descriptor;
+  if (isString(name)) spd = assign({}, spd ?? {}, { name: { value: name } });
 
   const c = isObject(conf) || isObject(configuration) ? assign({}, conf, configuration) : undefined;
   const dc = isObject(deepConf) || isObject(deepConfiguration) ? merge({}, deepConf, deepConfiguration) : undefined;
@@ -88,15 +94,16 @@ interface StampIt extends ShortcutStamp {
   (this: unknown, ...args: Array<ExtendedDescriptor | ShortcutStamp>): ShortcutStamp;
 }
 // { (...args: any[]): StampWithShortcuts; compose: ComposeMethod & Descriptor; }
-const stampit = function(this: StampIt, ...arguments_: Array<Composable | undefined>) {
+const stampit = function (this: StampIt, ...arguments_: Array<Composable | undefined>) {
   return compose.apply(
     this || baseStampit,
-    arguments_.map((argument) => (isStamp(argument) ? argument : (standardiseDescriptor(argument) as Descriptor)))
+    arguments_.map((argument) => (isStamp(argument) ? argument : standardiseDescriptor(argument)!))
   );
 } as StampIt;
 
 const baseStampit = Shortcut.compose({
   staticProperties: {
+    // eslint-disable-next-line @typescript-eslint/ban-types
     create(this: ShortcutStamp, ...arguments_: [(object | undefined)?, ...unknown[]]): object {
       return this.apply(this, arguments_);
     },
@@ -105,7 +112,10 @@ const baseStampit = Shortcut.compose({
 });
 
 const shortcuts = Shortcut.compose.staticProperties as PropertyMap;
-ownKeys(shortcuts).forEach((property) => set(stampit, property, get(shortcuts, property).bind(baseStampit)));
+for (const property of ownKeys(shortcuts)) {
+  set(stampit, property, get(shortcuts, property).bind(baseStampit));
+}
+
 stampit.compose = (stampit.bind(undefined) as unknown) as ShortcutComposeProperty;
 
 export default stampit;

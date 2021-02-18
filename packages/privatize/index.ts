@@ -1,16 +1,21 @@
-import compose, { Composer, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose';
+import compose from '@stamp/compose';
+
+import type { Composer, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose';
 
 const { defineProperty, get, ownKeys, set } = Reflect;
 
 const stampSymbol = Symbol.for('stamp');
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 const privates = new WeakMap<object, object>(); // WeakMap works in IE11, node 0.12
 
-const makeProxyFunction = function<T extends (this: unknown, ...args: any) => any>(
+const makeProxyFunction = function <T extends (this: unknown, ...args: any) => any>(
   this: unknown,
   fn: T,
   name: PropertyKey
+  // eslint-disable-next-line @typescript-eslint/ban-types
 ): (this: object, ...args: any) => ReturnType<T> {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   function proxiedFn(this: object, ...arguments_: any): ReturnType<T> {
     return fn.apply(privates.get(this), arguments_);
   }
@@ -27,7 +32,7 @@ interface PrivatizeDescriptor extends Descriptor {
   deepConfiguration?: PropertyMap & { Privatize: { methods: PropertyKey[] } };
 }
 
-const initializer: Initializer = function(_options, context) {
+const initializer: Initializer = function (_options, context) {
   const descriptor = context.stamp.compose as PrivatizeDescriptor;
   const privateMethodKeys = descriptor.deepConfiguration!.Privatize.methods;
 
@@ -36,12 +41,12 @@ const initializer: Initializer = function(_options, context) {
 
   const { methods } = descriptor;
   if (methods) {
-    ownKeys(methods).forEach((name) => {
+    for (const name of ownKeys(methods)) {
       if (!privateMethodKeys.includes(name)) {
         // Not private, thus wrap
         set(newObject, name, makeProxyFunction(get(methods, name), name));
       }
-    });
+    }
 
     // Integration with @stamp/instanceof
     if (get(methods, stampSymbol)) set(newObject, stampSymbol, context.stamp);
@@ -59,11 +64,12 @@ const Privatize = compose({
   staticProperties: {
     privatizeMethods(this: Stamp | undefined, ...arguments_: string[]): Stamp {
       const methodNames: string[] = [];
-      arguments_.forEach((argument) => {
+      for (const argument of arguments_) {
         if (typeof argument === 'string' && argument.length > 0) {
           methodNames.push(argument);
         }
-      });
+      }
+
       return (this?.compose ? this : Privatize).compose({
         deepConfiguration: {
           Privatize: {

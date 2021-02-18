@@ -3,6 +3,7 @@ const { getPrototypeOf, prototype } = Object;
 /**
  * @internal Checks if passed argument is a plain old javascript object (POJO).
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 const isPlainObject = (value: unknown): value is object => {
   if (prototype.toString.call(value) !== '[object Object]') {
     return false;

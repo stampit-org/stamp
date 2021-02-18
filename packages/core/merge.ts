@@ -9,6 +9,7 @@ const { defineProperty, get, getOwnPropertyDescriptor, ownKeys, set } = Reflect;
  * @param source The object to merge from
  * @returns {*}
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 function mergeOne(destination: object, source: unknown): unknown {
   if (source !== undefined) {
     // According to specification arrays must be concatenated.
@@ -20,7 +21,7 @@ function mergeOne(destination: object, source: unknown): unknown {
     if (isPlainObject(source)) {
       const keys = ownKeys(source);
       for (const key of keys) {
-        const desc = getOwnPropertyDescriptor(source, key) as PropertyDescriptor;
+        const desc = getOwnPropertyDescriptor(source, key)!;
         // Is this a regular property?
         if (getOwnPropertyDescriptor(desc, 'value') === undefined) {
           // Nope, it looks like a getter/setter
@@ -50,6 +51,7 @@ function mergeOne(destination: object, source: unknown): unknown {
  *
  * Returns destination object/array or a new object/array in case it was not.
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 const merge = <T extends object = object>(dst: T, ...arguments_: Array<object | undefined>): T => {
   for (const argument of arguments_) {
     dst = mergeOne(dst, argument) as T;
