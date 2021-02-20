@@ -3,12 +3,19 @@ type anyFunction = (...args: any[]) => any;
 /** Workaround for `object` type */
 type anyObject = Record<string, unknown>;
 
-export type CompositionStaticMethod = (this: Stamp | void, ...args: unknown[]) => Stamp;
+/**
+ * A function or method which returns a Stamp
+ */
+export type CompositionStaticMethod = <T extends Stamp = Stamp>(this: Stamp | void, ...args: unknown[]) => T;
 
 /**
- * TODO
+ * An object containing a set of properties
  */
 export type PropertyMap = Record<string, unknown>;
+
+/**
+ *
+ */
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 export type DeepPropertyMap = { [key: string]: DeepPropertyMap | unknown };
 export type StaticPropertyMap = Record<string, CompositionStaticMethod | unknown>;
@@ -32,15 +39,17 @@ export type Composable = Stamp | Descriptor;
  * @typedef {Function} Stamp
  * @returns {*} Instantiated object
  * @property {Descriptor} compose - The Stamp descriptor and composition function
- * @template Obj The object type that the `Stamp` will create.
+ * @template O The object type that the `Stamp` will create.
  */
-export interface Stamp extends StaticPropertyMap, StaticDeepPropertyMap /* extends ComposableFactory */ {
+export interface Stamp<O extends ObjectInstance = ObjectInstance>
+  extends StaticPropertyMap,
+    StaticDeepPropertyMap /* extends ComposableFactory */ {
   /**
    * A method which creates a new stamp from a list of `Composable`s.
-   * @template Obj The type of the object instance being produced by the `Stamp`. or the type of the `Stamp` being created.
+   * @template O The type of the object instance being produced by the `Stamp`. or the type of the `Stamp` being created.
    */
   compose: ComposeProperty;
-  (options?: anyObject | unknown, ...args: unknown[]): ObjectInstance;
+  (options?: anyObject | unknown, ...args: unknown[]): O;
 }
 
 /**
@@ -55,7 +64,7 @@ export interface ComposeProperty extends ComposeFunction, Descriptor {}
  * @param {...(Composable)} [arguments] The list of composables.
  * @returns {Stamp} A new stamp (aka composable factory function)
  */
-export type ComposeFunction = (this: Stamp | void, ...args: Composable[]) => Stamp;
+export type ComposeFunction<T extends Stamp = Stamp> = (this: Stamp | void, ...args: Composable[]) => T;
 
 /**
  * The Stamp Descriptor
@@ -100,42 +109,42 @@ export interface Descriptor extends anyObject {
 
 /**
  * A function used as `.initializers` argument.
- * @template Obj The type of the object instance being produced by the `Stamp`.
- * @template S̤t̤a̤m̤p̤ The type of the `Stamp` producing the instance.
+ * @template O The type of the object instance being produced by the `Stamp`.
+ * @template T The type of the `Stamp` producing the instance.
  */
-export type Initializer = (
-  this: ObjectInstance,
+export type Initializer<O extends ObjectInstance = ObjectInstance, T extends Stamp = Stamp> = (
+  this: O,
   options: PropertyMap,
-  context: InitializerContext
-) => ObjectInstance | void;
+  context: InitializerContext<O, T>
+) => O | void;
 
 /**
  * The `Initializer` function context.
- * @template Obj The type of the object instance being produced by the `Stamp`.
- * @template S̤t̤a̤m̤p̤ The type of the `Stamp` producing the instance.
+ * @template O The type of the object instance being produced by the `Stamp`.
+ * @template T The type of the `Stamp` producing the instance.
  */
-export interface InitializerContext {
+export interface InitializerContext<O extends ObjectInstance = ObjectInstance, T extends Stamp = Stamp> {
   /** The object instance being produced by the `Stamp`. If the initializer returns a value other than `undefined`, it replaces the instance. */
-  instance: ObjectInstance;
+  instance: O;
   /** A reference to the `Stamp` producing the instance. */
-  stamp: Stamp;
+  stamp: T;
   /** An array of the arguments passed into the `Stamp`, including the options argument. */
   args: unknown[];
 }
 
 /**
  * A function used as `.composers` argument.
- * @template S̤t̤a̤m̤p̤ The type of the `Stamp` produced by the `.compose()` method.
+ * @template T The type of the `Stamp` produced by the `.compose()` method.
  */
-export type Composer = (this: void, parameters: ComposerParameters) => Stamp | void;
+export type Composer<T extends Stamp = Stamp> = (this: void, parameters: ComposerParameters) => T | void;
 
 /**
  * The parameters received by the current `.composers` function.
- * @template S̤t̤a̤m̤p̤ The type of the `Stamp` produced by the `.compose()` method.
+ * @template T The type of the `Stamp` produced by the `.compose()` method.
  */
-export interface ComposerParameters {
+export interface ComposerParameters<T extends Stamp = Stamp> {
   /** The result of the `Composable`s composition. */
-  stamp: Stamp;
+  stamp: T;
   /** The list of composables the `Stamp` was just composed of. */
   composables: Composable[];
 }

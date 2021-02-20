@@ -1,23 +1,23 @@
 import compose, { Initializer, PropertyMap, Stamp } from '@stamp/compose';
 import Privatize from '@stamp/privatize';
 
-import type { ObjectInstance } from '@stamp/types';
+import type { Composable, ObjectInstance } from '@stamp/types';
 
 interface HasConfig extends ObjectInstance {
   config: PropertyMap;
 }
-const configure: Initializer = function (_options, context) {
+const configure: Initializer<HasConfig> = function (_options, context) {
   const { configuration } = context.stamp.compose;
   const { deepConfiguration } = context.stamp.compose;
-  (this as HasConfig).config = Object.freeze({ ...deepConfiguration, ...configuration });
+  this.config = Object.freeze({ ...deepConfiguration, ...configuration });
 };
 
 interface ConfigureStamp extends Stamp {
   noPrivatize: () => ConfigureStamp;
 }
-const ConfigurePublic: ConfigureStamp = compose({
+const ConfigurePublic: ConfigureStamp = compose(({
   initializers: [configure],
-}) as ConfigureStamp;
+} as unknown) as Composable) as ConfigureStamp;
 
 /**
  * TODO

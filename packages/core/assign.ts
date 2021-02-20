@@ -1,9 +1,7 @@
-/** Workaround for `object` type */
-type anyObject = Record<string, unknown>;
-
 const { defineProperty, getOwnPropertyDescriptor, ownKeys } = Reflect;
 
-const assignOne = (destination: anyObject, source: anyObject | undefined): anyObject => {
+// TODO: add stricter typing if necessary
+const assignOne = (destination: any, source: any | undefined): any => {
   // eslint-disable-next-line eqeqeq, no-eq-null
   if (source != null) {
     // We need to copy regular properties, symbols, getters and setters.
@@ -19,12 +17,13 @@ const assignOne = (destination: anyObject, source: anyObject | undefined): anyOb
 /**
  * Mutates destination object with shallow assign of passed source objects. Returns destination object.
  */
-const assign = <T extends anyObject = anyObject>(dst: T, ...arguments_: Array<anyObject | undefined>): T => {
+// TODO: add stricter typing if necessary
+const assign = <T = any>(dst: any, ...arguments_: Array<any | undefined>): T => {
   for (const argument of arguments_) {
-    dst = assignOne(dst, argument) as T;
+    dst = assignOne(dst, argument);
   }
 
-  return dst;
+  return dst as T;
 };
 
 export default assign;

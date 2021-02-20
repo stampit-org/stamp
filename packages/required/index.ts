@@ -53,7 +53,7 @@ const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings
 /**
  * TODO
  */
-const Required = compose({
+const Required: Stamp = compose({
   initializers: [
     (_, options): void => {
       const descriptor = options.stamp.compose as RequiredDescriptor;

@@ -32,7 +32,7 @@ interface PrivatizeDescriptor extends Descriptor {
   deepConfiguration?: PropertyMap & { Privatize: { methods: PropertyKey[] } };
 }
 
-const initializer: Initializer = function (_options, context) {
+const initializer = function (_options, context) {
   const descriptor = context.stamp.compose as PrivatizeDescriptor;
   const privateMethodKeys = descriptor.deepConfiguration!.Privatize.methods;
 
@@ -53,12 +53,12 @@ const initializer: Initializer = function (_options, context) {
   }
 
   return newObject;
-};
+} as Initializer;
 
 /**
  * TODO
  */
-const Privatize = compose({
+const Privatize: Stamp = compose({
   initializers: [initializer],
   deepConfiguration: { Privatize: { methods: [] } },
   staticProperties: {

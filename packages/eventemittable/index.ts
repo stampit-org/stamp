@@ -1,7 +1,7 @@
 import compose from '@stamp/compose';
 import { EventEmitter } from 'events';
 
-import type { PropertyMap } from '@stamp/compose';
+import type { PropertyMap, Stamp } from '@stamp/compose';
 
 type ListenerCount = (emitter: EventEmitter, event: string) => number;
 
@@ -10,7 +10,7 @@ const listenerCount: ListenerCount = (emitter, event) => emitter.listenerCount(e
 /**
  * TODO
  */
-const EventEmittable = compose({
+const EventEmittable: Stamp = compose({
   staticProperties: {
     defaultMaxListeners: EventEmitter.defaultMaxListeners,
     listenerCount,

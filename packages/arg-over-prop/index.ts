@@ -2,17 +2,27 @@ import compose from '@stamp/compose';
 import { assign } from '@stamp/core';
 import { isArray, isObject, isString } from '@stamp/is';
 
-import type { ComposeProperty, Composer, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose';
+import type {
+  ComposerParameters,
+  ComposeProperty,
+  Composer,
+  Descriptor,
+  Initializer,
+  PropertyMap,
+  Stamp,
+} from '@stamp/compose';
 
 const { get, ownKeys, set } = Reflect;
 
-interface ArgOverPropDescriptor extends Descriptor {
+/** @internal Helper `Descriptor` type with `ArgOverProp` property */
+interface AOP_Descriptor extends Descriptor {
   deepConfiguration?: PropertyMap & { ArgOverProp: PropertyKey[] };
 }
 
+/** @internal `ArgOverProp` initializer function */
 const initializer: Initializer = function (options, context) {
   if (isObject(options)) {
-    const { deepConfiguration } = context.stamp.compose as ArgOverPropDescriptor;
+    const { deepConfiguration } = context.stamp.compose as AOP_Descriptor;
     const keysToAssign = deepConfiguration?.ArgOverProp;
     if (keysToAssign?.length) {
       for (const key of keysToAssign) {
@@ -25,12 +35,35 @@ const initializer: Initializer = function (options, context) {
   }
 };
 
+/** @internal `ArgOverProp` composer function */
+const composer: Composer = (parameters: ComposerParameters) => {
+  const descriptor = parameters.stamp.compose;
+  const { initializers } = descriptor as Required<ComposeProperty>;
+  // Always keep our initializer the first
+  initializers.splice(initializers.indexOf(initializer), 1);
+  initializers.unshift(initializer);
+
+  const { deepConfiguration } = descriptor as AOP_Descriptor;
+  const propertyNames = deepConfiguration?.ArgOverProp;
+  if (isArray(propertyNames)) deepConfiguration!.ArgOverProp = deDupe(propertyNames);
+};
+
+/** @internal Helper function to de-dupe an array */
 const deDupe = <T>(array: T[]): T[] => [...new Set(array)];
 
 /**
- * TODO
+ * A Stamp with the `argOverProp` stattis method
  */
-const ArgOverProp = compose({
+// TODO: ArgOverPropStamp should support generics like <ObjectInstance, OriginalStamp>
+export interface ArgOverPropStamp extends Stamp {
+  argOverProp: () => Stamp;
+}
+
+/**
+ * Assign properties passed to the stamp factory
+ */
+// TODO: ArgOverProp should support generics like <ObjectInstance, OriginalStamp>
+const ArgOverProp: ArgOverPropStamp = compose({
   staticProperties: {
     argOverProp(...arguments_: unknown[]): Stamp {
       let propertyKeys: PropertyKey[] = [];
@@ -42,7 +75,7 @@ const ArgOverProp = compose({
           // eslint-disable-next-line unicorn/no-array-callback-reference
           propertyKeys = [...propertyKeys, ...argument.filter(isString)];
         } else if (isObject(argument)) {
-          defaultProperties = assign(defaultProperties ?? {}, argument);
+          defaultProperties = assign<PropertyMap>(defaultProperties ?? {}, argument);
           propertyKeys = [...propertyKeys, ...ownKeys(argument)];
         }
       }
@@ -55,20 +88,8 @@ const ArgOverProp = compose({
     },
   },
   initializers: [initializer],
-  composers: [
-    ((parameters) => {
-      const descriptor = parameters.stamp.compose;
-      const { initializers } = descriptor as Required<ComposeProperty>;
-      // Always keep our initializer the first
-      initializers.splice(initializers.indexOf(initializer), 1);
-      initializers.unshift(initializer);
-
-      const { deepConfiguration } = descriptor as ArgOverPropDescriptor;
-      const propertyNames = deepConfiguration?.ArgOverProp;
-      if (isArray(propertyNames)) deepConfiguration!.ArgOverProp = deDupe(propertyNames);
-    }) as Composer,
-  ],
-});
+  composers: [composer],
+}) as ArgOverPropStamp;
 
 export default ArgOverProp;
 

@@ -1,7 +1,7 @@
 import compose from '@stamp/compose';
 import { isStamp } from '@stamp/is';
 
-import type { Descriptor, Initializer } from '@stamp/compose';
+import type { Descriptor, Initializer, Stamp } from '@stamp/compose';
 
 const { get, ownKeys, set } = Reflect;
 
@@ -19,7 +19,7 @@ const initializer: Initializer = function (options, { args }) {
 /**
  * TODO
  */
-const InitProperty = compose({
+const InitProperty: Stamp = compose({
   initializers: [initializer],
   composers: [
     ({ stamp }): void => {

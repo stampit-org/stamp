@@ -18,12 +18,13 @@ export type {
   ComposeFunction,
   ComposeProperty,
   Composer,
-  ComposerParameters as ComposerParams,
+  ComposerParameters,
   Descriptor,
   Initializer,
   InitializerContext,
   PropertyMap,
   Stamp,
+  StaticPropertyMap,
 } from '@stamp/types';
 
 /** Workaround for `object` type */

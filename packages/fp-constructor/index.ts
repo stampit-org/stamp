@@ -1,13 +1,13 @@
 import compose from '@stamp/compose';
 
-import type { Composer } from '@stamp/compose';
+import type { Composer, Stamp } from '@stamp/compose';
 
 const { get } = Reflect;
 
 /**
  * TODO
  */
-const FpConstructor = compose({
+const FpConstructor: Stamp = compose({
   composers: [
     ((parameters) => {
       const parametersStamp = get(parameters, 'stamp');

@@ -4,7 +4,7 @@ import { assign, merge } from '@stamp/core';
 import { isFunction, isObject, isStamp, isString } from '@stamp/is';
 import Shortcut from '@stamp/shortcut';
 
-import type { Composable, Composer, Descriptor, Initializer } from '@stamp/compose';
+import type { Composable, Composer, Descriptor, Initializer, PropertyMap, StaticPropertyMap } from '@stamp/compose';
 import type { ShortcutComposeProperty, ShortcutStamp } from '@stamp/shortcut';
 
 /** Workaround for `object` type */
@@ -57,16 +57,19 @@ const standardiseDescriptor: StandardiseDescriptor = (descriptor) => {
     name,
   } = descriptor;
 
-  const p = isObject(props) || isObject(properties) ? assign({}, props, properties) : undefined;
+  const p = isObject(props) || isObject(properties) ? assign<PropertyMap>({}, props, properties) : undefined;
   const dp = isObject(deepProps) || isObject(deepProperties) ? merge({}, deepProps, deepProperties) : undefined;
-  const sp = isObject(statics) || isObject(staticProperties) ? assign({}, statics, staticProperties) : undefined;
+  const sp =
+    isObject(statics) || isObject(staticProperties)
+      ? assign<StaticPropertyMap>({}, statics, staticProperties)
+      : undefined;
   const sdp =
     isObject(deepStatics) || isObject(staticDeepProperties) ? merge({}, deepStatics, staticDeepProperties) : undefined;
 
   let { staticPropertyDescriptors: spd } = descriptor;
-  if (isString(name)) spd = assign({}, spd ?? {}, { name: { value: name } });
+  if (isString(name)) spd = assign<PropertyDescriptorMap>({}, spd ?? {}, { name: { value: name } });
 
-  const c = isObject(conf) || isObject(configuration) ? assign({}, conf, configuration) : undefined;
+  const c = isObject(conf) || isObject(configuration) ? assign<PropertyMap>({}, conf, configuration) : undefined;
   const dc = isObject(deepConf) || isObject(deepConfiguration) ? merge({}, deepConf, deepConfiguration) : undefined;
   const ii = extractFunctions(init, initializers) as Initializer[] | undefined;
   const cc = extractFunctions(composers) as Composer[] | undefined;

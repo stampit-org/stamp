@@ -1,5 +1,7 @@
 import compose from '@stamp/compose';
 
+import type { Stamp } from '@stamp/compose';
+
 const { defineProperty, set } = Reflect;
 
 const stampSymbol = Symbol.for('stamp');
@@ -11,7 +13,7 @@ interface Signature {
 /**
  * TODO
  */
-const InstanceOf = compose({
+const InstanceOf: Stamp = compose({
   methods: {},
   composers: [
     ({ stamp }): void => {
