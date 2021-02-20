@@ -1,7 +1,7 @@
-import compose, { Initializer, PropertyMap, Stamp } from '@stamp/compose';
+import compose from '@stamp/compose';
 import Privatize from '@stamp/privatize';
 
-import type { Composable, ObjectInstance } from '@stamp/types';
+import type { Composable, Initializer, ObjectInstance, PropertyMap, Stamp } from '@stamp/compose';
 
 interface HasConfig extends ObjectInstance {
   config: PropertyMap;
