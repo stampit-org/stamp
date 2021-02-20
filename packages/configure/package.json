@@ -25,6 +25,6 @@
   },
   "devDependencies": {
     "@stamp/types": "^1.6.0",
-    "xo": "^0.37.1"
+    "xo": "^0.38.1"
   }
 }

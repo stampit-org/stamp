@@ -62,7 +62,7 @@
     "lerna": "^3.22.1",
     "prettier": "^2.2.1",
     "typescript": "^4.1.5",
-    "xo": "^0.37.1"
+    "xo": "^0.38.1"
   },
   "contributors": [
     "Vasyl Boroviak <kore.sar@gmail.com> (https://twitter.com/kore_sar)",

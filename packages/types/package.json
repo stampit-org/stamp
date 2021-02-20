@@ -32,6 +32,6 @@
     "types"
   ],
   "devDependencies": {
-    "xo": "^0.37.1"
+    "xo": "^0.38.1"
   }
 }

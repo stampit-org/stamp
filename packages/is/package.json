@@ -31,11 +31,9 @@
     "build": "tsc",
     "link": "npm run build && lerna link"
   },
-  "dependencies": {
-    "@stamp/types": "1.6.0"
-  },
   "devDependencies": {
-    "xo": "^0.37.1"
+    "@stamp/types": "1.6.0",
+    "xo": "^0.38.1"
   },
   "engines": {
     "node": ">= 10.18.0"
