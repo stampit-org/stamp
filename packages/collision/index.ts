@@ -97,25 +97,27 @@ const setMethodsMetadata: SetMethodsMetadata = (options, methodsMetadata) => {
 type RemoveDuplicates = (settings: CollisionSettings) => void;
 /** @internal Helper function to remove duplicates from `Collision` settings */
 const removeDuplicates: RemoveDuplicates = (settings) => {
-  if (isArray(settings.defer)) set(settings, 'defer', deDupe(settings.defer));
-  if (isArray(settings.forbid)) set(settings, 'forbid', deDupe(settings.forbid));
-  if (isArray(settings.allow)) set(settings, 'allow', deDupe(settings.allow));
+  const { allow, defer, forbid } = settings;
+  if (isArray(defer)) set(settings, 'defer', deDupe(defer));
+  if (isArray(forbid)) set(settings, 'forbid', deDupe(forbid));
+  if (isArray(allow)) set(settings, 'allow', deDupe(allow));
 };
 
 type ThrowIfAmbiguous = (settings: CollisionSettings) => void;
 /** @internal Helper function that throw on ambiguous `Collision` settings */
 const throwIfAmbiguous: ThrowIfAmbiguous = (settings) => {
-  if (isArray(settings.forbid)) {
-    const isForbidden = (value: PropertyKey): boolean => settings.forbid.includes(value);
+  const { allow, defer, forbid } = settings;
+  if (isArray(forbid)) {
+    const isForbidden = (value: PropertyKey): boolean => forbid.includes(value);
 
     // eslint-disable-next-line unicorn/no-array-callback-reference
-    const deferredAndForbidden = isArray(settings.defer) ? settings.defer.filter(isForbidden) : [];
+    const deferredAndForbidden = isArray(defer) ? defer.filter(isForbidden) : [];
     if (deferredAndForbidden.length > 0) {
       throw new Error(`Ambiguous Collision settings. [${deferredAndForbidden.join(', ')}] both deferred and forbidden`);
     }
 
     // eslint-disable-next-line unicorn/no-array-callback-reference
-    const allowedAndForbidden = isArray(settings.allow) ? settings.allow.filter(isForbidden) : [];
+    const allowedAndForbidden = isArray(allow) ? allow.filter(isForbidden) : [];
     if (allowedAndForbidden.length > 0) {
       throw new Error(`Ambiguous Collision settings. [${allowedAndForbidden.join(', ')}] both allowed and forbidden`);
     }
@@ -135,39 +137,23 @@ const throwIfForbiddenOrAmbiguous: ThrowIfForbiddenOrAmbiguous = (
   composable,
   methodName
 ) => {
-  // Process Collision.forbid
-  if (existingMetadata && isForbidden(descriptor, methodName)) {
-    throw new Error(`Collision of method \`${String(methodName)}\` is forbidden`);
-  }
+  if (existingMetadata) {
+    // Process Collision.forbid
+    if (isForbidden(descriptor, methodName)) {
+      throw new Error(`Collision of method \`${String(methodName)}\` is forbidden`);
+    }
 
-  // Process Collision.defer
-  if (isDeferred(composable, methodName)) {
-    if (existingMetadata && !isArray(existingMetadata)) {
+    // Process Collision.defer
+    if (isDeferred(composable, methodName)) {
+      if (!isArray(existingMetadata)) {
+        throw new Error(`Ambiguous Collision settings. The \`${String(methodName)}\` is both deferred and regular`);
+      }
+      // Process no Collision settings
+    } else if (isArray(existingMetadata)) {
+      // TODO: update error message below
       throw new Error(`Ambiguous Collision settings. The \`${String(methodName)}\` is both deferred and regular`);
     }
-    // Process no Collision settings
-  } else if (isArray(existingMetadata)) {
-    // TODO: update error message below
-    throw new Error(`Ambiguous Collision settings. The \`${String(methodName)}\` is both deferred and regular`);
   }
-
-  // if (existingMetadata) {
-  //   // Process Collision.forbid
-  //   if (isForbidden(descriptor, methodName)) {
-  //     throw new Error(`Collision of method \`${String(methodName)}\` is forbidden`);
-  //   }
-
-  //   // Process Collision.defer
-  //   if (isDeferred(composable, methodName)) {
-  //     // Process no Collision settings
-  //     if (isArray(existingMetadata)) {
-  //       // TODO: update error message below
-  //       throw new Error(`Ambiguous Collision settings. The \`${String(methodName)}\` is both deferred and regular`);
-  //     }
-
-  //     throw new Error(`Ambiguous Collision settings. The \`${String(methodName)}\` is both deferred and regular`);
-  //   }
-  // }
 };
 
 /** @internal `Collision` composer function */
@@ -176,17 +162,14 @@ const composer: Composer = (parameters) => {
   const settings = getSettings(descriptor);
 
   if (isObject(settings)) {
+    const { defer, forbid, forbidAll } = settings;
     // De-duplicating is an important part of the logic
     removeDuplicates(settings);
 
     // Make sure settings are not ambiguous
     throwIfAmbiguous(settings);
 
-    if (
-      settings.forbidAll ||
-      (isArray(settings.defer) && settings.defer.length > 0) ||
-      (isArray(settings.forbid) && settings.forbid.length > 0)
-    ) {
+    if (forbidAll || (isArray(defer) && defer.length > 0) || (isArray(forbid) && forbid.length > 0)) {
       const methodsMetadata: PropertyMap = {}; // Methods aggregation
 
       const getCallbackFor = (composable: Required<CollisionDescriptor>) => (methodName: PropertyKey): void => {
