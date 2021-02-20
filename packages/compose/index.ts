@@ -22,22 +22,21 @@ export type {
   Descriptor,
   Initializer,
   InitializerContext,
+  ObjectInstance,
   PropertyMap,
   Stamp,
   StaticPropertyMap,
 } from '@stamp/types';
 
-/** Workaround for `object` type */
-type anyObject = Record<string, unknown>;
-
 const { defineProperties } = Object;
 const { get, set } = Reflect;
 
+type CreateFactory = () => Stamp;
 /**
- * Creates new factory instance.
+ * @internal Creates new factory instance.
  * @returns {Function} The new factory function.
  */
-type CreateFactory = () => Stamp;
+// TODO: createFactory should support generics like <ObjectInstance, Stamp>
 const createFactory: CreateFactory = () => {
   return function Stamp(options: PropertyMap = {}, ...arguments_): ObjectInstance {
     const descriptor: Descriptor = (Stamp as Stamp).compose || {};
@@ -68,13 +67,14 @@ const createFactory: CreateFactory = () => {
   } as Stamp;
 };
 
+type CreateStamp = (descriptor: Descriptor, composeFunction: ComposeFunction) => Stamp;
 /**
- * Returns a new stamp given a descriptor and a compose function implementation.
+ * @internal Returns a new stamp given a descriptor and a compose function implementation.
  * @param {Descriptor} [descriptor={}] The information about the object the stamp will be creating.
  * @param {ComposeFunction} composeFunction The "compose" function implementation.
  * @returns {Stamp}
  */
-type CreateStamp = (descriptor: Descriptor, composeFunction: ComposeFunction) => Stamp;
+// TODO: createStamp should support generics like <Stamp>
 const createStamp: CreateStamp = (descriptor, composeFunction) => {
   const Stamp = createFactory();
 
@@ -93,13 +93,12 @@ const createStamp: CreateStamp = (descriptor, composeFunction) => {
   return Stamp;
 };
 
-type ActionFunction = <T extends anyObject = anyObject>(dst: T, ...args: Array<anyObject | undefined>) => T;
-
 type ConcatAssignFunctions = (
-  dstObject: anyObject,
+  dstObject: any,
   sourceArray: Array<Initializer | Composer> | undefined,
   propertyKey: PropertyKey
 ) => void;
+/** @internal concatAssignFunctions */
 const concatAssignFunctions: ConcatAssignFunctions = (dstObject, sourceArray, propertyKey) => {
   if (isArray(sourceArray)) {
     const deDuped = new Set(get(dstObject, propertyKey) || []);
@@ -112,11 +111,12 @@ const concatAssignFunctions: ConcatAssignFunctions = (dstObject, sourceArray, pr
 };
 
 type CombineProperties = (
-  dstObject: anyObject,
-  sourceObject: anyObject,
+  dstObject: any,
+  sourceObject: any,
   propertyKey: PropertyKey,
-  action: ActionFunction
+  action: (dst: any, ...args: Array<any | undefined>) => unknown
 ) => void;
+/** @internal combineProperties */
 const combineProperties: CombineProperties = (dstObject, sourceObject, propertyKey, action) => {
   const sourceValue = get(sourceObject, propertyKey);
   if (isObject(sourceValue)) {
@@ -125,18 +125,20 @@ const combineProperties: CombineProperties = (dstObject, sourceObject, propertyK
   }
 };
 
-type DeepMergeAssign = (dstObject: anyObject, sourceObject: anyObject, propertyKey: PropertyKey) => void;
+type DeepMergeAssign = (dstObject: unknown, sourceObject: unknown, propertyKey: PropertyKey) => void;
+/** @internal deepMergeAssign */
 const deepMergeAssign: DeepMergeAssign = (dstObject, sourceObject, propertyKey) => {
   combineProperties(dstObject, sourceObject, propertyKey, merge);
 };
 
-type MergeAssign = (dstObject: anyObject, sourceObject: anyObject, propertyKey: PropertyKey) => void;
+type MergeAssign = (dstObject: unknown, sourceObject: unknown, propertyKey: PropertyKey) => void;
+/** @internal mergeAssign */
 const mergeAssign: MergeAssign = (dstObject, sourceObject, propertyKey) => {
   combineProperties(dstObject, sourceObject, propertyKey, assign);
 };
 
 /**
- * Mutates the dstDescriptor by merging the sourceComposable data into it.
+ * @internal Mutates the dstDescriptor by merging the sourceComposable data into it.
  * @param {Descriptor} dstDescriptor The descriptor object to merge into.
  * @param {Composable} [sourceComposable] The composable
  * (either descriptor or stamp) to merge data form.
@@ -161,6 +163,7 @@ const mergeComposable: MergeComposable = (dstDescriptor, sourceComposable) => {
 /**
  * TODO
  */
+// TODO: compose should support generics like <ObjectInstance, Stamp>
 const compose: ComposeFunction = function compose(...arguments_) {
   const descriptor: Descriptor = {};
   const composables: Composable[] = [];
