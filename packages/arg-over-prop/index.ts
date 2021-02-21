@@ -42,51 +42,51 @@ const composer: Composer = (parameters: ComposerParameters) => {
   // Always keep our initializer the first
   initializers.splice(initializers.indexOf(initializer), 1);
   initializers.unshift(initializer);
-
   const { deepConfiguration } = descriptor as AOP_Descriptor;
   const propertyNames = deepConfiguration?.ArgOverProp;
-  if (isArray(propertyNames)) deepConfiguration!.ArgOverProp = deDupe(propertyNames);
+  if (isArray(propertyNames)) deepConfiguration!.ArgOverProp = [...new Set(propertyNames)];
 };
 
-/** @internal Helper function to de-dupe an array */
-const deDupe = <T>(array: T[]): T[] => [...new Set(array)];
+// TODO: argOverProp should support generics like <ObjectInstance, OriginalStamp>
+function argOverProp(this: Stamp | undefined, ...arguments_: unknown[]): ArgOverPropStamp {
+  let propertyKeys: PropertyKey[] = [];
+  let defaultProperties: PropertyMap | undefined;
+  for (const argument of arguments_) {
+    if (isString(argument)) {
+      propertyKeys.push(argument);
+    } else if (isArray(argument)) {
+      // eslint-disable-next-line unicorn/no-array-callback-reference
+      propertyKeys = [...propertyKeys, ...argument.filter(isString)];
+    } else if (isObject(argument)) {
+      defaultProperties = assign<PropertyMap>(defaultProperties ?? {}, argument);
+      propertyKeys = [...propertyKeys, ...ownKeys(argument)];
+    }
+  }
+
+  const localStamp = this?.compose ? this : ArgOverProp;
+  return localStamp.compose({
+    deepConfiguration: { ArgOverProp: propertyKeys },
+    properties: defaultProperties, // Default property values
+  }) as ArgOverPropStamp;
+}
 
 /**
- * A Stamp with the `argOverProp` stattis method
+ * A Stamp with the `argOverProp` static method
  */
 // TODO: ArgOverPropStamp should support generics like <ObjectInstance, OriginalStamp>
 export interface ArgOverPropStamp extends Stamp {
-  argOverProp: () => Stamp;
+  /**
+   * Assign properties passed to the stamp factory
+   */
+  argOverProp: typeof argOverProp;
 }
 
 /**
  * Assign properties passed to the stamp factory
  */
 // TODO: ArgOverProp should support generics like <ObjectInstance, OriginalStamp>
-const ArgOverProp: ArgOverPropStamp = compose({
-  staticProperties: {
-    argOverProp(...arguments_: unknown[]): Stamp {
-      let propertyKeys: PropertyKey[] = [];
-      let defaultProperties: PropertyMap | undefined;
-      for (const argument of arguments_) {
-        if (isString(argument)) {
-          propertyKeys.push(argument);
-        } else if (isArray(argument)) {
-          // eslint-disable-next-line unicorn/no-array-callback-reference
-          propertyKeys = [...propertyKeys, ...argument.filter(isString)];
-        } else if (isObject(argument)) {
-          defaultProperties = assign<PropertyMap>(defaultProperties ?? {}, argument);
-          propertyKeys = [...propertyKeys, ...ownKeys(argument)];
-        }
-      }
-
-      const localStamp = ((this as Stamp | undefined)?.compose ? this : ArgOverProp) as Stamp;
-      return localStamp.compose({
-        deepConfiguration: { ArgOverProp: propertyKeys },
-        properties: defaultProperties, // Default property values
-      });
-    },
-  },
+const ArgOverProp = compose({
+  staticProperties: { argOverProp },
   initializers: [initializer],
   composers: [composer],
 }) as ArgOverPropStamp;

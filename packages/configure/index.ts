@@ -3,31 +3,42 @@ import Privatize from '@stamp/privatize';
 
 import type { Composable, Initializer, ObjectInstance, PropertyMap, Stamp } from '@stamp/compose';
 
-interface HasConfig extends ObjectInstance {
+/** An object instance with `config` property */
+// TODO: HasConfig should support generics like <ObjectInstance>
+export interface HasConfig extends ObjectInstance {
   config: PropertyMap;
 }
-const configure: Initializer<HasConfig> = function (_options, context) {
+
+/** @internal `Configure` initializer function */
+const initializer: Initializer<HasConfig> = function (_options, context) {
   const { configuration } = context.stamp.compose;
   const { deepConfiguration } = context.stamp.compose;
   this.config = Object.freeze({ ...deepConfiguration, ...configuration });
 };
 
-interface ConfigureStamp extends Stamp {
-  noPrivatize: () => ConfigureStamp;
+/**
+ * A Stamp with the `noPrivatize` static method
+ */
+// TODO: ConfigureStamp should support generics like <ObjectInstance, OriginalStamp>
+export interface ConfigureStamp extends Stamp {
+  /**
+   * Configure stamp without `@stamp/privatize`
+   */
+  noPrivatize: () => Stamp;
 }
-const ConfigurePublic: ConfigureStamp = compose(({
-  initializers: [configure],
-} as unknown) as Composable) as ConfigureStamp;
+
+// TODO: ConfigurePublic should support generics like <ObjectInstance, OriginalStamp>
+const ConfigurePublic: Stamp = compose(({ initializers: [initializer] } as unknown) as Composable);
 
 /**
- * TODO
+ * Access configuration of your stamps anywhere
  */
-const ConfigurePrivate = ConfigurePublic.compose(Privatize) as ConfigureStamp;
+// TODO: Configure should support generics like <ObjectInstance, OriginalStamp>
+const Configure = ConfigurePublic.compose(Privatize) as ConfigureStamp;
+Configure.noPrivatize = () => ConfigurePublic;
 
-ConfigurePrivate.noPrivatize = (): ConfigureStamp => ConfigurePublic;
-
-export default ConfigurePrivate;
+export default Configure;
 
 // For CommonJS default export support
-module.exports = ConfigurePrivate;
-Object.defineProperty(module.exports, 'default', { enumerable: false, value: ConfigurePrivate });
+module.exports = Configure;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: Configure });

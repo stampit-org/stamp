@@ -6,8 +6,45 @@ import type { ComposeProperty, Composer, ComposerParameters, Descriptor, Propert
 
 const { defineProperty, get, ownKeys, set } = Reflect;
 
-/** @internal Helper function to de-dupe an array */
-const deDupe = <T>(array: T[]): T[] => [...new Set(array)];
+/** @internal `Descriptor` type with `Collision` property */
+interface CollisionDescriptor extends Descriptor {
+  deepConfiguration?: PropertyMap & { Collision: CollisionSettings };
+}
+
+/**
+ * Settings for the `Collision` stamp
+ */
+export interface CollisionSettings {
+  allow?: PropertyKey[];
+  defer: PropertyKey[];
+  forbid: PropertyKey[];
+  forbidAll?: boolean;
+}
+
+/** @internal Helper function to retrieve the `Collision` setttings */
+const getSettings = (descriptor: CollisionDescriptor) => descriptor?.deepConfiguration?.Collision;
+
+/** @internal `Collision` settings property names */
+type SettingsProperty = 'allow' | 'defer' | 'forbid';
+
+type CheckIf = (descriptor: CollisionDescriptor, setting: SettingsProperty, methodName: PropertyKey) => boolean;
+/** @internal Helper function to check a method against a `Collision` settting */
+const checkIf: CheckIf = (descriptor, setting, methodName: PropertyKey) => {
+  const settings = getSettings(descriptor);
+  const methodNames: PropertyKey[] | undefined = settings && get(settings, setting);
+  return isArray(methodNames) && methodNames.includes(methodName);
+};
+
+type IsHelper = (descriptor: CollisionDescriptor, methodName: PropertyKey) => boolean;
+
+/** @internal Helper function to check if a method is forbidden */
+const isForbidden: IsHelper = (descriptor, methodName) =>
+  getSettings(descriptor)?.forbidAll
+    ? !checkIf(descriptor, 'allow', methodName)
+    : checkIf(descriptor, 'forbid', methodName);
+
+/** @internal Helper function to check if a method is deferred */
+const isDeferred: IsHelper = (descriptor, methodName) => checkIf(descriptor, 'defer', methodName);
 
 type MakeProxyFunction = (
   functions: Array<(...args: unknown[]) => unknown>,
@@ -22,54 +59,6 @@ const makeProxyFunction: MakeProxyFunction = (functions, name) => {
   defineProperty(deferredFunction, 'name', { value: name, configurable: true });
   return deferredFunction;
 };
-
-/** @internal `Collision` settings property names */
-type SettingsProperty = 'allow' | 'defer' | 'forbid';
-
-/**
- * Settings for the `Collision` stamp
- */
-export interface CollisionSettings {
-  allow?: PropertyKey[];
-  defer: PropertyKey[];
-  forbid: PropertyKey[];
-  forbidAll?: boolean;
-}
-
-/** @internal `Descriptor` type with `Collision` property */
-interface CollisionDescriptor extends Descriptor {
-  deepConfiguration?: PropertyMap & { Collision: CollisionSettings };
-}
-
-/** A stamp with the `Collision` behavior */
-// TODO: CollisionStamp should support generics like <ObjectInstance, OriginalStamp>
-interface CollisionStamp extends Stamp {
-  compose: ComposeProperty & CollisionDescriptor;
-  collisionSetup(this: CollisionStamp | undefined, options: CollisionSettings | null | undefined): CollisionStamp;
-}
-
-type GetSettings = (descriptor: CollisionDescriptor) => CollisionSettings | undefined;
-/** @internal Helper function to retrieve the `Collision` setttings */
-const getSettings: GetSettings = (descriptor) => descriptor?.deepConfiguration?.Collision;
-
-type CheckIf = (descriptor: CollisionDescriptor, setting: SettingsProperty, methodName: PropertyKey) => boolean;
-/** @internal Helper function to check a method against a `Collision` settting */
-const checkIf: CheckIf = (descriptor, setting, methodName: PropertyKey) => {
-  const settings = getSettings(descriptor);
-  const methodNames: PropertyKey[] | undefined = settings && get(settings, setting);
-  return isArray(methodNames) && methodNames.includes(methodName);
-};
-
-type IsForbidden = (descriptor: CollisionDescriptor, methodName: PropertyKey) => boolean;
-/** @internal Helper function to check if a method is forbidden */
-const isForbidden: IsForbidden = (descriptor, methodName) =>
-  getSettings(descriptor)?.forbidAll
-    ? !checkIf(descriptor, 'allow', methodName)
-    : checkIf(descriptor, 'forbid', methodName);
-
-type IsDeferred = (descriptor: CollisionDescriptor, methodName: PropertyKey) => boolean;
-/** @internal Helper function to check if a method is deferred */
-const isDeferred: IsDeferred = (descriptor, methodName) => checkIf(descriptor, 'defer', methodName);
 
 type SetMethodsMetadata = (options: ComposerParameters, methodsMetadata: PropertyMap) => void;
 /** @internal Helper function to set methods metadata */
@@ -94,18 +83,16 @@ const setMethodsMetadata: SetMethodsMetadata = (options, methodsMetadata) => {
   }
 };
 
-type RemoveDuplicates = (settings: CollisionSettings) => void;
 /** @internal Helper function to remove duplicates from `Collision` settings */
-const removeDuplicates: RemoveDuplicates = (settings) => {
+const removeDuplicates = (settings: CollisionSettings) => {
   const { allow, defer, forbid } = settings;
-  if (isArray(defer)) set(settings, 'defer', deDupe(defer));
-  if (isArray(forbid)) set(settings, 'forbid', deDupe(forbid));
-  if (isArray(allow)) set(settings, 'allow', deDupe(allow));
+  if (isArray(defer)) set(settings, 'defer', [...new Set(defer)]);
+  if (isArray(forbid)) set(settings, 'forbid', [...new Set(forbid)]);
+  if (isArray(allow)) set(settings, 'allow', [...new Set(allow)]);
 };
 
-type ThrowIfAmbiguous = (settings: CollisionSettings) => void;
 /** @internal Helper function that throw on ambiguous `Collision` settings */
-const throwIfAmbiguous: ThrowIfAmbiguous = (settings) => {
+const throwIfAmbiguous = (settings: CollisionSettings) => {
   const { allow, defer, forbid } = settings;
   if (isArray(forbid)) {
     const isForbidden = (value: PropertyKey): boolean => forbid.includes(value);
@@ -124,18 +111,12 @@ const throwIfAmbiguous: ThrowIfAmbiguous = (settings) => {
   }
 };
 
-type ThrowIfForbiddenOrAmbiguous = (
+/** @internal Helper function that throw on forbidden or ambiguous methods */
+const throwIfForbiddenOrAmbiguous = (
   existingMetadata: unknown[],
   descriptor: CollisionDescriptor,
   composable: Required<CollisionDescriptor>,
   methodName: PropertyKey
-) => void;
-/** @internal Helper function that throw on forbidden or ambiguous methods */
-const throwIfForbiddenOrAmbiguous: ThrowIfForbiddenOrAmbiguous = (
-  existingMetadata,
-  descriptor,
-  composable,
-  methodName
 ) => {
   if (existingMetadata) {
     // Process Collision.forbid
@@ -215,31 +196,53 @@ const composer: Composer = (parameters) => {
   }
 };
 
+function collisionSetup(this: CollisionStamp | undefined, settings: CollisionSettings | null): CollisionStamp {
+  return (this?.compose ? this : Collision).compose({
+    deepConfiguration: { Collision: settings },
+  }) as CollisionStamp;
+}
+
+function collisionSettingsReset(this: CollisionStamp): CollisionStamp {
+  return this.collisionSetup(null);
+}
+
+function collisionProtectAnyMethod(this: CollisionStamp, settings: CollisionSettings): CollisionStamp {
+  return this.collisionSetup(
+    assign<CollisionSettings>({}, settings, { forbidAll: true })
+  );
+}
+
+/**
+ * A stamp with the `Collision` behavior
+ */
+// TODO: CollisionStamp should support generics like <ObjectInstance, OriginalStamp>
+export interface CollisionStamp extends Stamp {
+  compose: ComposeProperty & CollisionDescriptor;
+  /**
+   * Forbid or Defer an exclusive method
+   */
+  collisionSetup: typeof collisionSetup;
+  /**
+   * Remove any Collision settings from the stamp
+   */
+  collisionSettingsReset: typeof collisionSettingsReset;
+  /**
+   * Forbid any collisions, excluding those allowed
+   */
+  collisionProtectAnyMethod: typeof collisionProtectAnyMethod;
+}
+
 /**
  * Controls collision behavior: forbid or defer
  *
  * This stamp (aka behavior) will check if there are any conflicts on every compose call. Throws an Error in case of a forbidden collision or ambiguous setup.
  */
 // TODO: Collision should support generics like <ObjectInstance, OriginalStamp>
-const Collision: Stamp = compose({
+const Collision = compose({
   deepConfiguration: { Collision: { defer: [], forbid: [] } },
-  staticProperties: {
-    collisionSetup(this: Stamp | undefined, settings: CollisionSettings): CollisionStamp {
-      return (this?.compose ? this : Collision).compose({
-        deepConfiguration: { Collision: settings },
-      }) as CollisionStamp;
-    },
-    collisionSettingsReset(this: CollisionStamp): CollisionStamp {
-      return this.collisionSetup(null);
-    },
-    collisionProtectAnyMethod(this: CollisionStamp, settings: CollisionSettings): CollisionStamp {
-      return this.collisionSetup(
-        assign<CollisionSettings>({}, settings, { forbidAll: true })
-      );
-    },
-  },
+  staticProperties: { collisionSetup, collisionSettingsReset, collisionProtectAnyMethod },
   composers: [composer],
-});
+}) as CollisionStamp;
 
 export default Collision;
 
