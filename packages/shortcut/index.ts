@@ -3,54 +3,50 @@ import compose from '@stamp/compose';
 import type { Composable, ComposeFunction, Descriptor, Stamp } from '@stamp/compose';
 
 /**
- *TODO: Doc
+ * Adds handy static methods for simpler Stamp composition
  *
  * @extends {Stamp}
  */
+// TODO: ShortcutStamp should support generics like <ObjectInstance, OriginalStamp>
 export interface ShortcutStamp extends Stamp {
-  /** TODO: Doc */
+  /** Static function to add a set of methods that will be added to the object's delegate prototype. */
   methods: ShortcutMethod;
-  /** TODO: Doc */
+  /** Static function to add a set of properties that will be added to new object instances by assignment. */
   props: ShortcutMethod;
-  /** TODO: Doc */
+  /** Static function to add a set of properties that will be added to new object instances by assignment. */
   properties: ShortcutMethod;
-  /** TODO: Doc */
-  statics: ShortcutMethod;
-  /** TODO: Doc */
-  staticProperties: ShortcutMethod;
-  /** TODO: Doc */
-  conf: ShortcutMethod;
-  /** TODO: Doc */
-  configuration: ShortcutMethod;
-  /** TODO: Doc */
+  /** Static function to add aStatic function to add a set of properties that will be added to new object instances by deep property merge. */
   deepProps: ShortcutMethod;
-  /** TODO: Doc */
+  /** Static function to add a set of properties that will be added to new object instances by deep property merge. */
   deepProperties: ShortcutMethod;
-  /** TODO: Doc */
-  deepStatics: ShortcutMethod;
-  /** TODO: Doc */
-  staticDeepProperties: ShortcutMethod;
-  /** TODO: Doc */
-  deepConf: ShortcutMethod;
-  /** TODO: Doc */
-  deepConfiguration: ShortcutMethod;
-  /** TODO: Doc */
-  init: ShortcutMethod;
-  /** TODO: Doc */
-  initializers: ShortcutMethod;
-  /** TODO: Doc */
-  composers: ShortcutMethod;
-  /** TODO: Doc */
+  /** Static function to add a set of object property descriptors (`PropertyDescriptor`) used for fine-grained control over object property behaviour. */
   propertyDescriptors: ShortcutMethod;
-  /** TODO: Doc */
+  /** Static function to add a set of static properties that will be copied by assignment to the `Stamp`. */
+  statics: ShortcutMethod;
+  /** Static function to add a set of static properties that will be copied by assignment to the `Stamp`. */
+  staticProperties: ShortcutMethod;
+  /** Static function to add a set of static properties that will be added to the `Stamp` by deep property merge. */
+  deepStatics: ShortcutMethod;
+  /** Static function to add a set of static properties that will be added to the `Stamp` by deep property merge. */
+  staticDeepProperties: ShortcutMethod;
+  /** Static function to add a set of object property descriptors (`PropertyDescriptor`) to apply to the `Stamp`. */
   staticPropertyDescriptors: ShortcutMethod;
+  /** Static function to add an array of functions that will run in sequence while creating an object instance from a `Stamp`. `Stamp` details and arguments get passed to initializers. */
+  init: ShortcutMethod;
+  /** Static function to add an array of functions that will run in sequence while creating an object instance from a `Stamp`. `Stamp` details and arguments get passed to initializers. */
+  initializers: ShortcutMethod;
+  /** Static function to add an array of functions that will run in sequence while creating a new `Stamp` from a list of `Composable`s. The resulting `Stamp` and the `Composable`s get passed to composers. */
+  composers: ShortcutMethod;
+  /** Static function to add a set of options made available to the `Stamp` and its initializers during object instance creation. These will be copied by assignment. */
+  conf: ShortcutMethod;
+  /** Static function to add a set of options made available to the `Stamp` and its initializers during object instance creation. These will be copied by assignment. */
+  configuration: ShortcutMethod;
+  /** Static function to add a set of options made available to the `Stamp` and its initializers during object instance creation. These will be deep merged. */
+  deepConf: ShortcutMethod;
+  /** Static function to add a set of options made available to the `Stamp` and its initializers during object instance creation. These will be deep merged. */
+  deepConfiguration: ShortcutMethod;
   compose: ShortcutComposeProperty;
 }
-
-/**
- * TODO: Doc
- */
-export interface ShortcutComposeProperty extends ShortcutComposeMethod, Descriptor {}
 
 /** @internal */
 interface ShortcutComposeMethod extends ComposeFunction {
@@ -58,50 +54,59 @@ interface ShortcutComposeMethod extends ComposeFunction {
 }
 
 /** @internal */
+// TODO: ShortcutComposeProperty should support generics like <ObjectInstance>
+export interface ShortcutComposeProperty extends ShortcutComposeMethod, Descriptor {}
+
+/** @internal ShortcutMethod */
+// TODO: ShortcutMethod should support generics like <ObjectInstance>
 type ShortcutMethod = (this: ShortcutStamp, arg: unknown) => ShortcutStamp;
 
-/**
- * @internal
- */
-type ShortcutMethodFactory = (propertyKey: PropertyKey) => ShortcutMethod;
-const createShortcut: ShortcutMethodFactory = (propertyKey) => {
-  return function (argument) {
+/** @internal createShortcut */
+// TODO: createShortcut should support generics like <ObjectInstance>
+const createShortcut = (propertyKey: PropertyKey): ShortcutMethod => {
+  return function (this: ShortcutStamp, argument: unknown) {
     const parameter = { [propertyKey]: argument };
-    return this?.compose ? this.compose(parameter) : compose(parameter);
-  } as ShortcutMethod;
+    return this?.compose ? this.compose(parameter) : (compose(parameter) as ShortcutStamp);
+  };
 };
 
+const methods = createShortcut('methods');
 const properties = createShortcut('properties');
-const staticProperties = createShortcut('staticProperties');
-const configuration = createShortcut('configuration');
 const deepProperties = createShortcut('deepProperties');
+const propertyDescriptors = createShortcut('propertyDescriptors');
+const staticProperties = createShortcut('staticProperties');
 const staticDeepProperties = createShortcut('staticDeepProperties');
-const deepConfiguration = createShortcut('deepConfiguration');
+const staticPropertyDescriptors = createShortcut('staticPropertyDescriptors');
 const initializers = createShortcut('initializers');
+const composers = createShortcut('composers');
+const configuration = createShortcut('configuration');
+const deepConfiguration = createShortcut('deepConfiguration');
 
 /**
- *  TODO: Doc
+ *  Adds handy static methods for simpler Stamp composition
  */
-const Shortcut = compose({
+// TODO: Shortcut should support generics like <ObjectInstance, OriginalStamp>
+const Shortcut: ShortcutStamp = compose({
   staticProperties: {
-    methods: createShortcut('methods'),
+    methods,
     props: properties,
     properties,
-    statics: staticProperties,
-    staticProperties,
-    conf: configuration,
-    configuration,
     deepProps: deepProperties,
     deepProperties,
+    propertyDescriptors,
+    statics: staticProperties,
+    staticProperties,
     deepStatics: staticDeepProperties,
     staticDeepProperties,
-    deepConf: deepConfiguration,
-    deepConfiguration,
+    staticPropertyDescriptors,
     init: initializers,
     initializers,
-    composers: createShortcut('composers'),
-    propertyDescriptors: createShortcut('propertyDescriptors'),
-    staticPropertyDescriptors: createShortcut('staticPropertyDescriptors'),
+    composers,
+
+    conf: configuration,
+    configuration,
+    deepConf: deepConfiguration,
+    deepConfiguration,
   },
 }) as ShortcutStamp;
 

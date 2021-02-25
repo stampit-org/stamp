@@ -27,6 +27,9 @@ export interface ConfigureStamp extends Stamp {
   noPrivatize: () => Stamp;
 }
 
+/**
+ * Access configuration of your stamps anywhere
+ */
 // TODO: ConfigurePublic should support generics like <ObjectInstance, OriginalStamp>
 const ConfigurePublic: Stamp = compose(({ initializers: [initializer] } as unknown) as Composable);
 

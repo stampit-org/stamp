@@ -3,20 +3,32 @@ import { EventEmitter } from 'events';
 
 import type { PropertyMap, Stamp } from '@stamp/compose';
 
-type ListenerCount = (emitter: EventEmitter, event: string) => number;
+/**
+ * A Stamp with the EventEmitter behavior
+ */
+// TODO: EventEmitterStamp should support generics like <ObjectInstance, OriginalStamp>
+export interface EventEmitterStamp extends Omit<EventEmitter, 'listenerCount'>, Stamp {
+  /**
+   * Returns the number of listeners listening to the event named eventName
+   */
+  listenerCount: typeof listenerCount;
+}
 
-const listenerCount: ListenerCount = (emitter, event) => emitter.listenerCount(event);
+/** @internal */
+// ??? why emitter and not `this`
+const listenerCount = (emitter: EventEmitter, event: string): number => emitter.listenerCount(event);
 
 /**
- * TODO
+ * Node.js' EventEmitter as a stamp
  */
-const EventEmittable: Stamp = compose({
+// TODO: EventEmittable should support generics like <ObjectInstance, OriginalStamp>
+const EventEmittable: EventEmitterStamp = compose({
   staticProperties: {
     defaultMaxListeners: EventEmitter.defaultMaxListeners,
     listenerCount,
   },
   methods: (EventEmitter.prototype as unknown) as PropertyMap,
-});
+}) as EventEmitterStamp;
 
 export default EventEmittable;
 

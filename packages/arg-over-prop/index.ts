@@ -47,6 +47,7 @@ const composer: Composer = (parameters: ComposerParameters) => {
   if (isArray(propertyNames)) deepConfiguration!.ArgOverProp = [...new Set(propertyNames)];
 };
 
+/** @internal */
 // TODO: argOverProp should support generics like <ObjectInstance, OriginalStamp>
 function argOverProp(this: Stamp | undefined, ...arguments_: unknown[]): ArgOverPropStamp {
   let propertyKeys: PropertyKey[] = [];

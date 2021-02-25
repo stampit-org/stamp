@@ -13,7 +13,7 @@ interface RequiredDescriptor extends Descriptor {
 }
 
 type StampMethodRequired = (this: Stamp | undefined, settings: Composable) => Stamp;
-export const required: StampMethodRequired = function (settings): Stamp {
+const required: StampMethodRequired = function (settings): Stamp {
   const localStamp = this?.compose ? this : Required;
   const { deepConfiguration } = localStamp.compose as RequiredDescriptor;
   const previousSettings = deepConfiguration?.Required as Composable;
@@ -51,8 +51,9 @@ const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings
 };
 
 /**
- * TODO
+ * Insist on a method/property/staticProperty/configuration presence
  */
+// TODO: Required should support generics like <ObjectInstance, OriginalStamp>
 const Required: Stamp = compose({
   initializers: [
     (_, options): void => {

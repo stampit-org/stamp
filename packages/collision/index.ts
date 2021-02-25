@@ -27,9 +27,8 @@ const getSettings = (descriptor: CollisionDescriptor) => descriptor?.deepConfigu
 /** @internal `Collision` settings property names */
 type SettingsProperty = 'allow' | 'defer' | 'forbid';
 
-type CheckIf = (descriptor: CollisionDescriptor, setting: SettingsProperty, methodName: PropertyKey) => boolean;
 /** @internal Helper function to check a method against a `Collision` settting */
-const checkIf: CheckIf = (descriptor, setting, methodName: PropertyKey) => {
+const checkIf = (descriptor: CollisionDescriptor, setting: SettingsProperty, methodName: PropertyKey): boolean => {
   const settings = getSettings(descriptor);
   const methodNames: PropertyKey[] | undefined = settings && get(settings, setting);
   return isArray(methodNames) && methodNames.includes(methodName);
@@ -60,9 +59,8 @@ const makeProxyFunction: MakeProxyFunction = (functions, name) => {
   return deferredFunction;
 };
 
-type SetMethodsMetadata = (options: ComposerParameters, methodsMetadata: PropertyMap) => void;
 /** @internal Helper function to set methods metadata */
-const setMethodsMetadata: SetMethodsMetadata = (options, methodsMetadata) => {
+const setMethodsMetadata = (options: ComposerParameters, methodsMetadata: PropertyMap): void => {
   const { methods } = options.stamp.compose as Required<Descriptor>;
 
   const setMethodCallback = (key: PropertyKey): void => {
@@ -196,16 +194,19 @@ const composer: Composer = (parameters) => {
   }
 };
 
+/** @internal */
 function collisionSetup(this: CollisionStamp | undefined, settings: CollisionSettings | null): CollisionStamp {
   return (this?.compose ? this : Collision).compose({
     deepConfiguration: { Collision: settings },
   }) as CollisionStamp;
 }
 
+/** @internal */
 function collisionSettingsReset(this: CollisionStamp): CollisionStamp {
   return this.collisionSetup(null);
 }
 
+/** @internal */
 function collisionProtectAnyMethod(this: CollisionStamp, settings: CollisionSettings): CollisionStamp {
   return this.collisionSetup(
     assign<CollisionSettings>({}, settings, { forbidAll: true })

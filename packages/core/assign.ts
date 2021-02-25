@@ -1,7 +1,7 @@
 const { defineProperty, getOwnPropertyDescriptor, ownKeys } = Reflect;
 
-// TODO: add stricter typing if necessary
-const assignOne = (destination: any, source: any | undefined): any => {
+/** @internal */
+const assignOne = (destination: any, source: any): unknown => {
   // eslint-disable-next-line eqeqeq, no-eq-null
   if (source != null) {
     // We need to copy regular properties, symbols, getters and setters.
@@ -18,7 +18,7 @@ const assignOne = (destination: any, source: any | undefined): any => {
  * Mutates destination object with shallow assign of passed source objects. Returns destination object.
  */
 // TODO: add stricter typing if necessary
-const assign = <T = any>(dst: any, ...arguments_: Array<any | undefined>): T => {
+const assign = <T = any>(dst: unknown, ...arguments_: unknown[]): T => {
   for (const argument of arguments_) {
     dst = assignOne(dst, argument);
   }

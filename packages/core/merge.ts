@@ -1,18 +1,16 @@
 import { isArray, isPlainObject } from '@stamp/is';
 
-/** Workaround for `object` type */
-type anyObject = Record<string, unknown>;
-
 const { defineProperty, get, getOwnPropertyDescriptor, ownKeys, set } = Reflect;
 
 /**
+ * @internal
  * The 'src' argument plays the command role.
  * The returned values is always of the same type as the 'src'.
  * @param destination The object to merge into
  * @param source The object to merge from
  * @returns {*}
  */
-function mergeOne(destination: anyObject, source: unknown): unknown {
+function mergeOne(destination: any, source: unknown): unknown {
   if (source !== undefined) {
     // According to specification arrays must be concatenated.
     // Also, the '.concat' creates a new array instance. Overrides the 'dst'.
@@ -53,7 +51,8 @@ function mergeOne(destination: anyObject, source: unknown): unknown {
  *
  * Returns destination object/array or a new object/array in case it was not.
  */
-const merge = <T extends anyObject = anyObject>(dst: T, ...arguments_: Array<anyObject | undefined>): T => {
+// TODO: add stricter typing if necessary
+const merge = <T = any>(dst: T, ...arguments_: Array<unknown | undefined>): T => {
   for (const argument of arguments_) {
     dst = mergeOne(dst, argument) as T;
   }
