@@ -21,6 +21,6 @@
   },
   "devDependencies": {
     "@stamp/instanceof": "^1.0.1",
-    "xo": "^0.38.1"
+    "xo": "^0.38.2"
   }
 }

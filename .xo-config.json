@@ -21,12 +21,6 @@
         "tsx": "never"
       }
     ],
-    "import/no-unassigned-import": "warn",
-    "node/file-extension-in-import": [
-      "error",
-      "always",
-      { "tryExtensions": [".ts", ".js", ".json", ".node"], ".ts": "never" }
-    ],
     "unicorn/no-process-exit": "warn"
   },
   "prettier": true

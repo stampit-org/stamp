@@ -55,14 +55,14 @@
   "devDependencies": {
     "@types/node": "^10.17.54",
     "del-cli": "^3.0.1",
-    "eslint": "^7.20.0",
+    "eslint": "^7.21.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-unicorn": "^28.0.2",
     "jest": "^26.6.3",
     "lerna": "^3.22.1",
     "prettier": "^2.2.1",
     "typescript": "^4.2.2",
-    "xo": "^0.38.1"
+    "xo": "^0.38.2"
   },
   "contributors": [
     "Vasyl Boroviak <kore.sar@gmail.com> (https://twitter.com/kore_sar)",

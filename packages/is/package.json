@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@stamp/types": "1.6.0",
-    "xo": "^0.38.1"
+    "xo": "^0.38.2"
   },
   "engines": {
     "node": ">= 10.18.0"
