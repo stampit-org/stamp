@@ -28,7 +28,7 @@
   "dependencies": {
     "lodash": "^4.17.21",
     "prettyjson": "^1.2.1",
-    "tape": "^5.2.1"
+    "tape": "^5.2.2"
   },
   "devDependencies": {
     "xo": "^0.38.2"
