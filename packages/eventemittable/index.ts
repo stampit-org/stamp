@@ -28,7 +28,7 @@ const EventEmittable: EventEmitterStamp = compose({
     listenerCount,
   },
   methods: (EventEmitter.prototype as unknown) as PropertyMap,
-}) as EventEmitterStamp;
+});
 
 export default EventEmittable;
 

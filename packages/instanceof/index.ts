@@ -13,21 +13,21 @@ interface Signature {
 /**
  * TODO
  */
-const InstanceOf: Stamp<unknown> = (compose({
+const InstanceOf = compose<unknown, unknown>({
   methods: {},
   composers: [
     ({ stamp }): void => {
       // Attaching to object prototype to save memory
-      set(((stamp as unknown) as Stamp<unknown>).compose.methods!, stampSymbol, stamp);
+      set((stamp as Stamp<unknown>).compose.methods!, stampSymbol, stamp);
 
-      defineProperty((stamp as unknown) as Stamp<unknown>, Symbol.hasInstance, {
+      defineProperty(stamp as Stamp<unknown>, Symbol.hasInstance, {
         value(instance: Signature | undefined) {
           return instance && instance[stampSymbol] === stamp;
         },
       });
     },
   ],
-}) as unknown) as Stamp<unknown>;
+}) as Stamp<unknown>;
 
 export default InstanceOf;
 

@@ -64,7 +64,7 @@ const convertClass = (ctor: ObjectConstructor): Stamp<unknown> =>
         staticProperties: classStaticProperties(ctor),
         staticPropertyDescriptors: { name: { value: ctor.name } },
       }) as Stamp<unknown>)
-    : (compose() as Stamp<unknown>);
+    : compose();
 
 export default convertClass;
 
