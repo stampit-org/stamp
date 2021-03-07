@@ -51,7 +51,7 @@ function mergeOne(destination: any, source: unknown): unknown {
  *
  * Returns destination object/array or a new object/array in case it was not.
  */
-// TODO: add stricter typing if necessary
+// ! weak types
 const merge = <T = any>(dst: T, ...arguments_: Array<unknown | undefined>): T => {
   for (const argument of arguments_) {
     dst = mergeOne(dst, argument) as T;

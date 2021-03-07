@@ -1,6 +1,8 @@
 /**
  * @internal Utility function signature which allows a `compose` property to exist.
  */
+// ! weak types
+// try extends HasComposeProperty
 interface FunctionMaybeAStamp {
   compose?: unknown;
   (...args: unknown[]): unknown;
@@ -9,7 +11,7 @@ interface FunctionMaybeAStamp {
 /**
  * @internal Checks if passed argument is considered a `function`.
  */
-// TODO: investigate `any`
+// ! weak types
 const isFunction = <T extends (...args: any) => unknown = FunctionMaybeAStamp>(value: unknown): value is T =>
   typeof value === 'function';
 

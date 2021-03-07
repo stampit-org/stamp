@@ -8,26 +8,37 @@ import type { Composable, Descriptor, PropertyMap, Stamp } from '@stamp/compose'
 const { freeze } = Object;
 const { get, ownKeys } = Reflect;
 
-interface RequiredDescriptor extends Descriptor {
-  deepConfiguration?: PropertyMap & { Required: Descriptor };
+/** @internal */
+// ! weak types
+interface OwnDescriptor extends Descriptor<unknown, unknown> {
+  deepConfiguration?: PropertyMap & { Required: Descriptor<unknown, unknown> };
 }
 
-type StampMethodRequired = (this: Stamp | undefined, settings: Composable) => Stamp;
-const required: StampMethodRequired = function (settings): Stamp {
+/** @internal */
+// ! weak types
+function required(this: Stamp<unknown> | undefined, settings: Composable<unknown, unknown>): Stamp<unknown> {
   const localStamp = this?.compose ? this : Required;
-  const { deepConfiguration } = localStamp.compose as RequiredDescriptor;
-  const previousSettings = deepConfiguration?.Required as Composable;
+  const { deepConfiguration } = localStamp.compose as OwnDescriptor;
+  // ! weak types
+  const previousSettings = deepConfiguration?.Required as Composable<unknown, unknown>;
 
   // Filter out non stamp things
-  const newSettings = assign<Descriptor>({}, compose(previousSettings, settings).compose);
+  // ! weak types
+  const newSettings = assign<Descriptor<unknown, unknown>>(
+    {},
+    (compose(previousSettings, settings) as Stamp<unknown>).compose
+  );
 
   return localStamp.compose({ deepConfiguration: { Required: newSettings } });
-};
+}
 
 freeze(required);
 
-type CheckDescriptorHaveThese = (descriptor: Descriptor, settings: Descriptor | undefined) => void;
-const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings) => {
+/** @internal */
+const checkDescriptorHaveThese = (
+  descriptor: Descriptor<unknown, unknown>,
+  settings: Descriptor<unknown, unknown> | undefined
+): void => {
   /* eslint-disable max-depth */
   if (descriptor && settings) {
     // Traverse settings and find if there is anything required.
@@ -54,10 +65,10 @@ const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings
  * Insist on a method/property/staticProperty/configuration presence
  */
 // TODO: Required should support generics like <ObjectInstance, OriginalStamp>
-const Required: Stamp = compose({
+const Required: Stamp<unknown> = compose({
   initializers: [
     (_, options): void => {
-      const descriptor = options.stamp.compose as RequiredDescriptor;
+      const descriptor = options.stamp.compose as OwnDescriptor;
       const { deepConfiguration } = descriptor;
       const settings = deepConfiguration?.Required;
       checkDescriptorHaveThese(descriptor, settings);
@@ -66,6 +77,7 @@ const Required: Stamp = compose({
   staticProperties: {
     required,
   },
+  // ! type should be RequiredStamp, renamed as Required
 });
 
 export default Required;

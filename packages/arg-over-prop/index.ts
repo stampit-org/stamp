@@ -4,8 +4,10 @@ import { isArray, isObject, isString } from '@stamp/is';
 
 import type {
   ComposerParameters,
+  Composable,
   ComposeProperty,
   Composer,
+  DefineStamp,
   Descriptor,
   Initializer,
   PropertyMap,
@@ -15,20 +17,23 @@ import type {
 const { get, ownKeys, set } = Reflect;
 
 /** @internal Helper `Descriptor` type with `ArgOverProp` property */
-interface AOP_Descriptor extends Descriptor {
+// ! weak types
+interface OwnDescriptor extends Descriptor<unknown, unknown> {
   deepConfiguration?: PropertyMap & { ArgOverProp: PropertyKey[] };
 }
 
 /** @internal `ArgOverProp` initializer function */
-const initializer: Initializer = function (options, context) {
+// ! weak types
+const initializer: Initializer<unknown, DefineStamp<unknown, unknown>> = function (options, context) {
   if (isObject(options)) {
-    const { deepConfiguration } = context.stamp.compose as AOP_Descriptor;
+    const { deepConfiguration } = context.stamp.compose as OwnDescriptor;
     const keysToAssign = deepConfiguration?.ArgOverProp;
     if (keysToAssign?.length) {
       for (const key of keysToAssign) {
         const incomingValue = get(options, key);
         if (incomingValue !== undefined) {
-          set(this, key, incomingValue);
+          // ! weak types
+          set(this as any, key, incomingValue);
         }
       }
     }
@@ -36,20 +41,22 @@ const initializer: Initializer = function (options, context) {
 };
 
 /** @internal `ArgOverProp` composer function */
-const composer: Composer = (parameters: ComposerParameters) => {
+// ! weak types
+const composer: Composer<unknown, DefineStamp<unknown, unknown>> = (parameters: ComposerParameters<unknown, any>) => {
   const descriptor = parameters.stamp.compose;
-  const { initializers } = descriptor as Required<ComposeProperty>;
+  // ! weak types
+  const { initializers } = descriptor as Required<ComposeProperty<unknown, DefineStamp<unknown, unknown>>>;
   // Always keep our initializer the first
   initializers.splice(initializers.indexOf(initializer), 1);
   initializers.unshift(initializer);
-  const { deepConfiguration } = descriptor as AOP_Descriptor;
+  const { deepConfiguration } = descriptor as OwnDescriptor;
   const propertyNames = deepConfiguration?.ArgOverProp;
   if (isArray(propertyNames)) deepConfiguration!.ArgOverProp = [...new Set(propertyNames)];
 };
 
 /** @internal */
-// TODO: argOverProp should support generics like <ObjectInstance, OriginalStamp>
-function argOverProp(this: Stamp | undefined, ...arguments_: unknown[]): ArgOverPropStamp {
+// ! weak types
+function argOverProp(this: Stamp<unknown> | undefined, ...arguments_: unknown[]): ArgOverPropStamp<unknown, unknown> {
   let propertyKeys: PropertyKey[] = [];
   let defaultProperties: PropertyMap | undefined;
   for (const argument of arguments_) {
@@ -65,32 +72,39 @@ function argOverProp(this: Stamp | undefined, ...arguments_: unknown[]): ArgOver
   }
 
   const localStamp = this?.compose ? this : ArgOverProp;
-  return localStamp.compose({
+  // ! weak types
+  return (localStamp as any).compose({
     deepConfiguration: { ArgOverProp: propertyKeys },
     properties: defaultProperties, // Default property values
-  }) as ArgOverPropStamp;
+  }) as ArgOverPropStamp<unknown, unknown>;
 }
 
 /**
  * A Stamp with the `argOverProp` static method
  */
-// TODO: ArgOverPropStamp should support generics like <ObjectInstance, OriginalStamp>
-export interface ArgOverPropStamp extends Stamp {
+export interface ArgOverPropStamp<Instance, FinalStamp, ComposingStamp = FinalStamp>
+  extends DefineStamp<Instance, FinalStamp, ComposingStamp> {
   /**
    * Assign properties passed to the stamp factory
    */
   argOverProp: typeof argOverProp;
 }
 
+/** @internal ArgOverPropSignature */
+declare function ArgOverPropSignature<Instance, FinalStamp, ComposingStamp = FinalStamp>(
+  this: void | ComposingStamp,
+  ...arguments_: Array<Composable<Instance, FinalStamp>>
+): ArgOverPropStamp<Instance, FinalStamp, ComposingStamp>;
+
 /**
  * Assign properties passed to the stamp factory
  */
-// TODO: ArgOverProp should support generics like <ObjectInstance, OriginalStamp>
 const ArgOverProp = compose({
   staticProperties: { argOverProp },
   initializers: [initializer],
   composers: [composer],
-}) as ArgOverPropStamp;
+  // ! type should be ArgOverPropStamp, renamed as ArgOverProp
+}) as typeof ArgOverPropSignature;
 
 export default ArgOverProp;
 

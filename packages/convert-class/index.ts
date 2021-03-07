@@ -46,25 +46,25 @@ const classMethods = (ctor: ObjectConstructor | ObjectWithPrototype): ObjectWith
       )) as ObjectWithPrototype;
 
 /** @internal */
-const initializerFactory = (ctor: ObjectConstructor): Initializer =>
+const initializerFactory = (ctor: ObjectConstructor): Initializer<unknown, unknown> =>
   function (_options, { args }) {
     if (this) assign(this, construct(ctor, args));
-  } as Initializer;
+  } as Initializer<unknown, unknown>;
 
 /**
  * Converts an ES6 class to a stamp respecting the class's inheritance chain. The prototype chain is squashed into the methods of a stamp
  */
 // TODO: convertClass should support generics like <ObjectInstance, OriginalStamp>
 // TODO: ObjectInstance = InstanceType<ObjectConstructor>
-const convertClass = (ctor: ObjectConstructor): Stamp =>
+const convertClass = (ctor: ObjectConstructor): Stamp<unknown> =>
   isObjectConstructor(ctor)
-    ? compose({
+    ? (compose({
         initializers: [initializerFactory(ctor)],
         methods: classMethods(ctor),
         staticProperties: classStaticProperties(ctor),
         staticPropertyDescriptors: { name: { value: ctor.name } },
-      })
-    : compose();
+      }) as Stamp<unknown>)
+    : (compose() as Stamp<unknown>);
 
 export default convertClass;
 

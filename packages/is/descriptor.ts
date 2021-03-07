@@ -5,7 +5,8 @@ import type { Descriptor } from '@stamp/types';
 /**
  * Checks if passed argument is considered a descriptor.
  */
-const isDescriptor: (value: unknown) => value is Descriptor = isObject;
+// ! weak types
+const isDescriptor: (value: unknown) => value is Descriptor<unknown, unknown> = isObject;
 
 export default isDescriptor;
 

@@ -5,10 +5,10 @@ import type {
   Composable,
   ComposeFunction,
   ComposeProperty,
+  HasComposeProperty,
   Composer,
   Descriptor,
   Initializer,
-  ObjectInstance,
   PropertyMap,
   Stamp,
 } from '@stamp/types';
@@ -19,13 +19,12 @@ export type {
   ComposeProperty,
   Composer,
   ComposerParameters,
+  DefineStamp,
   Descriptor,
   Initializer,
   InitializerContext,
-  ObjectInstance,
   PropertyMap,
   Stamp,
-  StaticPropertyMap,
 } from '@stamp/types';
 
 const { defineProperties } = Object;
@@ -35,26 +34,29 @@ const { get, set } = Reflect;
  * @internal Creates new factory instance.
  * @returns {Function} The new factory function.
  */
-// TODO: createFactory should support generics like <ObjectInstance, Stamp>
-const createFactory = (): Stamp => {
-  return function Stamp(options: PropertyMap = {}, ...arguments_): ObjectInstance {
-    const descriptor: Descriptor = (Stamp as Stamp).compose || {};
+// ! weak types
+const createFactory = (): Stamp<unknown> => {
+  return function Stamp(options: PropertyMap = {}, ...arguments_): unknown {
+    // ! weak types
+    const descriptor = ((Stamp as Stamp<unknown>).compose || {}) as Descriptor<unknown, unknown>;
     const { methods, properties, deepProperties, propertyDescriptors, initializers } = descriptor;
     // Next line was optimized for most JS VMs. Please, be careful here!
-    let instance: ObjectInstance = { __proto__: methods };
+    let instance: unknown = { __proto__: methods };
 
-    if (deepProperties) merge(instance, deepProperties);
-    if (properties) assign(instance, properties);
+    if (deepProperties) merge<unknown>(instance, deepProperties);
+    if (properties) assign<unknown>(instance, properties);
     if (propertyDescriptors) defineProperties(instance, propertyDescriptors);
 
     if (initializers && initializers.length > 0) {
-      let returnedValue: ObjectInstance | void;
+      let returnedValue: void | unknown;
       const args = [options, ...arguments_];
       for (const initializer of initializers) {
-        if (isFunction<Initializer>(initializer)) {
+        // ! weak types
+        if (isFunction<Initializer<unknown, unknown>>(initializer)) {
           returnedValue = initializer.call(instance, options, {
             instance,
-            stamp: Stamp as Stamp,
+            // ! weak types
+            stamp: Stamp as Stamp<unknown>,
             args,
           });
           if (returnedValue !== undefined) instance = returnedValue;
@@ -63,7 +65,8 @@ const createFactory = (): Stamp => {
     }
 
     return instance;
-  } as Stamp;
+    // ! weak types
+  } as Stamp<unknown>;
 };
 
 /**
@@ -72,29 +75,42 @@ const createFactory = (): Stamp => {
  * @param {ComposeFunction} composeFunction The "compose" function implementation.
  * @returns {Stamp}
  */
-// TODO: createStamp should support generics like <Stamp>
-const createStamp = (descriptor: Descriptor, composeFunction: ComposeFunction): Stamp => {
+const createStamp = <FinalStamp>(
+  // ! weak types
+  descriptor: Descriptor<unknown, unknown>,
+  // ! weak types
+  composeFunction: ComposeFunction<unknown, unknown>
+): FinalStamp => {
   const Stamp = createFactory();
 
   const { staticDeepProperties, staticProperties, staticPropertyDescriptors } = descriptor;
 
-  if (staticDeepProperties) merge(Stamp, staticDeepProperties);
-  if (staticProperties) assign(Stamp, staticProperties);
+  if (staticDeepProperties) merge<unknown>(Stamp, staticDeepProperties);
+  if (staticProperties) assign<unknown>(Stamp, staticProperties);
   if (staticPropertyDescriptors) defineProperties(Stamp, staticPropertyDescriptors);
 
   const composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
-  Stamp.compose = function (this: Stamp | undefined, ...arguments_) {
-    return composeImplementation.apply(this, arguments_);
-  } as ComposeProperty;
-  assign(Stamp.compose, descriptor);
+  // ! weak types
+  ((Stamp as unknown) as HasComposeProperty<unknown, unknown>).compose = function (
+    this: void | unknown,
+    // ! weak types
+    ...arguments_: Array<Composable<unknown, unknown>>
+  ): FinalStamp {
+    return composeImplementation.apply(this, arguments_) as FinalStamp;
+    // ! weak types
+  } as ComposeProperty<unknown, unknown>;
 
-  return Stamp;
+  assign<unknown>(Stamp.compose, descriptor);
+
+  // ! weak types
+  return (Stamp as unknown) as FinalStamp;
 };
 
 /** @internal concatAssignFunctions */
 const concatAssignFunctions = (
   dstObject: any,
-  sourceArray: Array<Initializer | Composer> | undefined,
+  // ! weak types
+  sourceArray: Array<Initializer<unknown, unknown> | Composer<unknown, unknown>> | undefined,
   propertyKey: PropertyKey
 ): void => {
   if (isArray(sourceArray)) {
@@ -137,8 +153,17 @@ const mergeAssign = (dstObject: unknown, sourceObject: unknown, propertyKey: Pro
  * @param {Composable} [sourceComposable] The composable
  * (either descriptor or stamp) to merge data form.
  */
-const mergeComposable = (dstDescriptor: Descriptor, sourceComposable: Composable): void => {
-  const sourceDescriptor: Descriptor = (sourceComposable as Stamp)?.compose || sourceComposable;
+const mergeComposable = (
+  // ! weak types
+  dstDescriptor: Descriptor<unknown, unknown>,
+  // ! weak types
+  sourceComposable: Composable<unknown, unknown>
+): void => {
+  // ! weak types
+  const sourceDescriptor = ((sourceComposable as Stamp<unknown>)?.compose || sourceComposable) as Descriptor<
+    unknown,
+    unknown
+  >;
 
   mergeAssign(dstDescriptor, sourceDescriptor, 'methods');
   mergeAssign(dstDescriptor, sourceDescriptor, 'properties');
@@ -156,10 +181,16 @@ const mergeComposable = (dstDescriptor: Descriptor, sourceComposable: Composable
 /**
  * Implementation of the stamp `compose` specification
  */
-// TODO: compose should support generics like <ObjectInstance, Stamp>
-const compose: ComposeFunction = function compose(...arguments_) {
-  const descriptor: Descriptor = {};
-  const composables: Composable[] = [];
+// const compose: ComposeFunction<unknown, unknown> = function compose<Instance, FinalStamp, ThisStamp = FinalStamp>(
+function compose<Instance, FinalStamp, ComposingStamp = FinalStamp>(
+  this: void | ComposingStamp,
+  // ! weak types
+  ...arguments_: Array<Composable<Instance, FinalStamp, ComposingStamp>>
+): FinalStamp {
+  // ! weak types
+  const descriptor: Descriptor<unknown, unknown> = {};
+  // ! weak types
+  const composables: Array<Composable<unknown, unknown>> = [];
 
   if (isComposable(this)) {
     mergeComposable(descriptor, this);
@@ -173,18 +204,19 @@ const compose: ComposeFunction = function compose(...arguments_) {
     }
   }
 
-  let stamp = createStamp(descriptor, compose);
+  // ! weak types
+  let stamp = createStamp<FinalStamp>(descriptor, compose as ComposeFunction<unknown, unknown, unknown>);
 
   const { composers } = descriptor;
   if (isArray(composers) && composers.length > 0) {
     for (const composer of composers) {
-      const returnedValue = composer({ stamp, composables });
+      const returnedValue = composer({ stamp, composables }) as FinalStamp;
       if (isStamp(returnedValue)) stamp = returnedValue;
     }
   }
 
   return stamp;
-};
+}
 
 export default compose;
 

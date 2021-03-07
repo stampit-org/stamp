@@ -2,12 +2,22 @@ import compose from '@stamp/compose';
 import { assign } from '@stamp/core';
 import { isArray, isObject, isStamp } from '@stamp/is';
 
-import type { ComposeProperty, Composer, ComposerParameters, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
+import type {
+  Composable,
+  ComposeProperty,
+  Composer,
+  ComposerParameters,
+  DefineStamp,
+  Descriptor,
+  PropertyMap,
+  Stamp,
+} from '@stamp/compose';
 
 const { defineProperty, get, ownKeys, set } = Reflect;
 
 /** @internal `Descriptor` type with `Collision` property */
-interface CollisionDescriptor extends Descriptor {
+// ! weak types
+interface OwnDescriptor extends Descriptor<unknown, unknown> {
   deepConfiguration?: PropertyMap & { Collision: CollisionSettings };
 }
 
@@ -22,19 +32,21 @@ export interface CollisionSettings {
 }
 
 /** @internal Helper function to retrieve the `Collision` setttings */
-const getSettings = (descriptor: CollisionDescriptor) => descriptor?.deepConfiguration?.Collision;
+const getSettings = (descriptor: OwnDescriptor): CollisionSettings | undefined =>
+  descriptor?.deepConfiguration?.Collision;
 
 /** @internal `Collision` settings property names */
 type SettingsProperty = 'allow' | 'defer' | 'forbid';
 
 /** @internal Helper function to check a method against a `Collision` settting */
-const checkIf = (descriptor: CollisionDescriptor, setting: SettingsProperty, methodName: PropertyKey): boolean => {
+const checkIf = (descriptor: OwnDescriptor, setting: SettingsProperty, methodName: PropertyKey): boolean => {
   const settings = getSettings(descriptor);
   const methodNames: PropertyKey[] | undefined = settings && get(settings, setting);
   return isArray(methodNames) && methodNames.includes(methodName);
 };
 
-type IsHelper = (descriptor: CollisionDescriptor, methodName: PropertyKey) => boolean;
+/** @internal */
+type IsHelper = (descriptor: OwnDescriptor, methodName: PropertyKey) => boolean;
 
 /** @internal Helper function to check if a method is forbidden */
 const isForbidden: IsHelper = (descriptor, methodName) =>
@@ -45,12 +57,11 @@ const isForbidden: IsHelper = (descriptor, methodName) =>
 /** @internal Helper function to check if a method is deferred */
 const isDeferred: IsHelper = (descriptor, methodName) => checkIf(descriptor, 'defer', methodName);
 
-type MakeProxyFunction = (
+/** @internal Helper function to defer functions */
+const makeProxyFunction = (
   functions: Array<(...args: unknown[]) => unknown>,
   name: PropertyKey
-) => (this: unknown, ...args: unknown[]) => unknown[];
-/** @internal Helper function to defer functions */
-const makeProxyFunction: MakeProxyFunction = (functions, name) => {
+): ((this: unknown, ...args: unknown[]) => unknown[]) => {
   function deferredFunction(this: any, ...arguments_: unknown[]): unknown[] {
     return [...functions.map((func) => Reflect.apply(func, this, [...arguments_]))];
   }
@@ -60,8 +71,10 @@ const makeProxyFunction: MakeProxyFunction = (functions, name) => {
 };
 
 /** @internal Helper function to set methods metadata */
-const setMethodsMetadata = (options: ComposerParameters, methodsMetadata: PropertyMap): void => {
-  const { methods } = options.stamp.compose as Required<Descriptor>;
+// ! weak types
+const setMethodsMetadata = (options: ComposerParameters<unknown, any>, methodsMetadata: PropertyMap): void => {
+  // ! weak types
+  const { methods } = options.stamp.compose as Required<Descriptor<unknown, unknown>>;
 
   const setMethodCallback = (key: PropertyKey): void => {
     const metadata = get(methodsMetadata, key);
@@ -82,7 +95,7 @@ const setMethodsMetadata = (options: ComposerParameters, methodsMetadata: Proper
 };
 
 /** @internal Helper function to remove duplicates from `Collision` settings */
-const removeDuplicates = (settings: CollisionSettings) => {
+const removeDuplicates = (settings: CollisionSettings): void => {
   const { allow, defer, forbid } = settings;
   if (isArray(defer)) set(settings, 'defer', [...new Set(defer)]);
   if (isArray(forbid)) set(settings, 'forbid', [...new Set(forbid)]);
@@ -90,7 +103,7 @@ const removeDuplicates = (settings: CollisionSettings) => {
 };
 
 /** @internal Helper function that throw on ambiguous `Collision` settings */
-const throwIfAmbiguous = (settings: CollisionSettings) => {
+const throwIfAmbiguous = (settings: CollisionSettings): void => {
   const { allow, defer, forbid } = settings;
   if (isArray(forbid)) {
     const isForbidden = (value: PropertyKey): boolean => forbid.includes(value);
@@ -112,10 +125,10 @@ const throwIfAmbiguous = (settings: CollisionSettings) => {
 /** @internal Helper function that throw on forbidden or ambiguous methods */
 const throwIfForbiddenOrAmbiguous = (
   existingMetadata: unknown[],
-  descriptor: CollisionDescriptor,
-  composable: Required<CollisionDescriptor>,
+  descriptor: OwnDescriptor,
+  composable: Required<OwnDescriptor>,
   methodName: PropertyKey
-) => {
+): void => {
   if (existingMetadata) {
     // Process Collision.forbid
     if (isForbidden(descriptor, methodName)) {
@@ -136,8 +149,9 @@ const throwIfForbiddenOrAmbiguous = (
 };
 
 /** @internal `Collision` composer function */
-const composer: Composer = (parameters) => {
-  const descriptor = parameters.stamp.compose as CollisionDescriptor;
+// ! weak types
+const composer: Composer<unknown, any> = (parameters) => {
+  const descriptor = parameters.stamp.compose as OwnDescriptor;
   const settings = getSettings(descriptor);
 
   if (isObject(settings)) {
@@ -151,7 +165,7 @@ const composer: Composer = (parameters) => {
     if (forbidAll || (isArray(defer) && defer.length > 0) || (isArray(forbid) && forbid.length > 0)) {
       const methodsMetadata: PropertyMap = {}; // Methods aggregation
 
-      const getCallbackFor = (composable: Required<CollisionDescriptor>) => (methodName: PropertyKey): void => {
+      const getCallbackFor = (composable: Required<OwnDescriptor>) => (methodName: PropertyKey): void => {
         const method = get(composable.methods, methodName);
         const existingMetadata = get(methodsMetadata, methodName);
 
@@ -172,9 +186,12 @@ const composer: Composer = (parameters) => {
 
       for (const composable of parameters.composables
         .map((composable) => (isStamp(composable) ? composable.compose : composable))
-        .filter((composable) => isObject(composable.methods))) {
-        const { methods } = composable as Required<Descriptor>;
-        const setMethodCallback = getCallbackFor(composable as Required<CollisionDescriptor>);
+        // ! weak types
+        // Should be Composable
+        .filter((composable) => isObject((composable as Descriptor<unknown, unknown>).methods))) {
+        // ! weak types
+        const { methods } = composable as Required<Descriptor<unknown, unknown>>;
+        const setMethodCallback = getCallbackFor(composable as Required<OwnDescriptor>);
         for (const name of ownKeys(methods).filter((methodName) => {
           const method = get(methods, methodName);
           const existingMetadata = get(methodsMetadata, methodName);
@@ -195,19 +212,35 @@ const composer: Composer = (parameters) => {
 };
 
 /** @internal */
-function collisionSetup(this: CollisionStamp | undefined, settings: CollisionSettings | null): CollisionStamp {
-  return (this?.compose ? this : Collision).compose({
+function collisionSetup(
+  // ! weak types
+  this: CollisionStamp<unknown, unknown, unknown> | undefined,
+  settings: null | CollisionSettings
+  // ! weak types
+): CollisionStamp<unknown, unknown, unknown> {
+  // ! weak types
+  return ((this?.compose ? this : Collision) as Stamp<unknown>).compose({
     deepConfiguration: { Collision: settings },
-  }) as CollisionStamp;
+    // ! weak types
+  }) as CollisionStamp<unknown, unknown, unknown>;
 }
 
 /** @internal */
-function collisionSettingsReset(this: CollisionStamp): CollisionStamp {
+function collisionSettingsReset(
+  // ! weak types
+  this: CollisionStamp<unknown, unknown, unknown>
+  // ! weak types
+): CollisionStamp<unknown, unknown, unknown> {
   return this.collisionSetup(null);
 }
 
 /** @internal */
-function collisionProtectAnyMethod(this: CollisionStamp, settings: CollisionSettings): CollisionStamp {
+function collisionProtectAnyMethod(
+  // ! weak types
+  this: CollisionStamp<unknown, unknown, unknown>,
+  settings: CollisionSettings
+  // ! weak types
+): CollisionStamp<unknown, unknown, unknown> {
   return this.collisionSetup(
     assign<CollisionSettings>({}, settings, { forbidAll: true })
   );
@@ -216,9 +249,9 @@ function collisionProtectAnyMethod(this: CollisionStamp, settings: CollisionSett
 /**
  * A stamp with the `Collision` behavior
  */
-// TODO: CollisionStamp should support generics like <ObjectInstance, OriginalStamp>
-export interface CollisionStamp extends Stamp {
-  compose: ComposeProperty & CollisionDescriptor;
+export interface CollisionStamp<Instance, FinalStamp, ComposingStamp>
+  extends DefineStamp<Instance, FinalStamp, ComposingStamp> {
+  compose: ComposeProperty<Instance, FinalStamp, ComposingStamp> & OwnDescriptor;
   /**
    * Forbid or Defer an exclusive method
    */
@@ -233,17 +266,23 @@ export interface CollisionStamp extends Stamp {
   collisionProtectAnyMethod: typeof collisionProtectAnyMethod;
 }
 
+/** @internal CollisionSignature */
+declare function CollisionSignature<Instance, FinalStamp, ComposingStamp = FinalStamp>(
+  this: void | ComposingStamp,
+  ...arguments_: Array<Composable<Instance, FinalStamp>>
+): CollisionStamp<Instance, FinalStamp, ComposingStamp>;
+
 /**
  * Controls collision behavior: forbid or defer
  *
  * This stamp (aka behavior) will check if there are any conflicts on every compose call. Throws an Error in case of a forbidden collision or ambiguous setup.
  */
-// TODO: Collision should support generics like <ObjectInstance, OriginalStamp>
 const Collision = compose({
   deepConfiguration: { Collision: { defer: [], forbid: [] } },
   staticProperties: { collisionSetup, collisionSettingsReset, collisionProtectAnyMethod },
   composers: [composer],
-}) as CollisionStamp;
+  // ! type should be CollisionStamp, renamed as Collision
+}) as typeof CollisionSignature;
 
 export default Collision;
 

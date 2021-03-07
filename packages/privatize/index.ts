@@ -9,13 +9,16 @@ const { defineProperty, get, ownKeys, set } = Reflect;
 
 const stampSymbol = Symbol.for('stamp');
 
-const privates = new WeakMap<anyObject, anyObject>(); // WeakMap works in IE11, node 0.12
+// ! weak types
+const privates = new WeakMap<any, unknown>(); // WeakMap works in IE11, node 0.12
 
+/** @internal */
 const makeProxyFunction = function <T extends (this: unknown, ...args: any) => any>(
   this: unknown,
   fn: T,
   name: PropertyKey
-): (this: anyObject, ...args: any) => ReturnType<T> {
+  // ! weak types
+): (this: any, ...args: any) => ReturnType<T> {
   function proxiedFn(this: anyObject, ...arguments_: any): ReturnType<T> {
     return fn.apply(privates.get(this), arguments_);
   }
@@ -28,12 +31,15 @@ const makeProxyFunction = function <T extends (this: unknown, ...args: any) => a
   return proxiedFn;
 };
 
-interface PrivatizeDescriptor extends Descriptor {
+/** @internal */
+// ! weak types
+interface OwnDescriptor extends Descriptor<unknown, unknown> {
   deepConfiguration?: PropertyMap & { Privatize: { methods: PropertyKey[] } };
 }
 
+/** @internal */
 const initializer = function (_options, context) {
-  const descriptor = context.stamp.compose as PrivatizeDescriptor;
+  const descriptor = (context.stamp as Stamp<unknown>).compose as OwnDescriptor;
   const privateMethodKeys = descriptor.deepConfiguration!.Privatize.methods;
 
   const newObject = {}; // Our proxy object
@@ -53,16 +59,19 @@ const initializer = function (_options, context) {
   }
 
   return newObject;
-} as Initializer;
+  // ! weak types
+} as Initializer<unknown, unknown>;
 
 /**
  * TODO
  */
-const Privatize: Stamp = compose({
+// TODO: Privatize should support generics like <ObjectInstance, OriginalStamp>
+const Privatize = compose({
   initializers: [initializer],
   deepConfiguration: { Privatize: { methods: [] } },
   staticProperties: {
-    privatizeMethods(this: Stamp | undefined, ...arguments_: string[]): Stamp {
+    // ! weak types
+    privatizeMethods(this: Stamp<unknown> | undefined, ...arguments_: string[]): Stamp<unknown> {
       const methodNames: string[] = [];
       for (const argument of arguments_) {
         if (typeof argument === 'string' && argument.length > 0) {
@@ -81,13 +90,16 @@ const Privatize: Stamp = compose({
   },
   composers: [
     ((parameters) => {
-      const { initializers } = parameters.stamp.compose as Required<Descriptor>;
+      // ! weak types
+      const { initializers } = (parameters.stamp as Stamp<unknown>).compose as Required<Descriptor<unknown, unknown>>;
       // Keep our initializer the last to return proxy object
       initializers.splice(initializers.indexOf(initializer), 1);
       initializers.push(initializer);
-    }) as Composer,
+      // ! weak types
+    }) as Composer<unknown, unknown>,
   ],
-});
+  // ! type should be PrivatizeStamp, renamed as Privatize
+}) as Stamp<unknown>;
 
 export default Privatize;
 

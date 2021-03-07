@@ -4,34 +4,35 @@ import { assign, merge } from '@stamp/core';
 import { isFunction, isObject, isStamp, isString } from '@stamp/is';
 import Shortcut from '@stamp/shortcut';
 
-import type { Composable, Composer, Descriptor, Initializer, PropertyMap, StaticPropertyMap } from '@stamp/compose';
+import type { Composable, Composer, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose';
 import type { ShortcutComposeProperty, ShortcutStamp } from '@stamp/shortcut';
-
-/** Workaround for `object` type */
-type anyObject = Record<string, unknown>;
 
 const { concat } = Array.prototype;
 const { get, ownKeys, set } = Reflect;
 
-type ExtractFunctions = (...args: unknown[]) => Composer[] | Initializer[] | undefined;
+type ExtractFunctions = (
+  ...args: unknown[]
+) => Array<Composer<unknown, unknown>> | Array<Initializer<unknown, unknown>> | undefined;
 const extractFunctions: ExtractFunctions = (...arguments_) => {
   // eslint-disable-next-line unicorn/no-array-callback-reference
-  const fns = concat.apply([], [...arguments_]).filter(isFunction) as Composer[] | Initializer[];
+  const fns = concat.apply([], [...arguments_]).filter(isFunction) as
+    | Array<Composer<unknown, unknown>>
+    | Array<Initializer<unknown, unknown>>;
   return fns.length === 0 ? undefined : fns;
 };
 
-interface ExtendedDescriptor extends Descriptor {
-  props?: Descriptor['properties'];
-  init?: Descriptor['initializers'];
-  deepProps?: Descriptor['deepProperties'];
-  statics?: Descriptor['staticProperties'];
-  deepStatics?: Descriptor['staticDeepProperties'];
-  conf?: Descriptor['configuration'];
-  deepConf?: Descriptor['deepConfiguration'];
+interface ExtendedDescriptor extends Descriptor<unknown, unknown> {
+  props?: Descriptor<unknown, unknown>['properties'];
+  init?: Descriptor<unknown, unknown>['initializers'];
+  deepProps?: Descriptor<unknown, unknown>['deepProperties'];
+  statics?: Descriptor<unknown, unknown>['staticProperties'];
+  deepStatics?: Descriptor<unknown, unknown>['staticDeepProperties'];
+  conf?: Descriptor<unknown, unknown>['configuration'];
+  deepConf?: Descriptor<unknown, unknown>['deepConfiguration'];
   name?: string;
 }
 
-type StandardiseDescriptor = (descriptor: ExtendedDescriptor | undefined) => Descriptor | undefined;
+type StandardiseDescriptor = (descriptor: ExtendedDescriptor | undefined) => Descriptor<unknown, unknown> | undefined;
 /* eslint-disable complexity */
 const standardiseDescriptor: StandardiseDescriptor = (descriptor) => {
   if (!isObject(descriptor)) return descriptor;
@@ -60,9 +61,7 @@ const standardiseDescriptor: StandardiseDescriptor = (descriptor) => {
   const p = isObject(props) || isObject(properties) ? assign<PropertyMap>({}, props, properties) : undefined;
   const dp = isObject(deepProps) || isObject(deepProperties) ? merge({}, deepProps, deepProperties) : undefined;
   const sp =
-    isObject(statics) || isObject(staticProperties)
-      ? assign<StaticPropertyMap>({}, statics, staticProperties)
-      : undefined;
+    isObject(statics) || isObject(staticProperties) ? assign<PropertyMap>({}, statics, staticProperties) : undefined;
   const sdp =
     isObject(deepStatics) || isObject(staticDeepProperties) ? merge({}, deepStatics, staticDeepProperties) : undefined;
 
@@ -71,10 +70,10 @@ const standardiseDescriptor: StandardiseDescriptor = (descriptor) => {
 
   const c = isObject(conf) || isObject(configuration) ? assign<PropertyMap>({}, conf, configuration) : undefined;
   const dc = isObject(deepConf) || isObject(deepConfiguration) ? merge({}, deepConf, deepConfiguration) : undefined;
-  const ii = extractFunctions(init, initializers) as Initializer[] | undefined;
-  const cc = extractFunctions(composers) as Composer[] | undefined;
+  const ii = extractFunctions(init, initializers) as Array<Initializer<unknown, unknown>> | undefined;
+  const cc = extractFunctions(composers) as Array<Composer<unknown, unknown>> | undefined;
 
-  const standardDescriptor: Descriptor = {};
+  const standardDescriptor: Descriptor<unknown, unknown> = {};
   if (methods) standardDescriptor.methods = methods;
   if (p) standardDescriptor.properties = p;
   if (ii) standardDescriptor.initializers = ii;
@@ -97,32 +96,40 @@ const standardiseDescriptor: StandardiseDescriptor = (descriptor) => {
  * @interface StampIt
  * @extends {ShortcutStamp}
  */
-interface StampIt extends ShortcutStamp {
-  (this: unknown, ...args: Array<ExtendedDescriptor | ShortcutStamp>): ShortcutStamp;
+interface StampIt extends ShortcutStamp<unknown, unknown, unknown> {
+  (this: unknown, ...args: Array<ExtendedDescriptor | ShortcutStamp<unknown, unknown, unknown>>): ShortcutStamp<
+    unknown,
+    unknown,
+    unknown
+  >;
 }
 // { (...args: any[]): StampWithShortcuts; compose: ComposeMethod & Descriptor; }
-const stampit = function (this: StampIt, ...arguments_: Array<Composable | undefined>) {
+// const stampit = function (this: StampIt, ...arguments_: Array<Composable<unknown, unknown> | undefined>) {
+const stampit = function (this: StampIt, ...arguments_: Array<Composable<unknown, any> | undefined>) {
   return compose.apply(
     this || baseStampit,
-    arguments_.map((argument) => (isStamp(argument) ? argument : standardiseDescriptor(argument)!))
+    arguments_.map(
+      (argument) =>
+        ((isStamp(argument) ? argument : standardiseDescriptor(argument as ExtendedDescriptor)!) as unknown) as any
+    )
   );
 } as StampIt;
 
-const baseStampit = Shortcut.compose({
+const baseStampit = (Shortcut as Stamp<unknown>).compose({
   staticProperties: {
-    create(this: ShortcutStamp, ...arguments_: [(anyObject | undefined)?, ...unknown[]]): anyObject {
+    create(this: ShortcutStamp<unknown, unknown, unknown>, ...arguments_: [(any | undefined)?, ...unknown[]]): any {
       return this.apply(this, arguments_);
     },
     compose: stampit, // Infecting
   },
 });
 
-const shortcuts = Shortcut.compose.staticProperties!;
+const shortcuts = (Shortcut as Stamp<unknown>).compose.staticProperties!;
 for (const property of ownKeys(shortcuts)) {
   set(stampit, property, get(shortcuts, property).bind(baseStampit));
 }
 
-stampit.compose = (stampit.bind(undefined) as unknown) as ShortcutComposeProperty;
+stampit.compose = (stampit.bind(undefined) as unknown) as ShortcutComposeProperty<unknown, unknown>;
 
 export default stampit;
 

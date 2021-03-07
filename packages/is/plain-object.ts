@@ -1,4 +1,5 @@
 /** Workaround for `object` type */
+// ! weak types
 type anyObject = Record<string, unknown>;
 
 const { getPrototypeOf, prototype } = Object;

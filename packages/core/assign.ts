@@ -17,7 +17,7 @@ const assignOne = (destination: any, source: any): unknown => {
 /**
  * Mutates destination object with shallow assign of passed source objects. Returns destination object.
  */
-// TODO: add stricter typing if necessary
+// ! weak types
 const assign = <T = any>(dst: unknown, ...arguments_: unknown[]): T => {
   for (const argument of arguments_) {
     dst = assignOne(dst, argument);

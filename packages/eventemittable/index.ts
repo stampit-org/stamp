@@ -7,7 +7,7 @@ import type { PropertyMap, Stamp } from '@stamp/compose';
  * A Stamp with the EventEmitter behavior
  */
 // TODO: EventEmitterStamp should support generics like <ObjectInstance, OriginalStamp>
-export interface EventEmitterStamp extends Omit<EventEmitter, 'listenerCount'>, Stamp {
+export interface EventEmitterStamp extends Omit<EventEmitter, 'listenerCount'>, Stamp<unknown> {
   /**
    * Returns the number of listeners listening to the event named eventName
    */
