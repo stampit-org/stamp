@@ -32,7 +32,6 @@
     "types"
   ],
   "devDependencies": {
-    "type-fest": "^0.21.2",
     "xo": "^0.38.2"
   }
 }
