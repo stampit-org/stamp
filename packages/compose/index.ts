@@ -30,14 +30,14 @@ export type ComposableFactoryParams = Parameters<ComposableFactory>;
  * @param {...(Composable)} [arguments] The list of composables.
  * @returns {Stamp} A new stamp (aka composable factory function)
  */
-interface ComposeMethod {
+interface ComposeMethod extends PropertyMap {
   (this: Stamp | unknown, ...args: (Composable | undefined)[]): Stamp;
 }
 
 /**
  * TODO
  */
-export interface ComposeProperty extends ComposeMethod, Descriptor {}
+export interface ComposeProperty extends ComposeMethod, Descriptor, PropertyMap {}
 // export type ComposeProperty = ComposeMethod & Descriptor;
 
 /**
@@ -56,6 +56,7 @@ export interface Stamp extends ComposableFactory {
    * @template Obj The type of the object instance being produced by the `Stamp`. or the type of the `Stamp` being created.
    */
   compose: ComposeProperty;
+  [key: string]: any;
 }
 
 // /** @internal Signature common to every `Stamp`s. */
@@ -77,7 +78,7 @@ export interface Stamp extends ComposableFactory {
  * @property {Object} [propertyDescriptors] ES5 Property Descriptors applied to object instances
  * @property {Object} [staticPropertyDescriptors] ES5 Property Descriptors applied to Stamps
  */
-export interface Descriptor {
+export interface Descriptor extends PropertyMap {
   /** A set of methods that will be added to the object's delegate prototype. */
   methods?: object;
   /** A set of properties that will be added to new object instances by assignment. */
@@ -108,7 +109,7 @@ export interface Descriptor {
  * @template S̤t̤a̤m̤p̤ The type of the `Stamp` producing the instance.
  */
 export interface Initializer {
-  (this: object, options: PropertyMap, context: InitializerContext): object | void;
+  (this: object, options: PropertyMap, context: InitializerContext): object | void | Promise<object | void>;
 }
 
 /**
@@ -177,7 +178,8 @@ const createFactory: CreateFactory = () => {
             stamp: Stamp as Stamp,
             args,
           });
-          if (returnedValue !== undefined) instance = returnedValue;
+          // eslint-disable-next-line eqeqeq
+          if (returnedValue != undefined) instance = returnedValue as object;
         }
       }
     }
@@ -281,13 +283,13 @@ const mergeComposable: MergeComposable = (dstDescriptor, srcComposable) => {
 /**
  * TODO
  */
-const compose: ComposeMethod = function compose(this: unknown, ...args) {
+const compose: ComposeMethod = function compose(this: Stamp | unknown, ...args: (Composable | undefined)[]): Stamp {
   const descriptor: Descriptor = {};
   const composables: Composable[] = [];
 
   if (isComposable(this)) {
-    mergeComposable(descriptor, this);
-    composables.push(this);
+    mergeComposable(descriptor, this as Composable);
+    composables.push(this as Composable);
   }
 
   for (const arg of args) {
@@ -297,7 +299,7 @@ const compose: ComposeMethod = function compose(this: unknown, ...args) {
     }
   }
 
-  let stamp = createStamp(descriptor, compose);
+  let stamp = createStamp(descriptor, compose as ComposeMethod);
 
   const { composers } = descriptor;
   if (isArray(composers) && composers.length > 0) {
@@ -308,7 +310,7 @@ const compose: ComposeMethod = function compose(this: unknown, ...args) {
   }
 
   return stamp;
-};
+} as ComposeMethod;
 
 export default compose;
 
