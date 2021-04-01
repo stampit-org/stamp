@@ -207,8 +207,8 @@ function makeReduceThisAsyncProxyFunction({functions, itemName}: MakeProxyFuncti
   return prepareProxyFunction(
     functions,
     itemName,
-    async function reduceAsyncFn(this: object, ...args: unknown[]): Promise<unknown> {
-      const fns = (get(reduceAsyncFn as HasAggregatedFunctions, AGGREGATION_PROPERTY_NAME) || []) as Function[]
+    async function reduceThisAsyncFn(this: object, ...args: unknown[]): Promise<unknown> {
+      const fns = (get(reduceThisAsyncFn as HasAggregatedFunctions, AGGREGATION_PROPERTY_NAME) || []) as Function[]
       return fns.reduce((promise, fn) => {
         return promise.then(result => {
           return Promise.resolve(fn.apply(result || this, args))
@@ -299,6 +299,14 @@ const makeAggregatedProxyFunction: MakeAggregateProxyFunction = (descriptor, dom
   }
 }
 
+export function hasAggregates(domainItem: Function): boolean {
+  return AGGREGATION_PROPERTY_NAME in domainItem
+}
+
+export function getAggregates(domainItem: Function): Function[] | undefined {
+  return (domainItem as HasAggregatedFunctions)[AGGREGATION_PROPERTY_NAME] || undefined
+}
+
 interface SetDomainMetadata {
   (opts: CollisionComposerParams, domain: string, domainMetadata: PropertyMap | Function[]): void
 }
@@ -325,14 +333,11 @@ const setDomainMetadata: SetDomainMetadata = (opts, domain, domainMetadata) => {
   }
   else if (isArray(domainMetadata)) {
     const settings = getSettings(opts.stamp.compose, domain) as CollisionSettingsInitializers
-    const key = settings.async ? 'reduceThisAsyncInits' : 'reduceThisSyncInits'
     const metadata = [...domainMetadata]
     const value =
       // eslint-disable-next-line no-nested-ternary
-      metadata.length > 1
-        ? settings.async
-          ? [makeReduceThisAsyncProxyFunction({ functions: metadata, itemName: key })]
-          : [makeReduceThisSyncProxyFunction({ functions: metadata, itemName: key })]
+      settings.async
+        ? [makeReduceThisAsyncProxyFunction({ functions: metadata, itemName: 'reduceThisAsyncInits' })]
         : metadata
 
     set(opts.stamp.compose, domain, value)
@@ -458,7 +463,7 @@ const composer: Composer = (opts) => {
               }
 
               if (arr) {
-                if(AGGREGATION_PROPERTY_NAME in domainItem) {
+                if(hasAggregates(domainItem)) {
                   arr = arr.concat(domainItem[AGGREGATION_PROPERTY_NAME])
                 }
                 else {

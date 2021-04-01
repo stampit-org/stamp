@@ -1149,6 +1149,14 @@ describe('@stamp/collision', () => {
           Aggregate1.collisionSettingsReset();
         }).toThrow();
       });
+
+      it('a single initializer is still proxied', () => {
+        expect(Array.isArray(Aggregate1.compose.initializers)).toBeTruthy();
+        expect(Aggregate1.compose.initializers[0]).toBeDefined();
+        expect(() => {
+          Collision.hasAggregates(Aggregate1.compose.initializers[0]);
+        }).toBeTruthy();
+      });
     });
   });
 });

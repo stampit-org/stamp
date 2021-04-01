@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getAggregates = exports.hasAggregates = void 0;
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable prettier/prettier */
 const compose_1 = __importDefault(require("@stamp/compose"));
@@ -84,8 +85,8 @@ function makeReduceAsyncProxyFunction({ functions, itemName }) {
     });
 }
 function makeReduceThisAsyncProxyFunction({ functions, itemName }) {
-    return prepareProxyFunction(functions, itemName, async function reduceAsyncFn(...args) {
-        const fns = (get(reduceAsyncFn, AGGREGATION_PROPERTY_NAME) || []);
+    return prepareProxyFunction(functions, itemName, async function reduceThisAsyncFn(...args) {
+        const fns = (get(reduceThisAsyncFn, AGGREGATION_PROPERTY_NAME) || []);
         return fns.reduce((promise, fn) => {
             return promise.then(result => {
                 return Promise.resolve(fn.apply(result || this, args))
@@ -96,8 +97,8 @@ function makeReduceThisAsyncProxyFunction({ functions, itemName }) {
         }, Promise.resolve(this || this));
     });
 }
-const getAllSettings = (descriptor) => { var _a, _b; return (_b = (_a = descriptor) === null || _a === void 0 ? void 0 : _a.deepConfiguration) === null || _b === void 0 ? void 0 : _b.Collision; };
-const getSettings = (descriptor, domain) => { var _a, _b; return ((_b = (_a = descriptor) === null || _a === void 0 ? void 0 : _a.deepConfiguration) === null || _b === void 0 ? void 0 : _b.Collision) ? descriptor.deepConfiguration.Collision[domain] : undefined; };
+const getAllSettings = (descriptor) => { var _a; return (_a = descriptor === null || descriptor === void 0 ? void 0 : descriptor.deepConfiguration) === null || _a === void 0 ? void 0 : _a.Collision; };
+const getSettings = (descriptor, domain) => { var _a; return ((_a = descriptor === null || descriptor === void 0 ? void 0 : descriptor.deepConfiguration) === null || _a === void 0 ? void 0 : _a.Collision) ? descriptor.deepConfiguration.Collision[domain] : undefined; };
 const checkIf = (descriptor, domain, setting, itemName) => {
     const settings = getSettings(descriptor, domain);
     const settingsFor = settings && get(settings, setting);
@@ -142,6 +143,14 @@ const makeAggregatedProxyFunction = (descriptor, domain, functions, itemName) =>
             return undefined;
     }
 };
+function hasAggregates(domainItem) {
+    return AGGREGATION_PROPERTY_NAME in domainItem;
+}
+exports.hasAggregates = hasAggregates;
+function getAggregates(domainItem) {
+    return domainItem[AGGREGATION_PROPERTY_NAME] || undefined;
+}
+exports.getAggregates = getAggregates;
 const setDomainMetadata = (opts, domain, domainMetadata) => {
     if (is_1.isObject(domainMetadata) && !is_1.isArray(domainMetadata)) {
         const target = get(opts.stamp.compose, domain);
@@ -162,14 +171,11 @@ const setDomainMetadata = (opts, domain, domainMetadata) => {
     }
     else if (is_1.isArray(domainMetadata)) {
         const settings = getSettings(opts.stamp.compose, domain);
-        const key = settings.async ? 'reduceThisAsyncInits' : 'reduceThisSyncInits';
         const metadata = [...domainMetadata];
         const value = 
         // eslint-disable-next-line no-nested-ternary
-        metadata.length > 1
-            ? settings.async
-                ? [makeReduceThisAsyncProxyFunction({ functions: metadata, itemName: key })]
-                : [makeReduceThisSyncProxyFunction({ functions: metadata, itemName: key })]
+        settings.async
+            ? [makeReduceThisAsyncProxyFunction({ functions: metadata, itemName: 'reduceThisAsyncInits' })]
             : metadata;
         set(opts.stamp.compose, domain, value);
     }
@@ -250,7 +256,7 @@ const composer = (opts) => {
                             arr = existingMetadata || [];
                         }
                         if (arr) {
-                            if (AGGREGATION_PROPERTY_NAME in domainItem) {
+                            if (hasAggregates(domainItem)) {
                                 arr = arr.concat(domainItem[AGGREGATION_PROPERTY_NAME]);
                             }
                             else {
@@ -316,8 +322,7 @@ const Collision = compose_1.default({
     deepConfiguration: { Collision: {} },
     staticProperties: {
         collisionSetup(opts) {
-            var _a;
-            return (((_a = this) === null || _a === void 0 ? void 0 : _a.compose) ? this : Collision).compose({
+            return ((this === null || this === void 0 ? void 0 : this.compose) ? this : Collision).compose({
                 deepConfiguration: { Collision: prepareSettings(opts) },
             });
         },
