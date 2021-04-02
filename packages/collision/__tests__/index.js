@@ -6,59 +6,6 @@
 const compose = require('@stamp/compose');
 const Collision = require('..');
 
-// interface Draws {
-//   draw(): void;
-// }
-
-// interface DrawsAsync {
-//   draw(): Promise<void>;
-// }
-
-// interface DrawsStamp extends Stamp {
-//   // eslint-disable-next-line @typescript-eslint/ban-types
-//   (options?: object, ...args: unknown[]): Draws;
-// }
-
-// interface DrawsAsyncStamp extends Stamp {
-//   // eslint-disable-next-line @typescript-eslint/ban-types
-//   (options?: object, ...args: unknown[]): DrawsAsync;
-// }
-
-// interface Reduces {
-//   push(accumulator: string[]): string[];
-//   replaceThis(this: any): any;
-// }
-
-// interface PushesAsync {
-//   push(accumulator: string[]): Promise<string[]>;
-//   replaceThis(this: any): Promise<any>;
-// }
-
-// interface ReducerStamp extends Stamp {
-//   // eslint-disable-next-line @typescript-eslint/ban-types
-//   (options?: object, ...args: unknown[]): Reduces;
-// }
-
-// interface PushesAsyncStamp extends Stamp {
-//   // eslint-disable-next-line @typescript-eslint/ban-types
-//   (options?: object, ...args: unknown[]): PushesAsync;
-// }
-
-// type HasPushValue = { pushValue: string };
-// type HasValue = { value: string };
-
-// type PushFunction = ReducerFunction & HasPushValue;
-// type ReplaceThisFunction = ThisReducerFunction & HasValue;
-
-// type PushAsyncFunction = ReducerAsyncFunction & HasPushValue;
-// type ReplaceThisAsyncFunction = ThisReducerAsyncFunction & HasValue;
-
-// type AsyncInitializer = Initializer;
-
-// interface Node {
-//   value: string;
-// }
-
 const Different = compose({
   methods: {
     whatever() {},
@@ -69,7 +16,7 @@ describe('@stamp/collision', () => {
   describe('methods', () => {
     describe('map', () => {
       const draw1 = jest.fn();
-      draw1.mockReturnValue({ a: 1 });
+      draw1.mockReturnValue({ a: '1' });
       const Aggregate1 = compose(
         {
           methods: {
@@ -80,31 +27,36 @@ describe('@stamp/collision', () => {
       );
 
       const draw2 = jest.fn();
-      draw2.mockReturnValue({ b: 2 });
+      draw2.mockReturnValue({ b: '2' });
       const Aggregate2 = Collision.collisionSetup({ methods: { map: ['draw'] } }).compose({
         methods: {
           draw: draw2,
         },
       });
 
-      const draw3 = jest.fn();
-      draw3.mockReturnValue({ c: 3 });
+      const drawRegular = jest.fn();
+      drawRegular.mockReturnValue({ r: 'R' });
       const Regular = compose({
         methods: {
-          draw: draw3,
+          draw: drawRegular,
         },
       });
 
-      const mockList = [draw1, draw2, draw3];
+      const mockList = [draw1, draw2, drawRegular];
 
       it('aggregates two stamps', () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
+
+        const myMockList = mockList.slice(0, 2);
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.draw();
 
-        expect(result).toStrictEqual([{ a: 1 }, { b: 2 }]);
-        mockList.slice(0, 2).forEach((fn) => {
+        expect(result).toStrictEqual([{ a: '1' }, { b: '2' }]);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -112,12 +64,17 @@ describe('@stamp/collision', () => {
 
       it('aggregate of one + regular', () => {
         const StampCombined = compose(Aggregate2, Regular);
+
+        const myMockList = mockList.slice(1);
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.draw();
 
-        expect(result).toStrictEqual([{ b: 2 }, { c: 3 }]);
-        mockList.slice(1).forEach((fn) => {
+        expect(result).toStrictEqual([{ b: '2' }, { r: 'R' }]);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -125,12 +82,17 @@ describe('@stamp/collision', () => {
 
       it('regular + aggregate of one', () => {
         const StampCombined = compose(Regular, Aggregate2);
+
+        const myMockList = [drawRegular, draw2];
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.draw();
 
-        expect(result).toStrictEqual([{ c: 3 }, { b: 2 }]);
-        mockList.slice(1).forEach((fn) => {
+        expect(result).toStrictEqual([{ r: 'R' }, { b: '2' }]);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -138,25 +100,53 @@ describe('@stamp/collision', () => {
 
       it('aggregate of two + regular', () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
+
+        const myMockList = mockList;
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.draw();
 
-        expect(result).toStrictEqual([{ a: 1 }, { b: 2 }, { c: 3 }]);
-        mockList.forEach((fn) => {
+        expect(result).toStrictEqual([{ a: '1' }, { b: '2' }, { r: 'R' }]);
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('aggregate + regular + aggregate', async () => {
+        const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
+
+        const myMockList = [draw1, drawRegular, draw2];
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = StampCombined();
+
+        const result = obj.draw();
+
+        expect(result).toStrictEqual([{ a: '1' }, { r: 'R' }, { b: '2' }]);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
       });
 
       it('regular + aggregate of two', () => {
-        const StampCombined = compose(Regular, compose(Aggregate1, Aggregate2));
+        const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
+
+        const myMockList = [drawRegular, draw2, draw1];
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.draw();
 
-        expect(result).toStrictEqual([{ c: 3 }, { a: 1 }, { b: 2 }]);
-        mockList.forEach((fn) => {
+        expect(result).toStrictEqual([{ r: 'R' }, { b: '2' }, { a: '1' }]);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -199,8 +189,13 @@ describe('@stamp/collision', () => {
 
     describe('reduce', () => {
       function makePushFunction(name) {
-        const fn = function push(accumulator, currentValue, index, array) {
-          accumulator.push(push.pushValue);
+        const fn = function push(
+          accumulator,
+          currentValue,
+          index,
+          array
+        ) {
+          accumulator.push((push).pushValue);
           return accumulator;
         };
         Object.defineProperty(fn, 'pushValue', { value: name, configurable: false });
@@ -224,24 +219,29 @@ describe('@stamp/collision', () => {
         },
       });
 
-      const push3 = jest.fn(makePushFunction('3'));
+      const pushRegular = jest.fn(makePushFunction('R'));
       const Regular = compose({
         methods: {
-          push: push3,
+          push: pushRegular,
         },
       });
 
-      const mockList = [push1, push2, push3];
+      const mockList = [push1, push2, pushRegular];
 
       it('aggregates two stamps', () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
+
+        const myMockList = mockList.slice(0, 2);
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.push([]);
 
         expect(result).toStrictEqual(['1', '2']);
 
-        mockList.slice(0, 2).forEach((fn) => {
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -249,12 +249,35 @@ describe('@stamp/collision', () => {
 
       it('aggregate of one + regular', () => {
         const StampCombined = compose(Aggregate2, Regular);
+
+        const myMockList = mockList.slice(1);
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.push([]);
 
-        expect(result).toStrictEqual(['2', '3']);
-        mockList.slice(1).forEach((fn) => {
+        expect(result).toStrictEqual(['2', 'R']);
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('regular + aggregate of one', () => {
+        const StampCombined = compose(Regular, Aggregate2);
+
+        const myMockList = [pushRegular, push2];
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = StampCombined();
+
+        const result = obj.push([]);
+
+        expect(result).toStrictEqual(['R', '2']);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -262,12 +285,35 @@ describe('@stamp/collision', () => {
 
       it('aggregate of two + regular', () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
+
+        const myMockList = mockList;
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.push([]);
 
-        expect(result).toStrictEqual(['1', '2', '3']);
-        mockList.forEach((fn) => {
+        expect(result).toStrictEqual(['1', '2', 'R']);
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('aggregate + regular + aggregate', async () => {
+        const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
+
+        const myMockList = [push1, pushRegular, push2];
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = StampCombined();
+
+        const result = obj.push([]);
+
+        expect(result).toStrictEqual(['1', 'R', '2']);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -275,11 +321,16 @@ describe('@stamp/collision', () => {
 
       it('regular + aggregate of two', () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
+
+        const myMockList = [pushRegular, push2, push1];
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.push([]);
 
-        expect(result).toStrictEqual(['3', '2', '1']);
+        expect(result).toStrictEqual(['R', '2', '1']);
         mockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
@@ -353,23 +404,28 @@ describe('@stamp/collision', () => {
         },
       });
 
-      const replaceThis3 = jest.fn(makeReplaceThisFunction('3'));
+      const replaceThisRegular = jest.fn(makeReplaceThisFunction('R'));
       const Regular = compose({
         methods: {
-          replaceThis: replaceThis3,
+          replaceThis: replaceThisRegular,
         },
       });
 
-      const mockList = [replaceThis1, replaceThis2, replaceThis3];
+      const mockList = [replaceThis1, replaceThis2, replaceThisRegular];
 
       it('aggregates two stamps', () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
+
+        const myMockList = mockList.slice(0, 2);
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.replaceThis.apply({ value: '0' });
 
         expect(result).toStrictEqual({ value: '2' });
-        mockList.slice(0, 2).forEach((fn) => {
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -377,12 +433,35 @@ describe('@stamp/collision', () => {
 
       it('aggregate of one + regular', () => {
         const StampCombined = compose(Aggregate2, Regular);
+
+        const myMockList = mockList.slice(1);
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.replaceThis.apply({ value: '0' });
 
-        expect(result).toStrictEqual({ value: '3' });
-        mockList.slice(1).forEach((fn) => {
+        expect(result).toStrictEqual({ value: 'R' });
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('regular + aggregate of one', () => {
+        const StampCombined = compose(Regular, Aggregate2);
+
+        const myMockList = [replaceThisRegular, replaceThis2];
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = StampCombined();
+
+        const result = obj.replaceThis.apply({ value: '0' });
+
+        expect(result).toStrictEqual({ value: '2' });
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -390,12 +469,35 @@ describe('@stamp/collision', () => {
 
       it('aggregate of two + regular', () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
+
+        const myMockList = mockList;
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.replaceThis.apply({ value: '0' });
 
-        expect(result).toStrictEqual({ value: '3' });
-        mockList.forEach((fn) => {
+        expect(result).toStrictEqual({ value: 'R' });
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('aggregate + regular + aggregate', async () => {
+        const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
+
+        const myMockList = [replaceThis1, replaceThisRegular, replaceThis2];
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = StampCombined();
+
+        const result = obj.replaceThis.apply({ value: '0' });
+
+        expect(result).toStrictEqual({ value: '2' });
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -403,12 +505,17 @@ describe('@stamp/collision', () => {
 
       it('regular + aggregate of two', () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
+
+        const myMockList = [replaceThisRegular, replaceThis2, replaceThis1];
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = obj.replaceThis.apply({ value: '0' });
 
         expect(result).toStrictEqual({ value: '1' });
-        mockList.forEach((fn) => {
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -450,50 +557,54 @@ describe('@stamp/collision', () => {
     });
 
     describe('mapAsync', () => {
-      const draw1 = jest.fn();
-      draw1.mockReturnValue({ a: 1 });
+      function makeDrawAsyncFunction(returnValue) {
+        const fn = async function draw() {
+          return returnValue
+        };
+        Object.defineProperty(fn, 'pushValue', { value: returnValue, configurable: false });
+        return fn;
+      }
+
+      const draw1 = jest.fn(makeDrawAsyncFunction({ a: '1' }));
       const Aggregate1 = compose(
         {
           methods: {
-            async draw() {
-              return draw1();
-            },
+            draw: draw1,
           },
         },
         Collision.collisionSetup({ methods: { mapAsync: ['draw'] } })
       );
 
-      const draw2 = jest.fn();
-      draw2.mockReturnValue({ b: 2 });
+      const draw2 = jest.fn(makeDrawAsyncFunction({ b: '2' }));
       const Aggregate2 = Collision.collisionSetup({ methods: { mapAsync: ['draw'] } }).compose({
         methods: {
-          async draw() {
-            return draw2();
-          },
+          draw: draw2,
         },
       });
 
-      const draw3 = jest.fn();
-      draw3.mockReturnValue({ c: 3 });
+      const drawRegular = jest.fn(makeDrawAsyncFunction({ r: 'R' }));
       const Regular = compose({
         methods: {
-          async draw() {
-            return draw3();
-          },
+          draw: drawRegular,
         },
       });
 
-      const mockList = [draw1, draw2, draw3];
+      const mockList = [draw1, draw2, drawRegular];
 
       it('aggregates two stamps', async () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
+
+        const myMockList = mockList.slice(0, 2);
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.draw();
 
         // eslint-disable-next-line jest/no-test-return-statement
-        expect(result).toStrictEqual([{ a: 1 }, { b: 2 }]);
-        mockList.slice(0, 2).forEach((fn) => {
+        expect(result).toStrictEqual([{ a: '1' }, { b: '2' }]);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -501,12 +612,35 @@ describe('@stamp/collision', () => {
 
       it('aggregate of one + regular', async () => {
         const StampCombined = compose(Aggregate2, Regular);
+
+        const myMockList = mockList.slice(1);
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.draw();
 
-        expect(result).toStrictEqual([{ b: 2 }, { c: 3 }]);
-        mockList.slice(1).forEach((fn) => {
+        expect(result).toStrictEqual([{ b: '2' }, { r: 'R' }]);
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('regular + aggregate of one', async () => {
+        const StampCombined = compose(Regular, Aggregate2);
+
+        const myMockList = [drawRegular, draw2];
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = StampCombined();
+
+        const result = await obj.draw();
+
+        expect(result).toStrictEqual([{ r: 'R' }, { b: '2' }]);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -514,12 +648,35 @@ describe('@stamp/collision', () => {
 
       it('aggregate of two + regular', async () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
+
+        const myMockList = mockList;
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.draw();
 
-        expect(result).toStrictEqual([{ a: 1 }, { b: 2 }, { c: 3 }]);
-        mockList.forEach((fn) => {
+        expect(result).toStrictEqual([{ a: '1' }, { b: '2' }, { r: 'R' }]);
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('aggregate + regular + aggregate', async () => {
+        const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
+
+        const myMockList = [draw1, drawRegular, draw2];
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = StampCombined();
+
+        const result = await obj.draw();
+
+        expect(result).toStrictEqual([{ a: '1' }, { r: 'R' }, { b: '2' }]);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -527,12 +684,17 @@ describe('@stamp/collision', () => {
 
       it('regular + aggregate of two', async () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
+
+        const myMockList = [drawRegular, draw2, draw1];
+        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.draw();
 
-        expect(result).toStrictEqual([{ c: 3 }, { b: 2 }, { a: 1 }]);
-        mockList.forEach((fn) => {
+        expect(result).toStrictEqual([{ r: 'R' }, { b: '2' }, { a: '1' }]);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -575,7 +737,12 @@ describe('@stamp/collision', () => {
 
     describe('reduceAsync', () => {
       function makePushAsyncFunction(name) {
-        const fn = async function push(accumulatorPromise, currentValue, index, array) {
+        const fn = async function push(
+          accumulatorPromise,
+          currentValue,
+          index,
+          array
+        ) {
           return accumulatorPromise.then((accumulator) => {
             accumulator.push(push.pushValue);
             return accumulator;
@@ -602,23 +769,28 @@ describe('@stamp/collision', () => {
         },
       });
 
-      const push3 = jest.fn(makePushAsyncFunction('3'));
+      const pushRegular = jest.fn(makePushAsyncFunction('R'));
       const Regular = compose({
         methods: {
-          push: push3,
+          push: pushRegular,
         },
       });
 
-      const mockList = [push1, push2, push3];
+      const mockList = [push1, push2, pushRegular];
 
       it('aggregates two stamps', async () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
+
+        const myMockList = mockList.slice(0, 2);
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.push([]);
 
         expect(result).toStrictEqual(['1', '2']);
-        mockList.slice(0, 2).forEach((fn) => {
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -626,12 +798,35 @@ describe('@stamp/collision', () => {
 
       it('aggregate of one + regular', async () => {
         const StampCombined = compose(Aggregate2, Regular);
+
+        const myMockList = mockList.slice(1);
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.push([]);
 
-        expect(result).toStrictEqual(['2', '3']);
-        mockList.slice(1).forEach((fn) => {
+        expect(result).toStrictEqual(['2', 'R']);
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('regular + aggregate of one', async () => {
+        const StampCombined = compose(Regular, Aggregate2);
+
+        const myMockList = [pushRegular, push2];
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = StampCombined();
+
+        const result = await obj.push([]);
+
+        expect(result).toStrictEqual(['R', '2']);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -639,12 +834,35 @@ describe('@stamp/collision', () => {
 
       it('aggregate of two + regular', async () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
+
+        const myMockList = mockList;
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.push([]);
 
-        expect(result).toStrictEqual(['1', '2', '3']);
-        mockList.forEach((fn) => {
+        expect(result).toStrictEqual(['1', '2', 'R']);
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('aggregate + regular + aggregate', async () => {
+        const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
+
+        const myMockList = [push1, pushRegular, push2];
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = StampCombined();
+
+        const result = await obj.push([]);
+
+        expect(result).toStrictEqual(['1', 'R', '2']);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -652,12 +870,17 @@ describe('@stamp/collision', () => {
 
       it('regular + aggregate of two', async () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
+
+        const myMockList = [pushRegular, push2, push1];
+        const aggregates = StampCombined.getAggregates('methods', 'push');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.push([]);
 
-        expect(result).toStrictEqual(['3', '2', '1']);
-        mockList.forEach((fn) => {
+        expect(result).toStrictEqual(['R', '2', '1']);
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -730,23 +953,28 @@ describe('@stamp/collision', () => {
         },
       });
 
-      const replaceThis3 = jest.fn(makeReplaceThisFunction('3'));
+      const replaceThisRegular = jest.fn(makeReplaceThisFunction('R'));
       const Regular = compose({
         methods: {
-          replaceThis: replaceThis3,
+          replaceThis: replaceThisRegular,
         },
       });
 
-      const mockList = [replaceThis1, replaceThis2, replaceThis3];
+      const mockList = [replaceThis1, replaceThis2, replaceThisRegular];
 
       it('aggregates two stamps', async () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
+
+        const myMockList = mockList.slice(0, 2);
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.replaceThis.apply({ value: '0' });
 
         expect(result).toStrictEqual({ value: '2' });
-        mockList.slice(0, 2).forEach((fn) => {
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -754,12 +982,35 @@ describe('@stamp/collision', () => {
 
       it('aggregate of one + regular', async () => {
         const StampCombined = compose(Aggregate2, Regular);
+
+        const myMockList = mockList.slice(1);
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.replaceThis.apply({ value: '0' });
 
-        expect(result).toStrictEqual({ value: '3' });
-        mockList.slice(1).forEach((fn) => {
+        expect(result).toStrictEqual({ value: 'R' });
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('regular + aggregate of one', async () => {
+        const StampCombined = compose(Regular, Aggregate2);
+
+        const myMockList = [replaceThisRegular, replaceThis2];
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = StampCombined();
+
+        const result = await obj.replaceThis.apply({ value: '0' });
+
+        expect(result).toStrictEqual({ value: '2' });
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -767,12 +1018,35 @@ describe('@stamp/collision', () => {
 
       it('aggregate of two + regular', async () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
+
+        const myMockList = mockList;
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.replaceThis.apply({ value: '0' });
 
-        expect(result).toStrictEqual({ value: '3' });
-        mockList.forEach((fn) => {
+        expect(result).toStrictEqual({ value: 'R' });
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('aggregate + regular + aggregate', async () => {
+        const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
+
+        const myMockList = [replaceThis1, replaceThisRegular, replaceThis2];
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = StampCombined();
+
+        const result = await obj.replaceThis.apply({ value: '0' });
+
+        expect(result).toStrictEqual({ value: '2' });
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -780,12 +1054,17 @@ describe('@stamp/collision', () => {
 
       it('regular + aggregate of two', async () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
+
+        const myMockList = [replaceThisRegular, replaceThis2, replaceThis1];
+        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = StampCombined();
 
         const result = await obj.replaceThis.apply({ value: '0' });
 
         expect(result).toStrictEqual({ value: '1' });
-        mockList.forEach((fn) => {
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -1072,6 +1351,7 @@ describe('@stamp/collision', () => {
       }
 
       const init1 = jest.fn(makeInitAsyncFunction('1'));
+      init1.mockName('init1');
       const Aggregate1 = compose(
         {
           initializers: [init1],
@@ -1080,23 +1360,30 @@ describe('@stamp/collision', () => {
       );
 
       const init2 = jest.fn(makeInitAsyncFunction('2'));
+      init2.mockName('init2');
       const Aggregate2 = Collision.collisionSetup({ initializers: { async: true } }).compose({
         initializers: [init2],
       });
 
-      const init3 = jest.fn(makeInitAsyncFunction('3'));
+      const initRegular = jest.fn(makeInitAsyncFunction('R'));
+      initRegular.mockName('initRegular');
       const Regular = compose({
-        initializers: [init3],
+        initializers: [initRegular],
       });
 
-      const mockList = [init1, init2, init3];
+      const mockList = [init1, init2, initRegular];
 
       it('aggregates two stamps', async () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
+
+        const myMockList = mockList.slice(0, 2);
+        const aggregates = StampCombined.getAggregates('initializers');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = await StampCombined();
 
         expect(obj).toStrictEqual({ value: '2' });
-        mockList.slice(0, 2).forEach((fn) => {
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -1104,10 +1391,15 @@ describe('@stamp/collision', () => {
 
       it('aggregate of one + regular', async () => {
         const StampCombined = compose(Aggregate2, Regular);
+
+        const myMockList = mockList.slice(1);
+        const aggregates = StampCombined.getAggregates('initializers');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = await StampCombined();
 
-        expect(obj).toStrictEqual({ value: '3' });
-        mockList.slice(1).forEach((fn) => {
+        expect(obj).toStrictEqual({ value: 'R' });
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -1115,10 +1407,31 @@ describe('@stamp/collision', () => {
 
       it('aggregate of two + regular', async () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
+
+        const myMockList = mockList;
+        const aggregates = StampCombined.getAggregates('initializers');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = await StampCombined();
 
-        expect(obj).toStrictEqual({ value: '3' });
-        mockList.forEach((fn) => {
+        expect(obj).toStrictEqual({ value: 'R' });
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('aggregate + regular + aggregate', async () => {
+        const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
+
+        const myMockList = [init1, initRegular, init2];
+        const aggregates = StampCombined.getAggregates('initializers');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = await StampCombined();
+
+        expect(obj).toStrictEqual({ value: '2' });
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -1126,10 +1439,15 @@ describe('@stamp/collision', () => {
 
       it('regular + aggregate of two', async () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
+
+        const myMockList = [initRegular, init2, init1];
+        const aggregates = StampCombined.getAggregates('initializers');
+        expect(aggregates).toStrictEqual(myMockList);
+
         const obj = await StampCombined();
 
         expect(obj).toStrictEqual({ value: '1' });
-        mockList.forEach((fn) => {
+        myMockList.forEach((fn) => {
           expect(fn).toHaveBeenCalled();
           fn.mockClear();
         });
@@ -1151,11 +1469,8 @@ describe('@stamp/collision', () => {
       });
 
       it('a single initializer is still proxied', () => {
-        expect(Array.isArray(Aggregate1.compose.initializers)).toBeTruthy();
-        expect(Aggregate1.compose.initializers[0]).toBeDefined();
-        expect(() => {
-          Collision.hasAggregates(Aggregate1.compose.initializers[0]);
-        }).toBeTruthy();
+        const aggregates = Aggregate1.getAggregates('initializers') || []
+        expect(aggregates).toHaveLength(1);
       });
     });
   });

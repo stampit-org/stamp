@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable prettier/prettier */
-import compose, { ComposeProperty, Composer, ComposerParams, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose'
+import compose, { ComposeProperty, ComposerParams, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose'
 import { merge } from '@stamp/core'
 import { isArray, isObject, isStamp } from '@stamp/is'
 
@@ -18,6 +18,9 @@ export interface CollisionStamp extends Stamp {
   collisionSetup(this: CollisionStamp | undefined | void, opts: CollisionSettings | null | undefined): CollisionStamp
   collisionSettingsReset(this: CollisionStamp | undefined | void): CollisionStamp
   collisionProtectAnyMethod(this: CollisionStamp | undefined | void, opts?: CollisionSettings): CollisionStamp
+  hasAggregates(this: CollisionStamp, domain: string, itemName?: string): boolean
+  getAggregates(this: CollisionStamp, domain: string, itemName?: string): Function[] | undefined
+  setAggregates(this: CollisionStamp, aggregates: Function[], domain: string, itemName?: string): void
   compose: ComposeProperty & CollisionDescriptor
 }
 
@@ -90,7 +93,7 @@ interface DeprecatedCollisionSettings {
   [key: string]: string[] | undefined
 }
 
-interface HasAggregatedFunctions {
+interface HasAggregatedFunctions extends Function {
   [AGGREGATION_PROPERTY_NAME]?: Function[]
 }
 
@@ -146,7 +149,7 @@ function makeMapSyncProxyFunction({functions, itemName}: MakeProxyFunctionOption
     functions,
     itemName,
     function mapSyncFn(this: object, ...args: unknown[]): unknown[] {
-      const fns = (get(mapSyncFn as HasAggregatedFunctions, AGGREGATION_PROPERTY_NAME) || []) as Function[]
+      const fns = getDomainItemAggregates(mapSyncFn)
       return [...fns.map(fn => fn.apply(this, [...args]))]
     }
   );
@@ -157,10 +160,10 @@ function makeReduceSyncProxyFunction({functions, itemName}: MakeProxyFunctionOpt
     functions,
     itemName,
     function reduceSyncFn(initialValue: unknown, ...args: unknown[]): unknown {
-      const fns = (get(reduceSyncFn as HasAggregatedFunctions, AGGREGATION_PROPERTY_NAME) || []) as Function[]
-      return fns.reduce((o, fn) => {
-        return fn(o, ...args)
-      }, initialValue)
+      return getDomainItemAggregates(reduceSyncFn)
+        .reduce((o, fn) => {
+          return fn(o, ...args)
+        }, initialValue)
     }
   );
 }
@@ -170,11 +173,11 @@ function makeReduceThisSyncProxyFunction({functions, itemName}: MakeProxyFunctio
     functions,
     itemName,
     function reduceThisSyncFn(this: object, ...args: unknown[]): unknown {
-      const fns = (get(reduceThisSyncFn as HasAggregatedFunctions, AGGREGATION_PROPERTY_NAME) || []) as Function[]
-      return fns.reduce((o, fn) => {
-        const result = fn.apply(o, args)
-        return result || this
-      }, this)
+      return getDomainItemAggregates(reduceThisSyncFn)
+        .reduce((o, fn) => {
+          const result = fn.apply(o, args)
+          return result || this
+        }, this)
     }
   );
 }
@@ -184,8 +187,9 @@ function makeMapAsyncProxyFunction({functions, itemName}: MakeProxyFunctionOptio
     functions,
     itemName,
     async function mapAsyncFn(this: object, ...args: unknown[]): Promise<unknown[]> {
-      const fns = (get(mapAsyncFn as HasAggregatedFunctions, AGGREGATION_PROPERTY_NAME) || []) as Function[]
-      return Promise.all(fns.map(fn => fn.apply(this, args)))
+      return Promise.all(
+        getDomainItemAggregates(mapAsyncFn).map(fn => fn.apply(this, args))
+      )
     }
   )
 }
@@ -195,10 +199,10 @@ function makeReduceAsyncProxyFunction({functions, itemName}: MakeProxyFunctionOp
     functions,
     itemName,
     async function reduceAsyncFn(initialValue: unknown, ...args: unknown[]): Promise<unknown> {
-      const fns = (get(reduceAsyncFn as HasAggregatedFunctions, AGGREGATION_PROPERTY_NAME) || []) as Function[]
-      return fns.reduce((promise, fn) => {
-        return fn(promise, ...args)
-      }, Promise.resolve(initialValue))
+      return getDomainItemAggregates(reduceAsyncFn)
+        .reduce((promise, fn) => {
+          return fn(promise, ...args)
+        }, Promise.resolve(initialValue))
     }
   );
 }
@@ -208,15 +212,15 @@ function makeReduceThisAsyncProxyFunction({functions, itemName}: MakeProxyFuncti
     functions,
     itemName,
     async function reduceThisAsyncFn(this: object, ...args: unknown[]): Promise<unknown> {
-      const fns = (get(reduceThisAsyncFn as HasAggregatedFunctions, AGGREGATION_PROPERTY_NAME) || []) as Function[]
-      return fns.reduce((promise, fn) => {
-        return promise.then(result => {
-          return Promise.resolve(fn.apply(result || this, args))
-            .then(nextResult => {
-              return nextResult || this
-            })
-        })
-      }, Promise.resolve(this || this))
+      return getDomainItemAggregates(reduceThisAsyncFn)
+        .reduce((promise, fn) => {
+          return promise.then(result => {
+            return Promise.resolve(fn.apply(result || this, args))
+              .then(nextResult => {
+                return nextResult || this
+              })
+          })
+        }, Promise.resolve(this || this))
     }
   )
 }
@@ -251,6 +255,24 @@ const isForbidden: IsForbidden = (descriptor, domain, itemName) => {
   return settings[CollisionSettingKey.ForbidAll]
     ? !checkIf(descriptor, domain, CollisionSettingKey.Allow, itemName)
     : checkIf(descriptor, domain, CollisionSettingKey.Forbid, itemName)
+}
+
+function isAggregateDomainItem(domainItem: Function): boolean {
+  return AGGREGATION_PROPERTY_NAME in domainItem
+}
+
+function getDomainItemAggregates(domainItem: Function): Function[] {
+  return get(domainItem, AGGREGATION_PROPERTY_NAME) || []
+}
+
+function setDomainItemAggregates(domainItem: Function, aggregates: Function[]) {
+  const arr = get(domainItem, AGGREGATION_PROPERTY_NAME)
+  if (arr) {
+    arr.length = 0
+    aggregates.forEach(f => {
+      arr.push(f)
+    })
+  }
 }
 
 interface IsAggregate {
@@ -297,14 +319,6 @@ const makeAggregatedProxyFunction: MakeAggregateProxyFunction = (descriptor, dom
     default:
       return undefined
   }
-}
-
-export function hasAggregates(domainItem: Function): boolean {
-  return AGGREGATION_PROPERTY_NAME in domainItem
-}
-
-export function getAggregates(domainItem: Function): Function[] | undefined {
-  return (domainItem as HasAggregatedFunctions)[AGGREGATION_PROPERTY_NAME] || undefined
 }
 
 interface SetDomainMetadata {
@@ -418,9 +432,8 @@ const throwIfForbiddenOrAmbiguous: ThrowIfForbiddenOrAmbiguous = (
     throw new Error(`Ambiguous Collision settings. The \`${String(itemName)}\` ${domain.slice(0, -1)} is both aggregated and regular`)
   }
 }
-
-const composer: Composer = (opts) => {
-  const descriptor = opts.stamp.compose as CollisionDescriptor
+function collisionComposer(opts: ComposerParams): Stamp | void {
+  const descriptor = (opts.stamp as CollisionStamp).compose as CollisionDescriptor
   const allSettings = getAllSettings(descriptor)
 
   if (!isObject(allSettings)) {
@@ -463,8 +476,8 @@ const composer: Composer = (opts) => {
               }
 
               if (arr) {
-                if(hasAggregates(domainItem)) {
-                  arr = arr.concat(domainItem[AGGREGATION_PROPERTY_NAME])
+                if (isAggregateDomainItem(domainItem)) {
+                  arr = arr.concat(getDomainItemAggregates(domainItem))
                 }
                 else {
                   arr.push(domainItem)
@@ -499,13 +512,20 @@ const composer: Composer = (opts) => {
             setDomainMetadata(opts as CollisionComposerParams, domain, domainMetadata)
           }
           else if (domain === 'initializers') {
-            const domainMetadata: Initializer[] = [];
+            let domainMetadata: Initializer[] = [];
 
             opts.composables
               .map(composable => (isStamp<Stamp>(composable) ? composable.compose : composable))
               .map(composable => (isArray(get(composable, domain)) ? get(composable, domain): []) as Initializer[])
               .forEach(initializers => {
-                initializers.forEach(method => method && domainMetadata.push(method))
+                initializers.forEach(domainItem => {
+                  if (isAggregateDomainItem(domainItem)) {
+                    domainMetadata = domainMetadata.concat(getDomainItemAggregates(domainItem) as Initializer[])
+                  }
+                  else {
+                    domainMetadata.push(domainItem)
+                  }
+                })
               })
 
             if (domainMetadata.length) {
@@ -517,9 +537,9 @@ const composer: Composer = (opts) => {
     })
 }
 
-function prepareSettings(opts: CollisionSettings | DeprecatedCollisionSettings): CollisionSettings {
+function prepareSettings(opts: CollisionSettings | DeprecatedCollisionSettings): CollisionSettings | null {
   if (!opts) {
-    return opts
+    return null
   }
   const { defer = [] } = (opts || {}) as DeprecatedCollisionSettings
   const defaultMethodsSettings = { map: [], reduce: [], reduceThis: [], mapAsync: [], reduceAsync: [], reduceThisAsync: [], allow: [], forbid: [], forbidAll: false }
@@ -557,8 +577,23 @@ const Collision = compose({
     collisionProtectAnyMethod(this: CollisionStamp, opts: CollisionSettings): CollisionStamp {
       return this.collisionSetup(merge({}, opts, { methods: { forbidAll: true } }) as CollisionSettings)
     },
+    hasAggregates(this: CollisionStamp, domain: string, itemName?: string) {
+      return this.getAggregates.call(this, domain, itemName) !== undefined
+    },
+    getAggregates(this: CollisionStamp, domain: string, itemName?: string): Function[] | undefined {
+      const targetDomain = get(this.compose as Required<Descriptor>, domain)
+      const target = isArray(targetDomain) ? targetDomain[0] : targetDomain[itemName as string]
+      return isArray(target[AGGREGATION_PROPERTY_NAME]) && target[AGGREGATION_PROPERTY_NAME].length > 0 ? [...target[AGGREGATION_PROPERTY_NAME]] : undefined
+    },
+    setAggregates(this: CollisionStamp, aggregates: Function[], domain: string, itemName?: string): void {
+      const targetDomain = get(this.compose as Required<Descriptor>, domain)
+      const domainItem = isArray(targetDomain) ? targetDomain[0] : targetDomain[itemName as string]
+      if (isAggregateDomainItem(domainItem)) {
+        setDomainItemAggregates(domainItem, aggregates)
+      }
+    },
   },
-  composers: [composer],
+  composers: [collisionComposer],
 }) as CollisionStamp
 
 export default Collision
