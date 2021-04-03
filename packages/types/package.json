@@ -32,6 +32,8 @@
     "types"
   ],
   "devDependencies": {
+    "tsd": "^0.14.0",
+    "type-fest": "^1.0.1",
     "xo": "^0.38.2"
   }
 }

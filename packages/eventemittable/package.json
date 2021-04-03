@@ -22,7 +22,7 @@
     "@stamp/compose": "^1.0.2"
   },
   "devDependencies": {
-    "@types/node": "^10.17.55",
+    "@types/node": "^10.17.56",
     "xo": "^0.38.2"
   }
 }
