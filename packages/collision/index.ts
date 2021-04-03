@@ -275,6 +275,10 @@ function setDomainItemAggregates(domainItem: Function, aggregates: Function[]) {
   }
 }
 
+function domainIsObject(domain: string): boolean {
+  return ['methods'].includes(domain)
+}
+
 interface IsAggregate {
   (descriptor: CollisionDescriptor, domain: string, itemName: string): boolean
 }
@@ -552,6 +556,16 @@ function prepareSettings(opts: CollisionSettings | DeprecatedCollisionSettings):
   return settings
 }
 
+function validateHasGetSetArguments(domain: string, itemName?: string): void {
+  const dio = domainIsObject(domain)
+  if (dio && !itemName) {
+    throw new Error(`Domain ${domain} requires an item name for aggregates`)
+  }
+  if (!dio && itemName) {
+    throw new Error(`Domain ${domain} does not need an item name for aggregates`)
+  }
+}
+
 /**
  * TODO
  */
@@ -578,16 +592,48 @@ const Collision = compose({
       return this.collisionSetup(merge({}, opts, { methods: { forbidAll: true } }) as CollisionSettings)
     },
     hasAggregates(this: CollisionStamp, domain: string, itemName?: string) {
+      validateHasGetSetArguments(domain, itemName)
+
       return this.getAggregates.call(this, domain, itemName) !== undefined
     },
     getAggregates(this: CollisionStamp, domain: string, itemName?: string): Function[] | undefined {
+      validateHasGetSetArguments(domain, itemName)
+
       const targetDomain = get(this.compose as Required<Descriptor>, domain)
-      const target = isArray(targetDomain) ? targetDomain[0] : targetDomain[itemName as string]
+      if (!targetDomain) {
+        return undefined
+      }
+
+      const target = isArray(targetDomain) ? targetDomain[0] : get(targetDomain, itemName as string)
+      if (!target) {
+        return undefined
+      }
+
       return isArray(target[AGGREGATION_PROPERTY_NAME]) && target[AGGREGATION_PROPERTY_NAME].length > 0 ? [...target[AGGREGATION_PROPERTY_NAME]] : undefined
     },
     setAggregates(this: CollisionStamp, aggregates: Function[], domain: string, itemName?: string): void {
+      validateHasGetSetArguments(domain, itemName)
+
+      const settings = getSettings(this.compose, domain)
+      if (!settings) {
+        throw new Error(`Stamp has no collision settings for domain "${domain}"`)
+      }
+      if (itemName && !isAggregate(this.compose, domain, itemName)) {
+        throw new Error(`Stamp has no collision settings for ${domain} item with name ${itemName}`)
+      }
+
       const targetDomain = get(this.compose as Required<Descriptor>, domain)
-      const domainItem = isArray(targetDomain) ? targetDomain[0] : targetDomain[itemName as string]
+      if (!targetDomain) {
+        throw new Error('Domain does not exist')
+      }
+      const domainItem = isArray(targetDomain) ? targetDomain[0] : get(targetDomain, itemName as string)
+      const currentAggregates = getDomainItemAggregates(domainItem)
+      const isSubset = aggregates.filter(a => !currentAggregates.includes(a)).length === 0
+
+      if (!isSubset) {
+        throw new Error(`New aggregates for ${domain} must be a subset of existing aggregates`)
+      }
+
       if (isAggregateDomainItem(domainItem)) {
         setDomainItemAggregates(domainItem, aggregates)
       }

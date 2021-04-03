@@ -126,6 +126,9 @@ function setDomainItemAggregates(domainItem, aggregates) {
         });
     }
 }
+function domainIsObject(domain) {
+    return ['methods'].includes(domain);
+}
 const isAggregateMapSync = (descriptor, domain, itemName) => checkIf(descriptor, domain, CollisionSettingKey.MapSync, itemName);
 const isAggregateReduceSync = (descriptor, domain, itemName) => checkIf(descriptor, domain, CollisionSettingKey.ReduceSync, itemName);
 const isAggregateReduceThisSync = (descriptor, domain, itemName) => checkIf(descriptor, domain, CollisionSettingKey.ReduceThisSync, itemName);
@@ -327,6 +330,15 @@ function prepareSettings(opts) {
     };
     return settings;
 }
+function validateHasGetSetArguments(domain, itemName) {
+    const dio = domainIsObject(domain);
+    if (dio && !itemName) {
+        throw new Error(`Domain ${domain} requires an item name for aggregates`);
+    }
+    if (!dio && itemName) {
+        throw new Error(`Domain ${domain} does not need an item name for aggregates`);
+    }
+}
 /**
  * TODO
  */
@@ -351,16 +363,40 @@ const Collision = compose_1.default({
             return this.collisionSetup(core_1.merge({}, opts, { methods: { forbidAll: true } }));
         },
         hasAggregates(domain, itemName) {
+            validateHasGetSetArguments(domain, itemName);
             return this.getAggregates.call(this, domain, itemName) !== undefined;
         },
         getAggregates(domain, itemName) {
+            validateHasGetSetArguments(domain, itemName);
             const targetDomain = get(this.compose, domain);
-            const target = is_1.isArray(targetDomain) ? targetDomain[0] : targetDomain[itemName];
+            if (!targetDomain) {
+                return undefined;
+            }
+            const target = is_1.isArray(targetDomain) ? targetDomain[0] : get(targetDomain, itemName);
+            if (!target) {
+                return undefined;
+            }
             return is_1.isArray(target[AGGREGATION_PROPERTY_NAME]) && target[AGGREGATION_PROPERTY_NAME].length > 0 ? [...target[AGGREGATION_PROPERTY_NAME]] : undefined;
         },
         setAggregates(aggregates, domain, itemName) {
+            validateHasGetSetArguments(domain, itemName);
+            const settings = getSettings(this.compose, domain);
+            if (!settings) {
+                throw new Error(`Stamp has no collision settings for domain "${domain}"`);
+            }
+            if (itemName && !isAggregate(this.compose, domain, itemName)) {
+                throw new Error(`Stamp has no collision settings for ${domain} item with name ${itemName}`);
+            }
             const targetDomain = get(this.compose, domain);
-            const domainItem = is_1.isArray(targetDomain) ? targetDomain[0] : targetDomain[itemName];
+            if (!targetDomain) {
+                throw new Error('Domain does not exist');
+            }
+            const domainItem = is_1.isArray(targetDomain) ? targetDomain[0] : get(targetDomain, itemName);
+            const currentAggregates = getDomainItemAggregates(domainItem);
+            const isSubset = aggregates.filter(a => !currentAggregates.includes(a)).length === 0;
+            if (!isSubset) {
+                throw new Error(`New aggregates for ${domain} must be a subset of existing aggregates`);
+            }
             if (isAggregateDomainItem(domainItem)) {
                 setDomainItemAggregates(domainItem, aggregates);
             }

@@ -14,6 +14,83 @@ const Different = compose({
 
 describe('@stamp/collision', () => {
   describe('methods', () => {
+    describe('collision static methods', () => {
+      const Unconfigured = Collision.collisionSetup(null);
+
+      const foo1 = () => {};
+      const foo2 = () => {};
+      const fnList = [foo1, foo2];
+      const domain = 'methods';
+
+      it('wrong parameters', () => {
+        expect(() => Unconfigured.getAggregates(domain)).toThrow();
+        expect(() => Unconfigured.hasAggregates(domain)).toThrow();
+        expect(() => Unconfigured.setAggregates(fnList, domain)).toThrow();
+      });
+
+      it('getAggregates unconfigured', () => {
+        expect(Unconfigured.getAggregates(domain, 'foo')).toBeUndefined();
+      });
+
+      it('hasAggregates unconfigured', () => {
+        expect(Unconfigured.hasAggregates(domain, 'foo')).toStrictEqual(false);
+      });
+
+      it('setAggregates unconfigured', () => {
+        expect(() => Unconfigured.setAggregates(fnList, domain, 'foo')).toThrow();
+      });
+
+      it('configured + no proxy function', () => {
+        const Configured = Collision.collisionSetup({ methods: { map: ['foo'] } });
+
+        expect(() => Configured.setAggregates(fnList, domain, 'foo')).toThrow();
+        expect(Configured.getAggregates(domain, 'foo')).toBeUndefined();
+        expect(Configured.hasAggregates(domain, 'foo')).toStrictEqual(false);
+      });
+
+      it('configured + proxy function', () => {
+        const Configured = Collision.collisionSetup({ methods: { map: ['foo'] } }).compose({
+          methods: {
+            foo: foo1,
+          },
+        });
+
+        expect(() => Configured.setAggregates(fnList, domain, 'foo')).toThrow();
+        expect(Configured.getAggregates(domain, 'foo')).toBeUndefined();
+        expect(Configured.hasAggregates(domain, 'foo')).toStrictEqual(false);
+      });
+
+      it('configured + 2 proxy functions', () => {
+        const Configured1 = Collision.collisionSetup({ methods: { map: ['foo'] } })
+          .compose({
+            methods: {
+              foo: foo1,
+            },
+          })
+          .compose({
+            methods: {
+              foo: foo2,
+            },
+          });
+
+        const Configured2 = compose(Configured1);
+        const Configured3 = compose(Configured1);
+
+        const newFnList = [foo2, foo1];
+
+        expect(Configured1.getAggregates(domain, 'foo')).toStrictEqual(fnList);
+        expect(Configured1.hasAggregates(domain, 'foo')).toStrictEqual(true);
+        expect(() => Configured2.setAggregates([foo1], domain, 'foo')).not.toThrow();
+        expect(() => Configured2.setAggregates([foo2], domain, 'foo')).toThrow();
+        expect(() => Configured3.setAggregates([foo2], domain, 'foo')).not.toThrow();
+        expect(() => Configured3.setAggregates([foo1], domain, 'foo')).toThrow();
+        expect(() => Configured1.setAggregates(newFnList, domain, 'foo')).not.toThrow();
+        expect(Configured1.getAggregates(domain, 'foo')).not.toStrictEqual(fnList);
+        expect(Configured1.getAggregates(domain, 'foo')).toStrictEqual(newFnList);
+        expect(Configured1.hasAggregates(domain, 'foo')).toStrictEqual(true);
+      });
+    });
+
     describe('map', () => {
       const draw1 = jest.fn();
       draw1.mockReturnValue({ a: '1' });
@@ -189,13 +266,8 @@ describe('@stamp/collision', () => {
 
     describe('reduce', () => {
       function makePushFunction(name) {
-        const fn = function push(
-          accumulator,
-          currentValue,
-          index,
-          array
-        ) {
-          accumulator.push((push).pushValue);
+        const fn = function push(accumulator, currentValue, index, array) {
+          accumulator.push(push.pushValue);
           return accumulator;
         };
         Object.defineProperty(fn, 'pushValue', { value: name, configurable: false });
@@ -559,7 +631,7 @@ describe('@stamp/collision', () => {
     describe('mapAsync', () => {
       function makeDrawAsyncFunction(returnValue) {
         const fn = async function draw() {
-          return returnValue
+          return returnValue;
         };
         Object.defineProperty(fn, 'pushValue', { value: returnValue, configurable: false });
         return fn;
@@ -737,12 +809,7 @@ describe('@stamp/collision', () => {
 
     describe('reduceAsync', () => {
       function makePushAsyncFunction(name) {
-        const fn = async function push(
-          accumulatorPromise,
-          currentValue,
-          index,
-          array
-        ) {
+        const fn = async function push(accumulatorPromise, currentValue, index, array) {
           return accumulatorPromise.then((accumulator) => {
             accumulator.push(push.pushValue);
             return accumulator;
@@ -1339,6 +1406,86 @@ describe('@stamp/collision', () => {
   });
 
   describe('initializers', () => {
+    describe('collision static methods', () => {
+      const Unconfigured = Collision.collisionSetup(null);
+
+      const foo1 = async () => {};
+      const foo2 = async () => {};
+      const fnList = [foo1, foo2];
+      const domain = 'initializers';
+
+      it('wrong parameters', () => {
+        expect(() => Unconfigured.getAggregates(domain, 'foo')).toThrow();
+        expect(() => Unconfigured.hasAggregates(domain, 'foo')).toThrow();
+        expect(() => Unconfigured.setAggregates(fnList, domain, 'foo')).toThrow();
+      });
+
+      it('getAggregates unconfigured', () => {
+        expect(Unconfigured.getAggregates(domain)).toBeUndefined();
+      });
+
+      it('hasAggregates unconfigured', () => {
+        expect(Unconfigured.hasAggregates(domain)).toStrictEqual(false);
+      });
+
+      it('setAggregates unconfigured', () => {
+        expect(() => Unconfigured.setAggregates(fnList, domain)).toThrow();
+      });
+
+      it('configured + no proxy function', () => {
+        const Configured = Collision.collisionSetup({ initializers: { async: true } });
+
+        expect(() => Configured.setAggregates(fnList, domain)).toThrow();
+        expect(Configured.getAggregates(domain)).toBeUndefined();
+        expect(Configured.hasAggregates(domain)).toStrictEqual(false);
+      });
+
+      it('configured + proxy function', () => {
+        const Configured = Collision.collisionSetup({ initializers: { async: true } }).compose({
+          initializers: [foo1],
+        });
+
+        const myFnList1 = [foo1];
+        const myFnList2 = [foo2];
+
+        expect(Configured.getAggregates(domain)).toStrictEqual(myFnList1);
+        expect(Configured.hasAggregates(domain)).toStrictEqual(true);
+        expect(() => Configured.setAggregates(fnList, domain)).toThrow();
+        expect(Configured.getAggregates(domain)).toStrictEqual(myFnList1);
+        expect(Configured.hasAggregates(domain)).toStrictEqual(true);
+
+        expect(() => Configured.setAggregates(myFnList2, domain)).toThrow();
+        expect(Configured.getAggregates(domain)).toStrictEqual(myFnList1);
+        expect(Configured.hasAggregates(domain)).toStrictEqual(true);
+      });
+
+      it('configured + 2 proxy functions', () => {
+        const Configured1 = Collision.collisionSetup({ initializers: { async: true } })
+          .compose({
+            initializers: [foo1],
+          })
+          .compose({
+            initializers: [foo2],
+          });
+
+        const Configured2 = compose(Configured1);
+        const Configured3 = compose(Configured1);
+
+        const newFnList = [foo2, foo1];
+
+        expect(Configured1.getAggregates(domain)).toStrictEqual(fnList);
+        expect(Configured1.hasAggregates(domain)).toStrictEqual(true);
+        expect(() => Configured2.setAggregates([foo1], domain)).not.toThrow();
+        expect(() => Configured2.setAggregates([foo2], domain)).toThrow();
+        expect(() => Configured3.setAggregates([foo2], domain)).not.toThrow();
+        expect(() => Configured3.setAggregates([foo1], domain)).toThrow();
+        expect(() => Configured1.setAggregates(newFnList, domain)).not.toThrow();
+        expect(Configured1.getAggregates(domain)).not.toStrictEqual(fnList);
+        expect(Configured1.getAggregates(domain)).toStrictEqual(newFnList);
+        expect(Configured1.hasAggregates(domain)).toStrictEqual(true);
+      });
+    });
+
     describe('async', () => {
       function makeInitAsyncFunction(name) {
         const fn = async function init() {
@@ -1469,7 +1616,7 @@ describe('@stamp/collision', () => {
       });
 
       it('a single initializer is still proxied', () => {
-        const aggregates = Aggregate1.getAggregates('initializers') || []
+        const aggregates = Aggregate1.getAggregates('initializers') || [];
         expect(aggregates).toHaveLength(1);
       });
     });
