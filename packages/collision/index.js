@@ -129,7 +129,7 @@ function makeReduceThisAsyncProxyFunction({ functions, itemName }) {
                     return nextResult || this;
                 });
             });
-        }, Promise.resolve(this || this));
+        }, Promise.resolve(this));
     });
 }
 const getAllSettings = (descriptor) => { var _a; return (_a = descriptor === null || descriptor === void 0 ? void 0 : descriptor.deepConfiguration) === null || _a === void 0 ? void 0 : _a.Collision; };

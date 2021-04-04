@@ -30,14 +30,14 @@ export type ComposableFactoryParams = Parameters<ComposableFactory>;
  * @param {...(Composable)} [arguments] The list of composables.
  * @returns {Stamp} A new stamp (aka composable factory function)
  */
-interface ComposeMethod extends PropertyMap {
+interface ComposeMethod {
   (this: Stamp | unknown, ...args: (Composable | undefined)[]): Stamp;
 }
 
 /**
  * TODO
  */
-export interface ComposeProperty extends ComposeMethod, Descriptor, PropertyMap {}
+export interface ComposeProperty extends ComposeMethod, Descriptor {}
 // export type ComposeProperty = ComposeMethod & Descriptor;
 
 /**
@@ -177,7 +177,7 @@ const createFactory: CreateFactory = () => {
             stamp: Stamp as Stamp,
             args,
           });
-          if (returnedValue !== undefined) instance = returnedValue as object;
+          if (returnedValue !== undefined) instance = returnedValue;
         }
       }
     }
@@ -281,13 +281,13 @@ const mergeComposable: MergeComposable = (dstDescriptor, srcComposable) => {
 /**
  * TODO
  */
-const compose: ComposeMethod = function compose(this: Stamp | unknown, ...args: (Composable | undefined)[]): Stamp {
+const compose: ComposeMethod = function compose(this: unknown, ...args) {
   const descriptor: Descriptor = {};
   const composables: Composable[] = [];
 
   if (isComposable(this)) {
-    mergeComposable(descriptor, this as Composable);
-    composables.push(this as Composable);
+    mergeComposable(descriptor, this);
+    composables.push(this);
   }
 
   for (const arg of args) {
@@ -297,7 +297,7 @@ const compose: ComposeMethod = function compose(this: Stamp | unknown, ...args: 
     }
   }
 
-  let stamp = createStamp(descriptor, compose as ComposeMethod);
+  let stamp = createStamp(descriptor, compose);
 
   const { composers } = descriptor;
   if (isArray(composers) && composers.length > 0) {
@@ -308,7 +308,7 @@ const compose: ComposeMethod = function compose(this: Stamp | unknown, ...args: 
   }
 
   return stamp;
-} as ComposeMethod;
+};
 
 export default compose;
 

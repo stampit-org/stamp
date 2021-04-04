@@ -11,7 +11,7 @@ const is_1 = require("@stamp/is");
 const { freeze } = Object;
 const { get, ownKeys } = Reflect;
 exports.required = function required(settings) {
-    const localStamp = this ? this : Required;
+    const localStamp = is_1.isStamp(this) ? this : Required;
     const { deepConfiguration } = localStamp.compose;
     const prevSettings = deepConfiguration === null || deepConfiguration === void 0 ? void 0 : deepConfiguration.Required;
     // filter out non stamp things

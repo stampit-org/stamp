@@ -214,64 +214,61 @@ function makeMapSyncProxyFunction({ functions, itemName }: MakeProxyFunctionOpti
 }
 
 function makeReduceSyncProxyFunction({ functions, itemName }: MakeProxyFunctionOptions): ReduceSyncProxyFunction {
-  return prepareProxyFunction(
-    functions,
-    itemName,
-    function reduceSyncFn(initialValue: unknown, ...args: unknown[]): unknown {
-      return getDomainItemAggregates(reduceSyncFn).reduce((o, fn) => {
-        return fn(o, ...args);
-      }, initialValue);
-    }
-  );
+  return prepareProxyFunction(functions, itemName, function reduceSyncFn(
+    initialValue: unknown,
+    ...args: unknown[]
+  ): unknown {
+    return getDomainItemAggregates(reduceSyncFn).reduce((o, fn) => {
+      return fn(o, ...args);
+    }, initialValue);
+  });
 }
 
 function makeReduceThisSyncProxyFunction({ functions, itemName }: MakeProxyFunctionOptions): ReduceSyncProxyFunction {
-  return prepareProxyFunction(
-    functions,
-    itemName,
-    function reduceThisSyncFn(this: object, ...args: unknown[]): unknown {
-      return getDomainItemAggregates(reduceThisSyncFn).reduce((o, fn) => {
-        const result = fn.apply(o, args);
-        return result || this;
-      }, this);
-    }
-  );
+  return prepareProxyFunction(functions, itemName, function reduceThisSyncFn(
+    this: object,
+    ...args: unknown[]
+  ): unknown {
+    return getDomainItemAggregates(reduceThisSyncFn).reduce((o, fn) => {
+      const result = fn.apply(o, args);
+      return result || this;
+    }, this);
+  });
 }
 
 function makeMapAsyncProxyFunction({ functions, itemName }: MakeProxyFunctionOptions): MapAsyncProxyFunction {
-  return prepareProxyFunction(functions, itemName, async function mapAsyncFn(this: object, ...args: unknown[]): Promise<
-    unknown[]
-  > {
+  return prepareProxyFunction(functions, itemName, async function mapAsyncFn(
+    this: object,
+    ...args: unknown[]
+  ): Promise<unknown[]> {
     return Promise.all(getDomainItemAggregates(mapAsyncFn).map((fn) => fn.apply(this, args)));
   });
 }
 
 function makeReduceAsyncProxyFunction({ functions, itemName }: MakeProxyFunctionOptions): ReduceAsyncProxyFunction {
-  return prepareProxyFunction(
-    functions,
-    itemName,
-    async function reduceAsyncFn(initialValue: unknown, ...args: unknown[]): Promise<unknown> {
-      return getDomainItemAggregates(reduceAsyncFn).reduce((promise, fn) => {
-        return fn(promise, ...args);
-      }, Promise.resolve(initialValue));
-    }
-  );
+  return prepareProxyFunction(functions, itemName, async function reduceAsyncFn(
+    initialValue: unknown,
+    ...args: unknown[]
+  ): Promise<unknown> {
+    return getDomainItemAggregates(reduceAsyncFn).reduce((promise, fn) => {
+      return fn(promise, ...args);
+    }, Promise.resolve(initialValue));
+  });
 }
 
 function makeReduceThisAsyncProxyFunction({ functions, itemName }: MakeProxyFunctionOptions): ReduceAsyncProxyFunction {
-  return prepareProxyFunction(
-    functions,
-    itemName,
-    async function reduceThisAsyncFn(this: object, ...args: unknown[]): Promise<unknown> {
-      return getDomainItemAggregates(reduceThisAsyncFn).reduce((promise, fn) => {
-        return promise.then((result) => {
-          return Promise.resolve(fn.apply(result || this, args)).then((nextResult) => {
-            return nextResult || this;
-          });
+  return prepareProxyFunction(functions, itemName, async function reduceThisAsyncFn(
+    this: object,
+    ...args: unknown[]
+  ): Promise<unknown> {
+    return getDomainItemAggregates(reduceThisAsyncFn).reduce((promise, fn) => {
+      return promise.then((result) => {
+        return Promise.resolve(fn.apply(result || this, args)).then((nextResult) => {
+          return nextResult || this;
         });
-      }, Promise.resolve(this || this));
-    }
-  );
+      });
+    }, Promise.resolve(this));
+  });
 }
 
 interface GetAllSettings {
