@@ -22,7 +22,6 @@ export type {
   DefineStamp,
   Descriptor,
   Initializer,
-  InitializerContext,
   PropertyMap,
   Stamp,
 } from '@stamp/types';
