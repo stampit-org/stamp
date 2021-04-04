@@ -132,8 +132,8 @@ function makeReduceThisAsyncProxyFunction({ functions, itemName }) {
         }, Promise.resolve(this || this));
     });
 }
-const getAllSettings = (descriptor) => { var _a, _b; return (_b = (_a = descriptor) === null || _a === void 0 ? void 0 : _a.deepConfiguration) === null || _b === void 0 ? void 0 : _b.Collision; };
-const getSettings = (descriptor, domain) => { var _a, _b; return ((_b = (_a = descriptor) === null || _a === void 0 ? void 0 : _a.deepConfiguration) === null || _b === void 0 ? void 0 : _b.Collision) ? descriptor.deepConfiguration.Collision[domain] : undefined; };
+const getAllSettings = (descriptor) => { var _a; return (_a = descriptor === null || descriptor === void 0 ? void 0 : descriptor.deepConfiguration) === null || _a === void 0 ? void 0 : _a.Collision; };
+const getSettings = (descriptor, domain) => { var _a; return ((_a = descriptor === null || descriptor === void 0 ? void 0 : descriptor.deepConfiguration) === null || _a === void 0 ? void 0 : _a.Collision) ? descriptor.deepConfiguration.Collision[domain] : undefined; };
 const checkIf = (descriptor, domain, setting, itemName) => {
     const settings = getSettings(descriptor, domain);
     const settingsFor = settings && get(settings, setting);
@@ -370,8 +370,7 @@ const Collision = compose_1.default({
     deepConfiguration: { Collision: {} },
     staticProperties: {
         collisionSetup(opts) {
-            var _a;
-            return (((_a = this) === null || _a === void 0 ? void 0 : _a.compose) ? this : Collision).compose({
+            return ((this === null || this === void 0 ? void 0 : this.compose) ? this : Collision).compose({
                 deepConfiguration: { Collision: prepareSettings(opts) },
             });
         },

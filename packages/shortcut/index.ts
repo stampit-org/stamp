@@ -1,4 +1,4 @@
-import compose, { Descriptor, Stamp } from '@stamp/compose';
+import compose, { Descriptor, Stamp, PropertyMap } from '@stamp/compose';
 
 interface ShortcutMethod {
   (this: StampWithShortcuts, arg: unknown): StampWithShortcuts;
@@ -32,7 +32,7 @@ interface ComposeMethod {
 }
 
 // TODO: enhance typing
-export type ComposeProperty = ComposeMethod & Descriptor;
+export type ComposeProperty = ComposeMethod & Descriptor & PropertyMap;
 
 /**
  *TODO

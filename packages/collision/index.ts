@@ -190,7 +190,7 @@ function getDomainItemAggregates(domainItem: Function): Function[] {
   return get(domainItem, AGGREGATION_PROPERTY_NAME) || [];
 }
 
-function setDomainItemAggregates(domainItem: Function, aggregates: Function[]) {
+function setDomainItemAggregates(domainItem: Function, aggregates: Function[]): void {
   const arr = get(domainItem, AGGREGATION_PROPERTY_NAME);
   if (arr) {
     arr.length = 0;
@@ -643,7 +643,7 @@ const Collision = compose({
     collisionProtectAnyMethod(this: CollisionStamp, opts: CollisionSettings): CollisionStamp {
       return this.collisionSetup(merge({}, opts, { methods: { forbidAll: true } }) as CollisionSettings);
     },
-    collisionHasAggregates(this: CollisionStamp, domain: string, itemName?: string) {
+    collisionHasAggregates(this: CollisionStamp, domain: string, itemName?: string): boolean {
       validateDomainAndItemName(domain, itemName);
 
       return this.collisionGetAggregates.call(this, domain, itemName) !== undefined;

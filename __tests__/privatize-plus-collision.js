@@ -40,7 +40,7 @@ describe('Collision + Privatize', function () {
     var PrivateDraw = Privatize.privatizeMethods('draw');
 
     // General purpose behavior to forbid the "redraw()" method collision
-    var ForbidRedrawCollision = Collision.collisionSetup({forbid: ['redraw']});
+    var ForbidRedrawCollision = Collision.collisionSetup({methods: { forbid: ['redraw'] } });
 
     // The aggregating component
     var ModalDialog = compose(PrivateDraw) // privatize the "draw()" method

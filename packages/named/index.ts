@@ -6,7 +6,7 @@ import compose, { Stamp } from '@stamp/compose';
 const Named = compose({
   staticProperties: {
     setName(this: Stamp, name: string): Stamp {
-      return (this?.compose ? this : Named).compose({
+      return (this ? this : Named).compose({
         staticPropertyDescriptors: {
           name: { value: name },
         },
