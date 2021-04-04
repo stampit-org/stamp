@@ -6,7 +6,7 @@ import type { Descriptor, Initializer, Stamp } from '@stamp/compose';
 const { get, ownKeys, set } = Reflect;
 
 const initializer: Initializer<any, unknown> = function (options, { args }) {
-  const stampArgs = args.slice();
+  const stampArgs = args.slice() as any[];
   for (const key of ownKeys(this) as string[]) {
     const stamp = get(this, key);
     if (isStamp(stamp)) {
