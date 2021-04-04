@@ -5,7 +5,10 @@ import type { HasComposeProperty } from './compose-property';
  * A stamp is a composable factory function that returns object instances based on its descriptor.
  * @link https://github.com/stampit-org/stamp-specification#stamp
  */
-type dummy = any;
+type Specification = never;
+
+// TODO Stamp should not require generic
+// TODO investigate *Opaque* or nominal typing for Stamp
 
 /**
  * The Stamp factory function

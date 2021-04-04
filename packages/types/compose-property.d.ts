@@ -11,7 +11,9 @@ import type { Descriptor } from './descriptor';
  * A method exposed by all stamps, identical to compose(), except it prepends this to the stamp parameters. Stamp descriptor properties are attached to the .compose method, e.g. stamp.compose.methods.
  * @link https://github.com/stampit-org/stamp-specification#stamp
  */
-type dummy = any;
+type Specification = never;
+
+// TODO HasComposeProperty should not require generic
 
 /**
  * An object with the `compose` property
@@ -29,6 +31,8 @@ export interface HasComposeProperty<Instance, Stamp, Context = Stamp> {
   compose: ComposeProperty<Instance, Stamp, Context>;
 }
 
+// TODO ComposeProperty should not require generic
+
 /**
  * TODO
  * @template Instance The object type that the `Stamp` will create.
@@ -38,3 +42,7 @@ export interface HasComposeProperty<Instance, Stamp, Context = Stamp> {
 export interface ComposeProperty<Instance, FinalStamp, ComposingStamp = FinalStamp>
   extends ComposeFunction<Instance, FinalStamp, ComposingStamp>,
     Descriptor<Instance, FinalStamp, ComposingStamp> {}
+
+// TODO normalize helpers
+
+export type IsHasComposeProperty<T> = T extends HasComposeProperty<any, any> ? T : never;

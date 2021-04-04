@@ -7,7 +7,9 @@ import type { Stamp } from './stamp';
  * - A POJO (Plain Old JavaScript Object) stamp descriptor.
  * @link https://github.com/stampit-org/stamp-specification#composable
  */
-type dummy = any;
+type Specification = never;
+
+// TODO Composable should not require generic
 
 /**
  * A composable object (i.e. a stamp or a descriptor)

@@ -7,7 +7,9 @@ import type { Composable } from './composable';
  * Note that it's not recommended to return new stamps from a composer. Instead, it's better to mutate the passed stamp.
  * @link https://github.com/stampit-org/stamp-specification#composer-parameters
  */
-type dummy = any;
+type Specification = never;
+
+// TODO Composer should not require generic
 
 /**
  * A function used as `.composers` argument.
@@ -19,6 +21,8 @@ export type Composer<Instance, FinalStamp, ComposingStamp = FinalStamp> = (
   this: void,
   parameters: ComposerParameters<Instance, ComposingStamp>
 ) => void | FinalStamp;
+
+// TODO ComposerParameters should not require generic
 
 /**
  * The parameters received by the current `.composers` function.

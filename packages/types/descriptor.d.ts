@@ -19,7 +19,10 @@ import type { MethodMap, PropertyMap } from './maps';
  * - deepConfiguration - A set of options made available to the stamp and its initializers during object instance creation. These will be deep merged.
  * @link https://github.com/stampit-org/stamp-specification#descriptor
  */
-type dummy = any;
+type Specification = never;
+
+// TODO Descriptor should not require generic
+// TODO investigate *Opaque* or nominal typing for Descriptors
 
 /**
  * The Stamp Descriptor
@@ -40,7 +43,7 @@ type dummy = any;
  * @template FinalStamp The type of the `Stamp` producing the instance.
  * @template ComposingStamp (optional) The type of the `Stamp` used by the `.composers` functions.
  */
-export interface Descriptor<Instance, FinalStamp, ComposingStamp = FinalStamp> extends Record<string, unknown> {
+export interface Descriptor<Instance, FinalStamp, ComposingStamp = FinalStamp> {
   /** A set of methods that will be added to the object's delegate prototype. */
   methods?: MethodMap<Instance>;
   /** A set of properties that will be added to new object instances by assignment. */

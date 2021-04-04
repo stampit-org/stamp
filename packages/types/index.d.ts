@@ -1,8 +1,7 @@
-/**
- * @internal Generic signature for a factory function
- * @template Product The object type that the `Stamp` will create.
- */
-type FactoryFunction<Product> = (options?: unknown, ...args: unknown[]) => Product;
+import type { FactoryFunction } from './factory-function';
+import type { MethodMap, PropertyMap } from './maps';
+
+export type { MethodMap, PropertyMap } from './maps';
 
 /**
  * @internal Utility type to cast a type into a factory
@@ -19,23 +18,6 @@ type AsFactory<Factory, Product> = Factory extends FactoryFunction<Product>
  * @template Product The object type that the `Stamp` will create.
  */
 type IsFactory<Factory, Product> = Factory extends FactoryFunction<Product> ? Factory : never;
-
-/**
- * @internal Generic signature for a method
- * @template Bound The object type bound to the method.
- */
-type anyMethod<Bound> = (this: void | Bound, ...args: any[]) => any;
-
-/**
- * An object containing a set of metthods and properties
- * @template Bound The object type bound to the methods.
- */
-export type MethodMap<Bound> = Record<string, anyMethod<Bound> | unknown>;
-
-/**
- * An object containing a set of properties
- */
-export type PropertyMap = Record<string, unknown>;
 
 /**
  * A composable object (i.e. a stamp or a descriptor)
@@ -212,11 +194,11 @@ export type Initializer<Instance, FinalStamp> = (
 ) => Instance | void;
 
 /**
- * The `Initializer` function context.
+ * @internal The `Initializer` function context.
  * @template Instance The object type that the `Stamp` will create.
  * @template FinalStamp The type of the `Stamp` producing the instance.
  */
-export interface InitializerContext<Instance, FinalStamp> {
+interface InitializerContext<Instance, FinalStamp> {
   /** The object instance being produced by the `Stamp`. If the initializer returns a value other than `undefined`, it replaces the instance. */
   instance: Instance;
   /** A reference to the `Stamp` producing the instance. */

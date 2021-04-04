@@ -9,7 +9,9 @@ import type { PropertyMap } from './maps';
  * Note that if no options object is passed to the factory function, an empty object will be passed to initializers.
  * @link https://github.com/stampit-org/stamp-specification#initializer-parameters
  */
-type dummy = any;
+type Specification = never;
+
+// TODO Initializer should not require generic
 
 /**
  * A function used as `.initializers` argument.
@@ -22,8 +24,10 @@ export type Initializer<Instance, FinalStamp> = (
   context: InitializerContext<Instance, FinalStamp>
 ) => Instance | void;
 
+// TODO InitializerContext should not require generic
+
 /**
- * The `Initializer` function context.
+ * @internal The `Initializer` function context.
  * @template Instance The object type that the `Stamp` will create.
  * @template FinalStamp The type of the `Stamp` producing the instance.
  */

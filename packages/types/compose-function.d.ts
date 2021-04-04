@@ -1,3 +1,5 @@
+import type { LastArrayElement } from 'type-fest';
+
 import type { Composable } from './composable';
 
 /**
@@ -8,7 +10,13 @@ import type { Composable } from './composable';
  * The .compose() method of any stamp can be detached and used as a standalone compose() pure function.
  * @link https://github.com/stampit-org/stamp-specification#descriptor
  */
-type dummy = any;
+type Specification = never;
+
+// TODO ComposeFunction should not require generic
+// TODO ComposeFunction should infer *FinalStamp* as follow:
+// 1. Optional generic if it extends *Stamp*
+// 2. extract the *Stamp* type from last *Composable* `args` arguments if possible
+// 3. Fall back to a generic *Stamp* signature
 
 /**
  * Given the list of composables (stamp descriptors and stamps) returns a new stamp (composable factory function).
@@ -22,4 +30,4 @@ type dummy = any;
 export type ComposeFunction<Instance, FinalStamp, ComposingStamp = FinalStamp> = (
   this: void | ComposingStamp,
   ...args: Array<Composable<Instance, FinalStamp, ComposingStamp> | undefined>
-) => FinalStamp;
+) => LastArrayElement<typeof args>;
