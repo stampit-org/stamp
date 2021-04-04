@@ -56,7 +56,6 @@ export interface Stamp extends ComposableFactory {
    * @template Obj The type of the object instance being produced by the `Stamp`. or the type of the `Stamp` being created.
    */
   compose: ComposeProperty;
-  [key: string]: any;
 }
 
 // /** @internal Signature common to every `Stamp`s. */
@@ -78,7 +77,7 @@ export interface Stamp extends ComposableFactory {
  * @property {Object} [propertyDescriptors] ES5 Property Descriptors applied to object instances
  * @property {Object} [staticPropertyDescriptors] ES5 Property Descriptors applied to Stamps
  */
-export interface Descriptor extends PropertyMap {
+export interface Descriptor {
   /** A set of methods that will be added to the object's delegate prototype. */
   methods?: object;
   /** A set of properties that will be added to new object instances by assignment. */
@@ -109,7 +108,7 @@ export interface Descriptor extends PropertyMap {
  * @template S̤t̤a̤m̤p̤ The type of the `Stamp` producing the instance.
  */
 export interface Initializer {
-  (this: object, options: PropertyMap, context: InitializerContext): object | void | Promise<object | void>;
+  (this: object, options: PropertyMap, context: InitializerContext): object | void;
 }
 
 /**
@@ -178,8 +177,7 @@ const createFactory: CreateFactory = () => {
             stamp: Stamp as Stamp,
             args,
           });
-          // eslint-disable-next-line eqeqeq
-          if (returnedValue != undefined) instance = returnedValue as object;
+          if (returnedValue !== undefined) instance = returnedValue as object;
         }
       }
     }

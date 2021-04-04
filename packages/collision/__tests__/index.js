@@ -23,29 +23,29 @@ describe('@stamp/collision', () => {
       const domain = 'methods';
 
       it('wrong parameters', () => {
-        expect(() => Unconfigured.getAggregates(domain)).toThrow();
-        expect(() => Unconfigured.hasAggregates(domain)).toThrow();
-        expect(() => Unconfigured.setAggregates(fnList, domain)).toThrow();
+        expect(() => Unconfigured.collisionGetAggregates(domain)).toThrow();
+        expect(() => Unconfigured.collisionHasAggregates(domain)).toThrow();
+        expect(() => Unconfigured.collisionSetAggregates(fnList, domain)).toThrow();
       });
 
-      it('getAggregates unconfigured', () => {
-        expect(Unconfigured.getAggregates(domain, 'foo')).toBeUndefined();
+      it('collisionGetAggregates unconfigured', () => {
+        expect(Unconfigured.collisionGetAggregates(domain, 'foo')).toBeUndefined();
       });
 
-      it('hasAggregates unconfigured', () => {
-        expect(Unconfigured.hasAggregates(domain, 'foo')).toStrictEqual(false);
+      it('collisionHasAggregates unconfigured', () => {
+        expect(Unconfigured.collisionHasAggregates(domain, 'foo')).toStrictEqual(false);
       });
 
-      it('setAggregates unconfigured', () => {
-        expect(() => Unconfigured.setAggregates(fnList, domain, 'foo')).toThrow();
+      it('collisionSetAggregates unconfigured', () => {
+        expect(() => Unconfigured.collisionSetAggregates(fnList, domain, 'foo')).toThrow();
       });
 
       it('configured + no proxy function', () => {
         const Configured = Collision.collisionSetup({ methods: { map: ['foo'] } });
 
-        expect(() => Configured.setAggregates(fnList, domain, 'foo')).toThrow();
-        expect(Configured.getAggregates(domain, 'foo')).toBeUndefined();
-        expect(Configured.hasAggregates(domain, 'foo')).toStrictEqual(false);
+        expect(() => Configured.collisionSetAggregates(fnList, domain, 'foo')).toThrow();
+        expect(Configured.collisionGetAggregates(domain, 'foo')).toBeUndefined();
+        expect(Configured.collisionHasAggregates(domain, 'foo')).toStrictEqual(false);
       });
 
       it('configured + proxy function', () => {
@@ -55,9 +55,9 @@ describe('@stamp/collision', () => {
           },
         });
 
-        expect(() => Configured.setAggregates(fnList, domain, 'foo')).toThrow();
-        expect(Configured.getAggregates(domain, 'foo')).toBeUndefined();
-        expect(Configured.hasAggregates(domain, 'foo')).toStrictEqual(false);
+        expect(() => Configured.collisionSetAggregates(fnList, domain, 'foo')).toThrow();
+        expect(Configured.collisionGetAggregates(domain, 'foo')).toBeUndefined();
+        expect(Configured.collisionHasAggregates(domain, 'foo')).toStrictEqual(false);
       });
 
       it('configured + 2 proxy functions', () => {
@@ -78,16 +78,16 @@ describe('@stamp/collision', () => {
 
         const newFnList = [foo2, foo1];
 
-        expect(Configured1.getAggregates(domain, 'foo')).toStrictEqual(fnList);
-        expect(Configured1.hasAggregates(domain, 'foo')).toStrictEqual(true);
-        expect(() => Configured2.setAggregates([foo1], domain, 'foo')).not.toThrow();
-        expect(() => Configured2.setAggregates([foo2], domain, 'foo')).toThrow();
-        expect(() => Configured3.setAggregates([foo2], domain, 'foo')).not.toThrow();
-        expect(() => Configured3.setAggregates([foo1], domain, 'foo')).toThrow();
-        expect(() => Configured1.setAggregates(newFnList, domain, 'foo')).not.toThrow();
-        expect(Configured1.getAggregates(domain, 'foo')).not.toStrictEqual(fnList);
-        expect(Configured1.getAggregates(domain, 'foo')).toStrictEqual(newFnList);
-        expect(Configured1.hasAggregates(domain, 'foo')).toStrictEqual(true);
+        expect(Configured1.collisionGetAggregates(domain, 'foo')).toStrictEqual(fnList);
+        expect(Configured1.collisionHasAggregates(domain, 'foo')).toStrictEqual(true);
+        expect(() => Configured2.collisionSetAggregates([foo1], domain, 'foo')).not.toThrow();
+        expect(() => Configured2.collisionSetAggregates([foo2], domain, 'foo')).toThrow();
+        expect(() => Configured3.collisionSetAggregates([foo2], domain, 'foo')).not.toThrow();
+        expect(() => Configured3.collisionSetAggregates([foo1], domain, 'foo')).toThrow();
+        expect(() => Configured1.collisionSetAggregates(newFnList, domain, 'foo')).not.toThrow();
+        expect(Configured1.collisionGetAggregates(domain, 'foo')).not.toStrictEqual(fnList);
+        expect(Configured1.collisionGetAggregates(domain, 'foo')).toStrictEqual(newFnList);
+        expect(Configured1.collisionHasAggregates(domain, 'foo')).toStrictEqual(true);
       });
     });
 
@@ -125,7 +125,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
 
         const myMockList = mockList.slice(0, 2);
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -143,7 +143,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate2, Regular);
 
         const myMockList = mockList.slice(1);
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -161,7 +161,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, Aggregate2);
 
         const myMockList = [drawRegular, draw2];
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -179,7 +179,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
 
         const myMockList = mockList;
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -197,7 +197,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
 
         const myMockList = [draw1, drawRegular, draw2];
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -215,7 +215,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
 
         const myMockList = [drawRegular, draw2, draw1];
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -304,7 +304,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
 
         const myMockList = mockList.slice(0, 2);
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -323,7 +323,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate2, Regular);
 
         const myMockList = mockList.slice(1);
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -341,7 +341,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, Aggregate2);
 
         const myMockList = [pushRegular, push2];
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -359,7 +359,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
 
         const myMockList = mockList;
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -377,7 +377,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
 
         const myMockList = [push1, pushRegular, push2];
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -395,7 +395,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
 
         const myMockList = [pushRegular, push2, push1];
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -489,7 +489,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
 
         const myMockList = mockList.slice(0, 2);
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -507,7 +507,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate2, Regular);
 
         const myMockList = mockList.slice(1);
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -525,7 +525,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, Aggregate2);
 
         const myMockList = [replaceThisRegular, replaceThis2];
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -543,7 +543,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
 
         const myMockList = mockList;
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -561,7 +561,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
 
         const myMockList = [replaceThis1, replaceThisRegular, replaceThis2];
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -579,7 +579,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
 
         const myMockList = [replaceThisRegular, replaceThis2, replaceThis1];
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -667,7 +667,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
 
         const myMockList = mockList.slice(0, 2);
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -686,7 +686,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate2, Regular);
 
         const myMockList = mockList.slice(1);
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -704,7 +704,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, Aggregate2);
 
         const myMockList = [drawRegular, draw2];
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -722,7 +722,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
 
         const myMockList = mockList;
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -740,7 +740,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
 
         const myMockList = [draw1, drawRegular, draw2];
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -758,7 +758,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
 
         const myMockList = [drawRegular, draw2, draw1];
-        const aggregates = StampCombined.getAggregates('methods', 'draw');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'draw');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -849,7 +849,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
 
         const myMockList = mockList.slice(0, 2);
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -867,7 +867,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate2, Regular);
 
         const myMockList = mockList.slice(1);
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -885,7 +885,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, Aggregate2);
 
         const myMockList = [pushRegular, push2];
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -903,7 +903,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
 
         const myMockList = mockList;
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -921,7 +921,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
 
         const myMockList = [push1, pushRegular, push2];
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -939,7 +939,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
 
         const myMockList = [pushRegular, push2, push1];
-        const aggregates = StampCombined.getAggregates('methods', 'push');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'push');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -1033,7 +1033,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
 
         const myMockList = mockList.slice(0, 2);
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -1051,7 +1051,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate2, Regular);
 
         const myMockList = mockList.slice(1);
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -1069,7 +1069,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, Aggregate2);
 
         const myMockList = [replaceThisRegular, replaceThis2];
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -1087,7 +1087,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
 
         const myMockList = mockList;
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -1105,7 +1105,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
 
         const myMockList = [replaceThis1, replaceThisRegular, replaceThis2];
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -1123,7 +1123,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
 
         const myMockList = [replaceThisRegular, replaceThis2, replaceThis1];
-        const aggregates = StampCombined.getAggregates('methods', 'replaceThis');
+        const aggregates = StampCombined.collisionGetAggregates('methods', 'replaceThis');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = StampCombined();
@@ -1415,29 +1415,29 @@ describe('@stamp/collision', () => {
       const domain = 'initializers';
 
       it('wrong parameters', () => {
-        expect(() => Unconfigured.getAggregates(domain, 'foo')).toThrow();
-        expect(() => Unconfigured.hasAggregates(domain, 'foo')).toThrow();
-        expect(() => Unconfigured.setAggregates(fnList, domain, 'foo')).toThrow();
+        expect(() => Unconfigured.collisionGetAggregates(domain, 'foo')).toThrow();
+        expect(() => Unconfigured.collisionHasAggregates(domain, 'foo')).toThrow();
+        expect(() => Unconfigured.collisionSetAggregates(fnList, domain, 'foo')).toThrow();
       });
 
-      it('getAggregates unconfigured', () => {
-        expect(Unconfigured.getAggregates(domain)).toBeUndefined();
+      it('collisionGetAggregates unconfigured', () => {
+        expect(Unconfigured.collisionGetAggregates(domain)).toBeUndefined();
       });
 
-      it('hasAggregates unconfigured', () => {
-        expect(Unconfigured.hasAggregates(domain)).toStrictEqual(false);
+      it('collisionHasAggregates unconfigured', () => {
+        expect(Unconfigured.collisionHasAggregates(domain)).toStrictEqual(false);
       });
 
-      it('setAggregates unconfigured', () => {
-        expect(() => Unconfigured.setAggregates(fnList, domain)).toThrow();
+      it('collisionSetAggregates unconfigured', () => {
+        expect(() => Unconfigured.collisionSetAggregates(fnList, domain)).toThrow();
       });
 
       it('configured + no proxy function', () => {
         const Configured = Collision.collisionSetup({ initializers: { async: true } });
 
-        expect(() => Configured.setAggregates(fnList, domain)).toThrow();
-        expect(Configured.getAggregates(domain)).toBeUndefined();
-        expect(Configured.hasAggregates(domain)).toStrictEqual(false);
+        expect(() => Configured.collisionSetAggregates(fnList, domain)).toThrow();
+        expect(Configured.collisionGetAggregates(domain)).toBeUndefined();
+        expect(Configured.collisionHasAggregates(domain)).toStrictEqual(false);
       });
 
       it('configured + proxy function', () => {
@@ -1448,15 +1448,15 @@ describe('@stamp/collision', () => {
         const myFnList1 = [foo1];
         const myFnList2 = [foo2];
 
-        expect(Configured.getAggregates(domain)).toStrictEqual(myFnList1);
-        expect(Configured.hasAggregates(domain)).toStrictEqual(true);
-        expect(() => Configured.setAggregates(fnList, domain)).toThrow();
-        expect(Configured.getAggregates(domain)).toStrictEqual(myFnList1);
-        expect(Configured.hasAggregates(domain)).toStrictEqual(true);
+        expect(Configured.collisionGetAggregates(domain)).toStrictEqual(myFnList1);
+        expect(Configured.collisionHasAggregates(domain)).toStrictEqual(true);
+        expect(() => Configured.collisionSetAggregates(fnList, domain)).toThrow();
+        expect(Configured.collisionGetAggregates(domain)).toStrictEqual(myFnList1);
+        expect(Configured.collisionHasAggregates(domain)).toStrictEqual(true);
 
-        expect(() => Configured.setAggregates(myFnList2, domain)).toThrow();
-        expect(Configured.getAggregates(domain)).toStrictEqual(myFnList1);
-        expect(Configured.hasAggregates(domain)).toStrictEqual(true);
+        expect(() => Configured.collisionSetAggregates(myFnList2, domain)).toThrow();
+        expect(Configured.collisionGetAggregates(domain)).toStrictEqual(myFnList1);
+        expect(Configured.collisionHasAggregates(domain)).toStrictEqual(true);
       });
 
       it('configured + 2 proxy functions', () => {
@@ -1473,16 +1473,16 @@ describe('@stamp/collision', () => {
 
         const newFnList = [foo2, foo1];
 
-        expect(Configured1.getAggregates(domain)).toStrictEqual(fnList);
-        expect(Configured1.hasAggregates(domain)).toStrictEqual(true);
-        expect(() => Configured2.setAggregates([foo1], domain)).not.toThrow();
-        expect(() => Configured2.setAggregates([foo2], domain)).toThrow();
-        expect(() => Configured3.setAggregates([foo2], domain)).not.toThrow();
-        expect(() => Configured3.setAggregates([foo1], domain)).toThrow();
-        expect(() => Configured1.setAggregates(newFnList, domain)).not.toThrow();
-        expect(Configured1.getAggregates(domain)).not.toStrictEqual(fnList);
-        expect(Configured1.getAggregates(domain)).toStrictEqual(newFnList);
-        expect(Configured1.hasAggregates(domain)).toStrictEqual(true);
+        expect(Configured1.collisionGetAggregates(domain)).toStrictEqual(fnList);
+        expect(Configured1.collisionHasAggregates(domain)).toStrictEqual(true);
+        expect(() => Configured2.collisionSetAggregates([foo1], domain)).not.toThrow();
+        expect(() => Configured2.collisionSetAggregates([foo2], domain)).toThrow();
+        expect(() => Configured3.collisionSetAggregates([foo2], domain)).not.toThrow();
+        expect(() => Configured3.collisionSetAggregates([foo1], domain)).toThrow();
+        expect(() => Configured1.collisionSetAggregates(newFnList, domain)).not.toThrow();
+        expect(Configured1.collisionGetAggregates(domain)).not.toStrictEqual(fnList);
+        expect(Configured1.collisionGetAggregates(domain)).toStrictEqual(newFnList);
+        expect(Configured1.collisionHasAggregates(domain)).toStrictEqual(true);
       });
     });
 
@@ -1524,7 +1524,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate1, Aggregate2);
 
         const myMockList = mockList.slice(0, 2);
-        const aggregates = StampCombined.getAggregates('initializers');
+        const aggregates = StampCombined.collisionGetAggregates('initializers');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = await StampCombined();
@@ -1540,7 +1540,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Aggregate2, Regular);
 
         const myMockList = mockList.slice(1);
-        const aggregates = StampCombined.getAggregates('initializers');
+        const aggregates = StampCombined.collisionGetAggregates('initializers');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = await StampCombined();
@@ -1556,7 +1556,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1, Aggregate2), Regular);
 
         const myMockList = mockList;
-        const aggregates = StampCombined.getAggregates('initializers');
+        const aggregates = StampCombined.collisionGetAggregates('initializers');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = await StampCombined();
@@ -1572,7 +1572,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(compose(Aggregate1), Regular, compose(Aggregate2));
 
         const myMockList = [init1, initRegular, init2];
-        const aggregates = StampCombined.getAggregates('initializers');
+        const aggregates = StampCombined.collisionGetAggregates('initializers');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = await StampCombined();
@@ -1588,7 +1588,7 @@ describe('@stamp/collision', () => {
         const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1));
 
         const myMockList = [initRegular, init2, init1];
-        const aggregates = StampCombined.getAggregates('initializers');
+        const aggregates = StampCombined.collisionGetAggregates('initializers');
         expect(aggregates).toStrictEqual(myMockList);
 
         const obj = await StampCombined();
@@ -1616,7 +1616,7 @@ describe('@stamp/collision', () => {
       });
 
       it('a single initializer is still proxied', () => {
-        const aggregates = Aggregate1.getAggregates('initializers') || [];
+        const aggregates = Aggregate1.collisionGetAggregates('initializers') || [];
         expect(aggregates).toHaveLength(1);
       });
     });

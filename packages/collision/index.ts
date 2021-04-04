@@ -18,9 +18,9 @@ export interface CollisionStamp extends Stamp {
   collisionSetup(this: CollisionStamp | undefined | void, opts: CollisionSettings | null | undefined): CollisionStamp;
   collisionSettingsReset(this: CollisionStamp | undefined | void): CollisionStamp;
   collisionProtectAnyMethod(this: CollisionStamp | undefined | void, opts?: CollisionSettings): CollisionStamp;
-  hasAggregates(this: CollisionStamp, domain: string, itemName?: string): boolean;
-  getAggregates(this: CollisionStamp, domain: string, itemName?: string): Function[] | undefined;
-  setAggregates(this: CollisionStamp, aggregates: Function[], domain: string, itemName?: string): void;
+  collisionHasAggregates(this: CollisionStamp, domain: string, itemName?: string): boolean;
+  collisionGetAggregates(this: CollisionStamp, domain: string, itemName?: string): Function[] | undefined;
+  collisionSetAggregates(this: CollisionStamp, aggregates: Function[], domain: string, itemName?: string): void;
   compose: ComposeProperty & CollisionDescriptor;
 }
 
@@ -138,6 +138,48 @@ interface MapAsyncProxyFunction extends HasAggregatedFunctions {
 
 interface ReduceAsyncProxyFunction extends HasAggregatedFunctions {
   (this: object, initialValue: unknown, ...args: unknown[]): Promise<unknown>;
+}
+
+interface DomainItemCollection {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: (...args: any[]) => any;
+}
+
+function domainIsCollection(domain: string): boolean {
+  return ['methods'].includes(domain);
+}
+
+function validateDomainAndItemName(domain: string, itemName?: string): void {
+  const dio = domainIsCollection(domain);
+  if (dio && !itemName) {
+    throw new Error(`Domain ${domain} requires an item name for aggregates`);
+  }
+  if (!dio && itemName) {
+    throw new Error(`Domain ${domain} does not need an item name for aggregates`);
+  }
+}
+
+function getDomainItems(
+  descriptor: Required<CollisionDescriptor>,
+  domain: string
+): DomainItemCollection | Initializer[] {
+  if (domainIsCollection(domain)) {
+    return (get(descriptor, domain) || {}) as DomainItemCollection;
+  }
+  return (get(descriptor, domain) || []) as Initializer[];
+}
+
+function getDomainItem(
+  descriptor: Required<CollisionDescriptor>,
+  domain: string,
+  itemName?: string
+): Function | Initializer {
+  validateDomainAndItemName(domain, itemName);
+  const domainItems = getDomainItems(descriptor, domain);
+  if (!itemName) {
+    return (domainItems as Initializer[])[0];
+  }
+  return get(domainItems, itemName);
 }
 
 function isAggregateDomainItem(domainItem: Function): boolean {
@@ -264,10 +306,6 @@ const isForbidden: IsForbidden = (descriptor, domain, itemName) => {
     ? !checkIf(descriptor, domain, CollisionSettingKey.Allow, itemName)
     : checkIf(descriptor, domain, CollisionSettingKey.Forbid, itemName);
 };
-
-function domainIsObject(domain: string): boolean {
-  return ['methods'].includes(domain);
-}
 
 interface IsAggregate {
   (descriptor: CollisionDescriptor, domain: string, itemName: string): boolean;
@@ -481,7 +519,7 @@ function collisionComposer(opts: ComposerParams): Stamp | void {
           const domainMetadata: PropertyMap = {}; // methods aggregation
 
           const getCallbackFor = (composable: Required<CollisionDescriptor>) => (itemName: string): void => {
-            const domainItem = get(composable[domain] as object, itemName);
+            const domainItem = getDomainItem(composable, domain, itemName) as Function;
             const existingMetadata = get(domainMetadata, itemName);
 
             throwIfForbiddenOrAmbiguous(existingMetadata, descriptor, composable, domain, itemName);
@@ -510,7 +548,7 @@ function collisionComposer(opts: ComposerParams): Stamp | void {
             .map((composable) => (isStamp<Stamp>(composable) ? composable.compose : composable))
             .filter((composable) => isObject(get(composable, domain)))
             .forEach((composable) => {
-              const domainItems = (composable as Required<Descriptor>)[domain] as PropertyMap;
+              const domainItems = getDomainItems(composable as Required<CollisionDescriptor>, domain);
               const setMethodCallback = getCallbackFor(composable as Required<CollisionDescriptor>);
               Object.getOwnPropertyNames(domainItems)
                 .filter((itemName) => {
@@ -578,16 +616,6 @@ function prepareSettings(opts: CollisionSettings | DeprecatedCollisionSettings):
   return settings;
 }
 
-function validateHasGetSetArguments(domain: string, itemName?: string): void {
-  const dio = domainIsObject(domain);
-  if (dio && !itemName) {
-    throw new Error(`Domain ${domain} requires an item name for aggregates`);
-  }
-  if (!dio && itemName) {
-    throw new Error(`Domain ${domain} does not need an item name for aggregates`);
-  }
-}
-
 /**
  * TODO
  */
@@ -615,13 +643,13 @@ const Collision = compose({
     collisionProtectAnyMethod(this: CollisionStamp, opts: CollisionSettings): CollisionStamp {
       return this.collisionSetup(merge({}, opts, { methods: { forbidAll: true } }) as CollisionSettings);
     },
-    hasAggregates(this: CollisionStamp, domain: string, itemName?: string) {
-      validateHasGetSetArguments(domain, itemName);
+    collisionHasAggregates(this: CollisionStamp, domain: string, itemName?: string) {
+      validateDomainAndItemName(domain, itemName);
 
-      return this.getAggregates.call(this, domain, itemName) !== undefined;
+      return this.collisionGetAggregates.call(this, domain, itemName) !== undefined;
     },
-    getAggregates(this: CollisionStamp, domain: string, itemName?: string): Function[] | undefined {
-      validateHasGetSetArguments(domain, itemName);
+    collisionGetAggregates(this: CollisionStamp, domain: string, itemName?: string): Function[] | undefined {
+      validateDomainAndItemName(domain, itemName);
 
       const targetDomain = get(this.compose as Required<Descriptor>, domain);
       if (!targetDomain) {
@@ -637,8 +665,8 @@ const Collision = compose({
         ? [...target[AGGREGATION_PROPERTY_NAME]]
         : undefined;
     },
-    setAggregates(this: CollisionStamp, aggregates: Function[], domain: string, itemName?: string): void {
-      validateHasGetSetArguments(domain, itemName);
+    collisionSetAggregates(this: CollisionStamp, aggregates: Function[], domain: string, itemName?: string): void {
+      validateDomainAndItemName(domain, itemName);
 
       const settings = getSettings(this.compose, domain);
       if (!settings) {
