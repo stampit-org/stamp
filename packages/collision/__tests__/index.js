@@ -1531,7 +1531,7 @@ describe('@stamp/collision', () => {
           value: 'S',
         }
       });
-      initSync.mockName('initRejects');
+      initSync.mockName('initSync');
       const Sync = compose({
         initializers: [initSync],
       });
@@ -1539,7 +1539,7 @@ describe('@stamp/collision', () => {
       const initSyncRejects = jest.fn(() => {
           throw new Error('No way, man!');
       });
-      initSyncRejects.mockName('initRejects');
+      initSyncRejects.mockName('initSyncRejects');
       const SyncRejects = compose({
         initializers: [initSyncRejects],
       });
