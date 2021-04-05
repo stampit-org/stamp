@@ -1518,6 +1518,32 @@ describe('@stamp/collision', () => {
         initializers: [initRegular],
       });
 
+      const initRejects = jest.fn(async () => {
+        throw new Error('No way, man!');
+      });
+      initRejects.mockName('initRejects');
+      const Rejects = compose({
+        initializers: [initRejects],
+      });
+
+      const initSync = jest.fn(() => {
+        return {
+          value: 'S',
+        }
+      });
+      initSync.mockName('initRejects');
+      const Sync = compose({
+        initializers: [initSync],
+      });
+
+      const initSyncRejects = jest.fn(() => {
+          throw new Error('No way, man!');
+      });
+      initSyncRejects.mockName('initRejects');
+      const SyncRejects = compose({
+        initializers: [initSyncRejects],
+      });
+
       const mockList = [init1, init2, initRegular];
 
       it('aggregates two stamps', async () => {
@@ -1618,6 +1644,120 @@ describe('@stamp/collision', () => {
       it('a single initializer is still proxied', () => {
         const aggregates = Aggregate1.collisionGetAggregates('initializers') || [];
         expect(aggregates).toHaveLength(1);
+      });
+
+      it('chain starts with sync initializer', async () => {
+        const StampCombined = compose(Sync, Aggregate2, Aggregate1);
+
+        const myMockList = [initSync, init2, init1];
+        const aggregates = StampCombined.collisionGetAggregates('initializers');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = await StampCombined();
+
+        expect(obj).toStrictEqual({ value: '1' });
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('mid-chain sync initializer', async () => {
+        const StampCombined = compose(Aggregate2, Sync, Aggregate1);
+
+        const myMockList = [init2, initSync, init1];
+        const aggregates = StampCombined.collisionGetAggregates('initializers');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = await StampCombined();
+
+        expect(obj).toStrictEqual({ value: '1' });
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('chain ends with sync initializer', async () => {
+        const StampCombined = compose(Aggregate2, Aggregate1, Sync);
+
+        const myMockList = [init2, init1, initSync];
+        const aggregates = StampCombined.collisionGetAggregates('initializers');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = await StampCombined();
+
+        expect(obj).toStrictEqual({ value: 'S' });
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('first promise rejects', async () => {
+        const StampCombined = compose(Regular, compose(Rejects, Aggregate2, Aggregate1));
+        return expect(StampCombined()).rejects.toThrow()
+          .then(() => {
+            expect(initRejects).toHaveBeenCalled();
+            expect(init2).not.toHaveBeenCalled();
+            expect(init1).not.toHaveBeenCalled();
+            [init1, init2, initRejects].forEach(fn => fn.mockClear());
+          });
+      });
+
+      it('mid-chain promise rejects', async () => {
+        const StampCombined = compose(Regular, compose(Aggregate2, Rejects, Aggregate1));
+        return expect(StampCombined()).rejects.toThrow()
+          .then(() => {
+            expect(init2).toHaveBeenCalled();
+            expect(initRejects).toHaveBeenCalled();
+            expect(init1).not.toHaveBeenCalled();
+            [init1, init2, initRejects].forEach(fn => fn.mockClear());
+          });
+      });
+
+      it('last promise rejects', async () => {
+        const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1, Rejects));
+        return expect(StampCombined()).rejects.toThrow()
+          .then(() => {
+            expect(init2).toHaveBeenCalled();
+            expect(init1).toHaveBeenCalled();
+            expect(initRejects).toHaveBeenCalled();
+            [init1, init2, initRejects].forEach(fn => fn.mockClear());
+          });
+      });
+
+      it('first sync initializer rejects', async () => {
+        const StampCombined = compose(Regular, compose(SyncRejects, Aggregate2, Aggregate1));
+        return expect(StampCombined()).rejects.toThrow()
+          .then(() => {
+            expect(initSyncRejects).toHaveBeenCalled();
+            expect(init2).not.toHaveBeenCalled();
+            expect(init1).not.toHaveBeenCalled();
+            [init1, init2, initRejects].forEach(fn => fn.mockClear());
+          });
+      });
+
+      it('mid-chain sync initializer rejects', async () => {
+        const StampCombined = compose(Regular, compose(Aggregate2, SyncRejects, Aggregate1));
+        return expect(StampCombined()).rejects.toThrow()
+          .then(() => {
+            expect(init2).toHaveBeenCalled();
+            expect(initSyncRejects).toHaveBeenCalled();
+            expect(init1).not.toHaveBeenCalled();
+            [init1, init2, initRejects].forEach(fn => fn.mockClear());
+          });
+      });
+
+      it('last sync initializer rejects', async () => {
+        const StampCombined = compose(Regular, compose(Aggregate2, Aggregate1, SyncRejects));
+        return expect(StampCombined()).rejects.toThrow()
+          .then(() => {
+            expect(init2).toHaveBeenCalled();
+            expect(init1).toHaveBeenCalled();
+            expect(initSyncRejects).toHaveBeenCalled();
+            [init1, init2, initRejects].forEach(fn => fn.mockClear());
+          });
       });
     });
   });
