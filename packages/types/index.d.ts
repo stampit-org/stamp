@@ -36,7 +36,7 @@ export type Composable<Instance, Stamp, Context = Stamp> =
  * @template Stamp The type of the `Stamp` producing the instance.
  * @template Context (optional) The type of the `Stamp` used by the `.composers` functions.
  */
-export interface HasComposeProperty<Instance, Stamp, Context = Stamp> {
+export interface ComposeAttribute<Instance, Stamp, Context = Stamp> {
   /**
    * A method which creates a new stamp from a list of `Composable`s.
    * @template Instance The object type that the `Stamp` will create.
@@ -52,9 +52,9 @@ export interface HasComposeProperty<Instance, Stamp, Context = Stamp> {
  * @template Instance The object type that the `Stamp` will create.
  * @template Context (optional) The type of the `Stamp` used by the `.composers` functions.
  */
-type AsHasComposeProperty<Stamp, Instance, Context = Stamp> = Stamp extends HasComposeProperty<Instance, Stamp, Context>
+type AsHasComposeProperty<Stamp, Instance, Context = Stamp> = Stamp extends ComposeAttribute<Instance, Stamp, Context>
   ? Stamp
-  : Stamp & HasComposeProperty<Instance, Stamp>;
+  : Stamp & ComposeAttribute<Instance, Stamp>;
 
 /**
  * @internal
@@ -62,7 +62,7 @@ type AsHasComposeProperty<Stamp, Instance, Context = Stamp> = Stamp extends HasC
  * @template Instance The object type that the `Stamp` will create.
  * @template Context (optional) The type of the `Stamp` used by the `.composers` functions.
  */
-type IsHasComposeProperty<Stamp, Instance, Context = Stamp> = Stamp extends HasComposeProperty<Instance, Stamp, Context>
+type IsHasComposeProperty<Stamp, Instance, Context = Stamp> = Stamp extends ComposeAttribute<Instance, Stamp, Context>
   ? Stamp
   : never;
 
@@ -76,7 +76,7 @@ type IsHasComposeProperty<Stamp, Instance, Context = Stamp> = Stamp extends HasC
  * @property {Descriptor} compose - The Stamp descriptor and composition function
  * @template Instance The object type that the `Stamp` will create.
  */
-export interface Stamp<Instance> extends FactoryFunction<Instance>, HasComposeProperty<Instance, Stamp<Instance>> {}
+export interface Stamp<Instance> extends FactoryFunction<Instance>, ComposeAttribute<Instance, Stamp<Instance>> {}
 
 /**
  * Utility type to declare a stamp signature
@@ -86,7 +86,7 @@ export interface Stamp<Instance> extends FactoryFunction<Instance>, HasComposePr
  */
 export interface DefineStamp<Instance, Stamp, Context = Stamp>
   extends FactoryFunction<Instance>,
-    HasComposeProperty<Instance, Stamp, Context> {}
+    ComposeAttribute<Instance, Stamp, Context> {}
 
 /**
  * @internal Utility type to cast a type into an object with the `compose` property

@@ -2,7 +2,7 @@
  * @internal Utility function signature which allows a `compose` property to exist.
  */
 // ! weak types
-// try extends HasComposeProperty
+// try extends ComposeAttribute
 interface FunctionMaybeAStamp {
   compose?: unknown;
   (...args: unknown[]): unknown;

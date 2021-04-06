@@ -1,5 +1,5 @@
 import type { FactoryFunction } from './factory-function';
-import type { HasComposeProperty } from './compose-property';
+import type { ComposeAttribute } from './compose-attribute';
 
 /**
  * A stamp is a composable factory function that returns object instances based on its descriptor.
@@ -24,4 +24,4 @@ type Specification = never;
  */
 export interface Stamp<Instance, Stamp, Context = Stamp>
   extends FactoryFunction<Instance>,
-    HasComposeProperty<Instance, Stamp, Context> {}
+    ComposeAttribute<Instance, Stamp, Context> {}

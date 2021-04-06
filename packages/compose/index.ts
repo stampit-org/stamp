@@ -5,7 +5,7 @@ import type {
   Composable,
   ComposeFunction,
   ComposeProperty,
-  HasComposeProperty,
+  ComposeAttribute,
   Composer,
   Descriptor,
   Initializer,
@@ -90,7 +90,7 @@ const createStamp = <FinalStamp>(
 
   const composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
   // ! weak types
-  ((Stamp as unknown) as HasComposeProperty<unknown, unknown>).compose = function (
+  ((Stamp as unknown) as ComposeAttribute<unknown, unknown>).compose = function (
     this: void | unknown,
     // ! weak types
     ...arguments_: Array<Composable<unknown, unknown>>

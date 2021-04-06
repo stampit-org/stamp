@@ -1,3 +1,4 @@
+import type { ComposeProperty } from './compose-property';
 import type { ComposeFunction } from './compose-function';
 import type { Descriptor } from './descriptor';
 
@@ -13,14 +14,24 @@ import type { Descriptor } from './descriptor';
  */
 type Specification = never;
 
-// TODO ComposeProperty should not require generic
+// TODO ComposeAttribute should not require generic
 
 /**
- * TODO
+ * An object with the `compose` property
  * @template Instance The object type that the `Stamp` will create.
- * @template FinalStamp The type of the `Stamp` producing the instance.
- * @template ComposingStamp (optional) The type of the `Stamp` used by the `.composers` functions.
+ * @template Stamp The type of the `Stamp` producing the instance.
+ * @template Context (optional) The type of the `Stamp` used by the `.composers` functions.
  */
-export interface ComposeProperty<Instance, FinalStamp, ComposingStamp = FinalStamp>
-  extends ComposeFunction<Instance, FinalStamp, ComposingStamp>,
-    Descriptor<Instance, FinalStamp, ComposingStamp> {}
+export interface ComposeAttribute<Instance, Stamp, Context = Stamp> {
+  /**
+   * A method which creates a new stamp from a list of `Composable`s.
+   * @template Instance The object type that the `Stamp` will create.
+   * @template Stamp The type of the `Stamp` producing the instance.
+   * @template Context (optional) The type of the `Stamp` used by the `.composers` functions.
+   */
+  compose: ComposeProperty<Instance, Stamp, Context>;
+}
+
+// TODO normalize helpers
+
+export type IsComposeAttribute<T> = T extends ComposeAttribute<any, any> ? T : never;
