@@ -11,8 +11,3 @@ type Specification = never;
  * @template Product The object type that the `Stamp` will create.
  */
 export type FactoryFunction<Product = unknown> = (options?: Record<string, unknown>, ...args: unknown[]) => Product;
-
-// TODO normalize helpers
-
-export type IsFactoryFunction<T> = T extends FactoryFunction ? T : never;
-export type FactoryFunctionProduct<T> = T extends FactoryFunction ? ReturnType<T> : never;

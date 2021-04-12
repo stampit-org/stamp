@@ -1,6 +1,4 @@
 import type { ComposeProperty } from './compose-property';
-import type { ComposeFunction } from './compose-function';
-import type { Descriptor } from './descriptor';
 
 /**
  * Stamps have a method called `.compose()`
