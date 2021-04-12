@@ -25,5 +25,18 @@
   },
   "devDependencies": {
     "xo": "^0.38.2"
+  },
+  "xo": {
+    "ignores": [
+      "**.js",
+      "**.d.ts",
+      "__tests__"
+    ],
+    "space": 2,
+    "rules": {
+      "capitalized-comments": "warn",
+      "import/extensions": "warn"
+    },
+    "prettier": true
   }
 }

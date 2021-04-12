@@ -27,6 +27,9 @@
     "stamp.d.ts",
     "string.d.ts"
   ],
+  "engines": {
+    "node": ">= 10.18.0"
+  },
   "scripts": {
     "build": "tsc",
     "link": "npm run build && lerna link"
@@ -35,7 +38,17 @@
     "@stamp/types": "1.6.0",
     "xo": "^0.38.2"
   },
-  "engines": {
-    "node": ">= 10.18.0"
+  "xo": {
+    "ignores": [
+      "**.js",
+      "**.d.ts",
+      "__tests__"
+    ],
+    "space": 2,
+    "rules": {
+      "capitalized-comments": "warn",
+      "import/extensions": "warn"
+    },
+    "prettier": true
   }
 }

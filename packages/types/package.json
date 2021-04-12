@@ -35,5 +35,13 @@
     "tsd": "^0.14.0",
     "type-fest": "^1.0.1",
     "xo": "^0.38.2"
+  },
+  "xo": {
+    "space": 2,
+    "rules": {
+      "capitalized-comments": "warn",
+      "import/extensions": "warn"
+    },
+    "prettier": true
   }
 }

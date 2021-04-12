@@ -32,5 +32,13 @@
   },
   "devDependencies": {
     "xo": "^0.38.2"
+  },
+  "xo": {
+    "ignores": [
+      "**.js",
+      "bin"
+    ],
+    "space": 2,
+    "prettier": true
   }
 }
