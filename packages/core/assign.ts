@@ -1,26 +1,32 @@
+type AnObject = Record<string, unknown>;
+
 const { defineProperty, getOwnPropertyDescriptor, ownKeys } = Reflect;
 
-const assignOne = (dst: object, src: object | undefined): object => {
-  if (src != null) {
+/** @internal */
+const assignOne = (destination: AnObject, source: AnObject | undefined): AnObject => {
+  // eslint-disable-next-line eqeqeq, no-eq-null
+  if (source != null) {
     // We need to copy regular properties, symbols, getters and setters.
-    const keys = ownKeys(src);
+    const keys = ownKeys(source);
     for (const key of keys) {
-      defineProperty(dst, key, getOwnPropertyDescriptor(src, key) as PropertyDescriptor);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      defineProperty(destination, key, getOwnPropertyDescriptor(source, key)!);
     }
   }
 
-  return dst;
+  return destination;
 };
 
 /**
  * Mutates destination object with shallow assign of passed source objects. Returns destination object.
  */
-const assign = <T extends object = object>(dst: T, ...args: (object | undefined)[]): T => {
-  for (const arg of args) {
-    // eslint-disable-next-line no-param-reassign
-    dst = assignOne(dst, arg) as T;
+// ! weak types
+const assign = <T = any>(dst: AnObject, ...arguments_: Array<AnObject | undefined>): T => {
+  for (const argument of arguments_) {
+    dst = assignOne(dst, argument);
   }
-  return dst;
+
+  return dst as T;
 };
 
 export default assign;

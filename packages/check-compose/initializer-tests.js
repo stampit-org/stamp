@@ -133,7 +133,7 @@ module.exports = (compose) => {
         instanceProps: true,
       };
       composable.compose.initializers = [
-        function(a, o) {
+        function (a, o) {
           const { stampOption } = a;
           const { instance } = o;
           const { stamp } = o;
@@ -220,7 +220,7 @@ module.exports = (compose) => {
       const composable = () => {};
       composable.compose = () => {};
       composable.compose.initializers = [
-        function() {
+        function () {
           return _.assign(this, {
             a: 'a',
           });

@@ -1,4 +1,0 @@
-node_modules
-packages/*
-!packages/check-compose
-packages/*/__test__/*

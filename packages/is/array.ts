@@ -1,9 +1,8 @@
-const { isArray: isarray } = Array;
-
 /**
  * @internal Checks if passed argument is considered an array.
  */
-const isArray = isarray;
+// eslint-disable-next-line prefer-destructuring
+const isArray = Array.isArray; // JSDoc is lost with destructuring
 
 export default isArray;
 

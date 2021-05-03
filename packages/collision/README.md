@@ -2,7 +2,7 @@
 
 _Controls collision behavior: forbid or defer_
 
-This stamp (aka behavior) will check if there are any conflicts on every `compose` call. 
+This stamp (aka behavior) will check if there are any conflicts on every `compose` call.
 Throws an `Error` in case of a forbidden collision or ambiguous setup.
 
 ## Usage
@@ -18,7 +18,6 @@ Or if you don't want to import the stamp you can import only the method:
 import {collisionSetup} from '@stamp/collision';
 const ForbidRedrawCollision = collisionSetup({forbid: ['redraw']});
 ```
-
 
 The `defer` collects same named methods and wraps them into a single method.
 ```js
@@ -43,7 +42,7 @@ Forbid or Defer an exclusive method
 
 #### collisionProtectAnyMethod
 Forbid any collisions, excluding those allowed
-`stamp.collisionProtectAnyMethod({allow: ['methoName']}) -> Stamp`
+`stamp.collisionProtectAnyMethod({allow: ['methodName']}) -> Stamp`
 
 #### collisionSettingsReset
 Remove any Collision settings from the stamp

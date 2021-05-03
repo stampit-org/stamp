@@ -65,9 +65,7 @@ module.exports = (compose) => {
       return compose({ staticProperties: { compose: newCompose } }, this, args);
     }
 
-    newCompose()
-      .compose()
-      .compose();
+    newCompose().compose().compose();
     const expected = 3;
 
     assert.equal(counter, expected, 'should inherit new compose function');

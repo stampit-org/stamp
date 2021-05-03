@@ -3,18 +3,10 @@
   "command": {
     "publish": {
       "access": "public",
-      "ignoreChanges": [
-        "__tests__/"
-      ],
-      "npmClientArgs": [
-        "--access public"
-      ]
+      "ignoreChanges": ["__tests__/"],
+      "npmClientArgs": ["--access public"]
     }
   },
-  "npmClientArgs": [
-    "--access public"
-  ],
-  "packages": [
-    "packages/*"
-  ]
+  "npmClientArgs": ["--access public"],
+  "packages": ["packages/*"]
 }

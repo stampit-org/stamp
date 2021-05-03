@@ -1,32 +1,36 @@
-import compose, { ComposableFactoryParams, Descriptor, Initializer, Stamp } from '@stamp/compose';
+import compose from '@stamp/compose';
 import { isStamp } from '@stamp/is';
+
+import type { Descriptor, Initializer, Stamp } from '@stamp/compose';
+
+type AnObject = Record<string, unknown>;
 
 const { get, ownKeys, set } = Reflect;
 
-const initializer: Initializer = function initializer(opts, ref) {
-  const args = ref.args.slice();
-  (ownKeys(this) as string[]).forEach((key) => {
+const initializer: Initializer<AnObject, unknown> = function (options, { args }) {
+  const stampArgs = [...args] as Array<AnObject | undefined>;
+  for (const key of ownKeys(this) as string[]) {
     const stamp = get(this, key);
-    if (isStamp<Stamp>(stamp)) {
-      args[0] = opts?.[key];
-      set(this, key, stamp(...(args as ComposableFactoryParams)));
+    if (isStamp(stamp)) {
+      stampArgs[0] = options?.[key] as AnObject;
+      set(this, key, stamp(...stampArgs));
     }
-  });
+  }
 };
 
 /**
  * TODO
  */
-const InitProperty = compose({
+const InitProperty: Stamp<unknown> = compose({
   initializers: [initializer],
   composers: [
-    (opts): void => {
-      const { initializers } = opts.stamp.compose as Required<Descriptor>;
-      initializers.splice(initializers.indexOf(initializer), 1);
-      initializers.unshift(initializer);
+    ({ stamp }): void => {
+      const { initializers } = ((stamp as unknown) as Stamp<unknown>).compose as Required<Descriptor<unknown, unknown>>;
+      initializers.splice(initializers.indexOf(initializer as Initializer<unknown, unknown>), 1);
+      initializers.unshift(initializer as Initializer<unknown, unknown>);
     },
   ],
-});
+}) as Stamp<unknown>;
 
 export default InitProperty;
 
