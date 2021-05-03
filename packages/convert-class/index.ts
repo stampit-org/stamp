@@ -2,48 +2,62 @@ import compose from '@stamp/compose';
 
 import type { Initializer, PropertyMap, Stamp } from '@stamp/compose';
 
-const { prototype: functionPrototype } = Function;
+type FunctionPrototype = typeof Function.prototype;
+type ObjectPrototype = typeof Object.prototype;
+
 const { assign } = Object;
 const { construct, get, getPrototypeOf, ownKeys, set } = Reflect;
 
 /** @internal */
 interface ObjectWithPrototype extends PropertyMap {
-  prototype: any;
+  prototype: ObjectPrototype;
 }
 
-/** @internal */
-const isObjectConstructor = (value: unknown): value is ObjectConstructor =>
+/** @internal is an object constructor */
+const isClass = (value: unknown): value is ObjectConstructor =>
   typeof value === 'function' && /^\s*class\s/.test(value.toString());
 
-/** @internal */
-const isFunctionPrototype = (value: unknown): unknown => value === functionPrototype;
+/** @internal is a function */
+const isFunction = (value: unknown): value is FunctionPrototype => value === Function.prototype;
 
-/** @internal */
-const copyPropertiesFrom = (sourceObject: any) => (destinationObject: PropertyMap, key: PropertyKey): PropertyMap => {
-  if (key !== 'length' && key !== 'name' && key !== 'prototype') set(destinationObject, key, get(sourceObject, key));
-  return destinationObject;
+/** @internal factory for a reducer */
+const copyPropertiesFrom = (sourceObject: ObjectPrototype) => (
+  previousValue: PropertyMap,
+  currentValue: PropertyKey
+): PropertyMap => {
+  if (currentValue !== 'length' && currentValue !== 'name' && currentValue !== 'prototype') {
+    set(previousValue, currentValue, get(sourceObject, currentValue));
+  }
+
+  return previousValue;
 };
 
 /** @internal */
 const classStaticProperties = (ctor: ObjectConstructor | any): PropertyMap =>
-  isFunctionPrototype(ctor)
+  isFunction(ctor)
     ? {}
-    : ownKeys(ctor).reduce(copyPropertiesFrom(ctor), classStaticProperties(getPrototypeOf(ctor) as ObjectConstructor));
+    : ownKeys(ctor as ObjectConstructor).reduce(
+        copyPropertiesFrom(ctor as ObjectConstructor),
+        classStaticProperties(getPrototypeOf(ctor as ObjectConstructor) as ObjectConstructor)
+      );
 
-/** @internal */
-const copyMethodsFrom = (sourceObject: any) => (destinationObject: any, key: PropertyKey): unknown => {
-  if (key !== 'constructor') set(destinationObject, key, get(sourceObject, key));
-  return destinationObject;
+/** @internal factory for a reducer */
+const copyMethodsFrom = (sourceObject: ObjectPrototype) => (
+  previousValue: ObjectPrototype,
+  currentValue: PropertyKey
+): ObjectPrototype => {
+  if (currentValue !== 'constructor') set(previousValue, currentValue, get(sourceObject, currentValue));
+  return previousValue;
 };
 
 /** @internal */
-const classMethods = (ctor: ObjectConstructor | ObjectWithPrototype): ObjectWithPrototype =>
-  (isFunctionPrototype(ctor)
+const classMethods = (ctor: FunctionPrototype | ObjectWithPrototype): ObjectPrototype =>
+  ((isFunction(ctor)
     ? {}
-    : ownKeys(ctor.prototype).reduce(
+    : ownKeys(ctor.prototype).reduce<ObjectPrototype>(
         copyMethodsFrom(ctor.prototype),
         classMethods(getPrototypeOf(ctor) as ObjectWithPrototype)
-      )) as ObjectWithPrototype;
+      )) as unknown) as ObjectConstructor;
 
 /** @internal */
 const initializerFactory = (ctor: ObjectConstructor): Initializer<unknown, unknown> =>
@@ -57,10 +71,10 @@ const initializerFactory = (ctor: ObjectConstructor): Initializer<unknown, unkno
 // TODO: convertClass should support generics like <ObjectInstance, OriginalStamp>
 // TODO: ObjectInstance = InstanceType<ObjectConstructor>
 const convertClass = (ctor: ObjectConstructor): Stamp<unknown> =>
-  isObjectConstructor(ctor)
+  isClass(ctor)
     ? (compose({
         initializers: [initializerFactory(ctor)],
-        methods: classMethods(ctor),
+        methods: (classMethods(ctor) as unknown) as Record<string, unknown>,
         staticProperties: classStaticProperties(ctor),
         staticPropertyDescriptors: { name: { value: ctor.name } },
       }) as Stamp<unknown>)

@@ -13,6 +13,8 @@ import type {
   Stamp,
 } from '@stamp/compose';
 
+type AnObject = Record<string, unknown>;
+
 const { defineProperty, get, ownKeys, set } = Reflect;
 
 /** @internal `Descriptor` type with `Collision` property */
@@ -81,7 +83,10 @@ const setMethodsMetadata = (options: ComposerParameters<unknown, any>, methodsMe
     let value: unknown;
     if (isArray(metadata)) {
       // Some collisions aggregated to a single method
-      value = metadata.length === 1 ? metadata[0] : makeProxyFunction(metadata, key);
+      value =
+        metadata.length === 1
+          ? metadata[0]
+          : makeProxyFunction(metadata as Array<(...args: unknown[]) => unknown>, key);
     } else {
       value = metadata;
     }
@@ -167,7 +172,7 @@ const composer: Composer<unknown, any> = (parameters) => {
 
       const getCallbackFor = (composable: Required<OwnDescriptor>) => (methodName: PropertyKey): void => {
         const method = get(composable.methods, methodName);
-        const existingMetadata = get(methodsMetadata, methodName);
+        const existingMetadata: unknown[] = get(methodsMetadata, methodName);
 
         throwIfForbiddenOrAmbiguous(existingMetadata, descriptor, composable, methodName);
 
@@ -242,7 +247,7 @@ function collisionProtectAnyMethod(
   // ! weak types
 ): CollisionStamp<unknown, unknown, unknown> {
   return this.collisionSetup(
-    assign<CollisionSettings>({}, settings, { forbidAll: true })
+    assign<CollisionSettings>({}, (settings as unknown) as AnObject, { forbidAll: true })
   );
 }
 

@@ -26,6 +26,8 @@ export type {
   Stamp,
 } from '@stamp/types';
 
+type AnObject = Record<string, unknown>;
+
 const { defineProperties } = Object;
 const { get, set } = Reflect;
 
@@ -40,14 +42,14 @@ const createFactory = (): Stamp<unknown> => {
     const descriptor = ((Stamp as Stamp<unknown>).compose || {}) as Descriptor<unknown, unknown>;
     const { methods, properties, deepProperties, propertyDescriptors, initializers } = descriptor;
     // Next line was optimized for most JS VMs. Please, be careful here!
-    let instance: unknown = { __proto__: methods };
+    let instance: AnObject = { __proto__: methods };
 
     if (deepProperties) merge<unknown>(instance, deepProperties);
     if (properties) assign<unknown>(instance, properties);
     if (propertyDescriptors) defineProperties(instance, propertyDescriptors);
 
     if (initializers && initializers.length > 0) {
-      let returnedValue: void | unknown;
+      let returnedValue: void | AnObject;
       const args = [options, ...arguments_];
       for (const initializer of initializers) {
         // ! weak types
@@ -57,7 +59,7 @@ const createFactory = (): Stamp<unknown> => {
             // ! weak types
             stamp: Stamp as Stamp<unknown>,
             args,
-          });
+          }) as AnObject;
           if (returnedValue !== undefined) instance = returnedValue;
         }
       }
@@ -84,8 +86,8 @@ const createStamp = <FinalStamp>(
 
   const { staticDeepProperties, staticProperties, staticPropertyDescriptors } = descriptor;
 
-  if (staticDeepProperties) merge<unknown>(Stamp, staticDeepProperties);
-  if (staticProperties) assign<unknown>(Stamp, staticProperties);
+  if (staticDeepProperties) merge<unknown>((Stamp as unknown) as AnObject, staticDeepProperties);
+  if (staticProperties) assign<unknown>((Stamp as unknown) as AnObject, staticProperties);
   if (staticPropertyDescriptors) defineProperties(Stamp, staticPropertyDescriptors);
 
   const composeImplementation = isFunction(Stamp.compose) ? Stamp.compose : composeFunction;
@@ -107,13 +109,13 @@ const createStamp = <FinalStamp>(
 
 /** @internal concatAssignFunctions */
 const concatAssignFunctions = (
-  dstObject: any,
+  dstObject: AnObject,
   // ! weak types
   sourceArray: Array<Initializer<unknown, unknown> | Composer<unknown, unknown>> | undefined,
   propertyKey: PropertyKey
 ): void => {
   if (isArray(sourceArray)) {
-    const deDuped = new Set(get(dstObject, propertyKey) || []);
+    const deDuped = new Set((get(dstObject, propertyKey) as unknown[]) || []);
     for (const fn of sourceArray) {
       if (isFunction(fn)) deDuped.add(fn);
     }
@@ -124,8 +126,8 @@ const concatAssignFunctions = (
 
 /** @internal combineProperties */
 const combineProperties = (
-  dstObject: any,
-  sourceObject: any,
+  dstObject: AnObject,
+  sourceObject: AnObject,
   propertyKey: PropertyKey,
   action: (dst: any, ...args: Array<any | undefined>) => unknown
 ): void => {
@@ -137,12 +139,12 @@ const combineProperties = (
 };
 
 /** @internal deepMergeAssign */
-const deepMergeAssign = (dstObject: unknown, sourceObject: unknown, propertyKey: PropertyKey): void => {
+const deepMergeAssign = (dstObject: AnObject, sourceObject: AnObject, propertyKey: PropertyKey): void => {
   combineProperties(dstObject, sourceObject, propertyKey, merge);
 };
 
 /** @internal mergeAssign */
-const mergeAssign = (dstObject: unknown, sourceObject: unknown, propertyKey: PropertyKey): void => {
+const mergeAssign = (dstObject: AnObject, sourceObject: AnObject, propertyKey: PropertyKey): void => {
   combineProperties(dstObject, sourceObject, propertyKey, assign);
 };
 

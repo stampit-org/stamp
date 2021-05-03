@@ -40,6 +40,7 @@ interface OwnDescriptor extends Descriptor<unknown, unknown> {
 /** @internal */
 const initializer = function (_options, context) {
   const descriptor = (context.stamp as Stamp<unknown>).compose as OwnDescriptor;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const privateMethodKeys = descriptor.deepConfiguration!.Privatize.methods;
 
   const newObject = {}; // Our proxy object

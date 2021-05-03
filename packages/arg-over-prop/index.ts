@@ -33,7 +33,7 @@ const initializer: Initializer<unknown, DefineStamp<unknown, unknown>> = functio
         const incomingValue = get(options, key);
         if (incomingValue !== undefined) {
           // ! weak types
-          set(this as any, key, incomingValue);
+          set(this as Record<string, unknown>, key, incomingValue);
         }
       }
     }
@@ -49,9 +49,9 @@ const composer: Composer<unknown, DefineStamp<unknown, unknown>> = (parameters: 
   // Always keep our initializer the first
   initializers.splice(initializers.indexOf(initializer), 1);
   initializers.unshift(initializer);
-  const { deepConfiguration } = descriptor as OwnDescriptor;
+  const { deepConfiguration } = descriptor as Required<OwnDescriptor>;
   const propertyNames = deepConfiguration?.ArgOverProp;
-  if (isArray(propertyNames)) deepConfiguration!.ArgOverProp = [...new Set(propertyNames)];
+  if (isArray(propertyNames)) deepConfiguration.ArgOverProp = [...new Set(propertyNames)];
 };
 
 /** @internal */

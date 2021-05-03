@@ -110,7 +110,10 @@ const stampit = function (this: StampIt, ...arguments_: Array<Composable<unknown
     this || baseStampit,
     arguments_.map(
       (argument) =>
-        ((isStamp(argument) ? argument : standardiseDescriptor(argument as ExtendedDescriptor)!) as unknown) as any
+        ((isStamp(argument)
+          ? argument
+          : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            standardiseDescriptor(argument as ExtendedDescriptor)!) as unknown) as Composable<unknown, unknown, unknown>
     )
   );
 } as StampIt;
@@ -124,6 +127,7 @@ const baseStampit = (Shortcut as Stamp<unknown>).compose({
   },
 });
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const shortcuts = (Shortcut as Stamp<unknown>).compose.staticProperties!;
 for (const property of ownKeys(shortcuts)) {
   set(stampit, property, get(shortcuts, property).bind(baseStampit));

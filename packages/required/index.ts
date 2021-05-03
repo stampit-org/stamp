@@ -49,7 +49,7 @@ const checkDescriptorHaveThese = (
           const metadataValue = get(settingsValue, metadataKey);
           if (metadataValue === Required || metadataValue === required) {
             // We found one thing which have to be provided. Let's check if it exists.
-            const descValue = get(descriptor, settingsKey);
+            const descValue: Descriptor<unknown, unknown> = get(descriptor, settingsKey);
             if (!descValue || get(descValue, metadataKey) === undefined) {
               throw new Error(`Required: There must be ${String(metadataKey)} in this stamp ${String(settingsKey)}`);
             }

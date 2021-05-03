@@ -1,5 +1,7 @@
 import { isArray, isPlainObject } from '@stamp/is';
 
+type AnObject = Record<string, unknown>;
+
 const { defineProperty, get, getOwnPropertyDescriptor, ownKeys, set } = Reflect;
 
 /**
@@ -10,7 +12,7 @@ const { defineProperty, get, getOwnPropertyDescriptor, ownKeys, set } = Reflect;
  * @param source The object to merge from
  * @returns {*}
  */
-function mergeOne(destination: any, source: unknown): unknown {
+function mergeOne(destination: AnObject | AnObject[], source: AnObject | AnObject[]): AnObject | AnObject[] {
   if (source !== undefined) {
     // According to specification arrays must be concatenated.
     // Also, the '.concat' creates a new array instance. Overrides the 'dst'.
@@ -21,6 +23,7 @@ function mergeOne(destination: any, source: unknown): unknown {
     if (isPlainObject(source)) {
       const keys = ownKeys(source);
       for (const key of keys) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const desc = getOwnPropertyDescriptor(source, key)!;
         // Is this a regular property?
         if (getOwnPropertyDescriptor(desc, 'value') === undefined) {
@@ -29,9 +32,9 @@ function mergeOne(destination: any, source: unknown): unknown {
         } else if (desc.value !== undefined) {
           // Do not merge properties with the 'undefined' value.
           const dstValue = get(destination, key);
-          const sourceValue = get(source, key);
+          const sourceValue: AnObject = get(source, key);
           // Recursive calls to mergeOne() must allow only plain objects or arrays in dst
-          const newDst = isPlainObject(dstValue) || isArray(sourceValue) ? dstValue : {};
+          const newDst = isPlainObject(dstValue) || isArray(sourceValue) ? (dstValue as AnObject) : {};
           // Deep merge each property. Recursion!
           set(destination, key, mergeOne(newDst, sourceValue));
         }
@@ -52,12 +55,12 @@ function mergeOne(destination: any, source: unknown): unknown {
  * Returns destination object/array or a new object/array in case it was not.
  */
 // ! weak types
-const merge = <T = any>(dst: T, ...arguments_: Array<unknown | undefined>): T => {
-  for (const argument of arguments_) {
-    dst = mergeOne(dst, argument) as T;
+const merge = <T = AnObject>(dst: AnObject | AnObject[], ...arguments_: Array<unknown | undefined>): T => {
+  for (const argument of arguments_ as Array<AnObject | AnObject[]>) {
+    dst = mergeOne(dst, argument);
   }
 
-  return dst;
+  return dst as T;
 };
 
 export default merge;

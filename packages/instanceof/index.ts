@@ -18,6 +18,7 @@ const InstanceOf = compose<unknown, unknown>({
   composers: [
     ({ stamp }): void => {
       // Attaching to object prototype to save memory
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       set((stamp as Stamp<unknown>).compose.methods!, stampSymbol, stamp);
 
       defineProperty(stamp as Stamp<unknown>, Symbol.hasInstance, {
