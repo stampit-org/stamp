@@ -22,8 +22,8 @@
     "@stamp/compose": "^1.0.2"
   },
   "devDependencies": {
-    "@types/node": "^10.17.56",
-    "xo": "^0.38.2"
+    "@types/node": "^10.17.59",
+    "xo": "^0.39.1"
   },
   "xo": {
     "ignores": [

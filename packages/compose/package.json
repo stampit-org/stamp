@@ -35,7 +35,7 @@
   "devDependencies": {
     "@stamp/check-compose": "^1.0.3",
     "@stamp/types": "^1.6.0",
-    "xo": "^0.38.2"
+    "xo": "^0.39.1"
   },
   "xo": {
     "ignores": [

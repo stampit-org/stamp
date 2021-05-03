@@ -20,7 +20,7 @@
     "@stamp/compose": "^1.0.2"
   },
   "devDependencies": {
-    "xo": "^0.38.2"
+    "xo": "^0.39.1"
   },
   "xo": {
     "ignores": [
