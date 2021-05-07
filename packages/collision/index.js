@@ -333,7 +333,7 @@ function collisionComposer(opts) {
                         });
                     });
                     if (domainMetadata.length) {
-                        setDomainMetadata(opts, domain, domainMetadata);
+                        setDomainMetadata(opts, domain, dedupe(domainMetadata));
                     }
                 }
             }

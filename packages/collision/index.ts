@@ -580,7 +580,7 @@ function collisionComposer(opts: ComposerParams): Stamp | void {
             });
 
           if (domainMetadata.length) {
-            setDomainMetadata(opts as CollisionComposerParams, domain, domainMetadata);
+            setDomainMetadata(opts as CollisionComposerParams, domain, dedupe(domainMetadata));
           }
         }
       }

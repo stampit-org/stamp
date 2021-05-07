@@ -1641,8 +1641,14 @@ describe('@stamp/collision', () => {
         }).toThrow();
       });
 
-      it('a single initializer is still proxied', () => {
+      it('a single initializer is still aggregated', () => {
         const aggregates = Aggregate1.collisionGetAggregates('initializers') || [];
+        expect(aggregates).toHaveLength(1);
+      });
+
+      it('initializers are deduped', () => {
+        const stamp = compose(Aggregate1, Aggregate1);
+        const aggregates = stamp.collisionGetAggregates('initializers') || [];
         expect(aggregates).toHaveLength(1);
       });
 
