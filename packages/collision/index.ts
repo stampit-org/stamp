@@ -2,7 +2,7 @@
 
 import compose, { ComposeProperty, ComposerParams, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose';
 import { merge } from '@stamp/core';
-import { isArray, isObject, isStamp } from '@stamp/is';
+import { isArray, isFunction, isObject, isStamp } from '@stamp/is';
 
 const { defineProperty, get, set } = Reflect;
 
@@ -59,6 +59,7 @@ enum SettingIndex {
   MapAsync,
   ReduceAsync,
   ReduceThisAsync,
+  ReduceAsyncInitializer,
 }
 
 interface CollisionSettingsCommon {
@@ -140,6 +141,10 @@ interface ReduceAsyncProxyFunction extends HasAggregatedFunctions {
   (this: object, initialValue: unknown, ...args: unknown[]): Promise<unknown>;
 }
 
+interface ReduceAsyncInitializerProxyFunction extends HasAggregatedFunctions {
+  (this: object, initialValue: unknown, ...args: unknown[]): Promise<unknown>;
+}
+
 interface DomainItemCollection {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: (...args: any[]) => any;
@@ -218,9 +223,7 @@ function makeReduceSyncProxyFunction({ functions, itemName }: MakeProxyFunctionO
     initialValue: unknown,
     ...args: unknown[]
   ): unknown {
-    return getDomainItemAggregates(reduceSyncFn).reduce((o, fn) => {
-      return fn(o, ...args);
-    }, initialValue);
+    return getDomainItemAggregates(reduceSyncFn).reduce((o, fn) => fn(o, ...args), initialValue);
   });
 }
 
@@ -250,9 +253,10 @@ function makeReduceAsyncProxyFunction({ functions, itemName }: MakeProxyFunction
     initialValue: unknown,
     ...args: unknown[]
   ): Promise<unknown> {
-    return getDomainItemAggregates(reduceAsyncFn).reduce((promise, fn) => {
-      return fn(promise, ...args);
-    }, Promise.resolve(initialValue));
+    return getDomainItemAggregates(reduceAsyncFn).reduce(
+      (promise, fn) => fn(promise, ...args),
+      Promise.resolve(initialValue)
+    );
   });
 }
 
@@ -268,6 +272,40 @@ function makeReduceThisAsyncProxyFunction({ functions, itemName }: MakeProxyFunc
         });
       });
     }, Promise.resolve(this));
+  });
+}
+
+function makeReduceAsyncInitializerProxyFunction({
+  functions,
+  itemName,
+}: MakeProxyFunctionOptions): ReduceAsyncInitializerProxyFunction {
+  return prepareProxyFunction(functions, itemName, async function reduceAsyncInitializerFn(
+    this: object,
+    ...args: unknown[]
+  ): Promise<unknown> {
+    const [options, context, ...moreArgs] = args;
+    const newArgs = [options, ...moreArgs];
+
+    return getDomainItemAggregates(reduceAsyncInitializerFn).reduce(
+      (promise, fn) =>
+        promise.then((instance) => {
+          if (isFunction<Initializer>(fn)) {
+            const ctx = {
+              instance,
+              stamp: (context as { stamp: Stamp }).stamp,
+              args: newArgs,
+            };
+            return Promise.resolve(fn.call(instance, options as PropertyMap, ctx)).then((returnedValue) => {
+              if (returnedValue !== undefined) {
+                instance = returnedValue;
+              }
+              return instance;
+            });
+          }
+          return Promise.resolve(instance);
+        }),
+      Promise.resolve(this) as Promise<object>
+    );
   });
 }
 
@@ -336,9 +374,7 @@ interface GetSettingIndex {
 }
 
 const aggregationType: GetSettingIndex = (descriptor, domain, itemName) =>
-  aggregateCheckers.reduce((o, fn, i) => {
-    return fn(descriptor, domain, itemName) ? i + 1 : o;
-  }, SettingIndex.None);
+  aggregateCheckers.reduce((o, fn, i) => (fn(descriptor, domain, itemName) ? i + 1 : o), SettingIndex.None);
 
 interface MakeAggregateProxyFunction {
   (descriptor: CollisionDescriptor, domain: string, functions: Function[], itemName: string):
@@ -346,6 +382,7 @@ interface MakeAggregateProxyFunction {
     | ReduceSyncProxyFunction
     | MapAsyncProxyFunction
     | ReduceAsyncProxyFunction
+    | ReduceAsyncInitializerProxyFunction
     | undefined;
 }
 
@@ -365,6 +402,8 @@ const makeAggregatedProxyFunction: MakeAggregateProxyFunction = (descriptor, dom
       return makeReduceAsyncProxyFunction({ functions, itemName });
     case SettingIndex.ReduceThisAsync:
       return makeReduceThisAsyncProxyFunction({ functions, itemName });
+    case SettingIndex.ReduceAsyncInitializer:
+      return makeReduceAsyncInitializerProxyFunction({ functions, itemName });
     default:
       return undefined;
   }
@@ -397,7 +436,7 @@ const setDomainMetadata: SetDomainMetadata = (opts, domain, domainMetadata) => {
     const settings = getSettings(opts.stamp.compose, domain) as CollisionSettingsInitializers;
     const metadata = [...domainMetadata];
     const value = settings.async
-      ? [makeReduceThisAsyncProxyFunction({ functions: metadata, itemName: 'reduceThisAsyncInits' })]
+      ? [makeReduceAsyncInitializerProxyFunction({ functions: metadata, itemName: 'reduceAsyncInits' })]
       : metadata;
 
     set(opts.stamp.compose, domain, value);
@@ -486,6 +525,7 @@ const throwIfForbiddenOrAmbiguous: ThrowIfForbiddenOrAmbiguous = (
     );
   }
 };
+
 function collisionComposer(opts: ComposerParams): Stamp | void {
   const descriptor = (opts.stamp as CollisionStamp).compose as CollisionDescriptor;
   const allSettings = getAllSettings(descriptor);

@@ -266,7 +266,7 @@ describe('@stamp/collision', () => {
 
     describe('reduce', () => {
       function makePushFunction(name) {
-        const fn = function push(accumulator, currentValue, index, array) {
+        const fn = function push(accumulator, _currentValue, _index, _array) {
           accumulator.push(push.pushValue);
           return accumulator;
         };
@@ -809,7 +809,7 @@ describe('@stamp/collision', () => {
 
     describe('reduceAsync', () => {
       function makePushAsyncFunction(name) {
-        const fn = async function push(accumulatorPromise, currentValue, index, array) {
+        const fn = async function push(accumulatorPromise, _currentValue, _index, _array) {
           return accumulatorPromise.then((accumulator) => {
             accumulator.push(push.pushValue);
             return accumulator;
@@ -1487,13 +1487,11 @@ describe('@stamp/collision', () => {
     });
 
     describe('async', () => {
-      function makeInitAsyncFunction(name) {
-        const fn = async function init() {
-          return {
-            value: init.value,
-          };
+      function makeInitAsyncFunction(value) {
+        const fn = async function init(_options, _context) {
+          this.value = init.value;
         };
-        Object.defineProperty(fn, 'value', { value: name, configurable: false });
+        Object.defineProperty(fn, 'value', { value, configurable: false });
         return fn;
       }
 
@@ -1501,6 +1499,7 @@ describe('@stamp/collision', () => {
       init1.mockName('init1');
       const Aggregate1 = compose(
         {
+          properties: { value: undefined },
           initializers: [init1],
         },
         Collision.collisionSetup({ initializers: { async: true } })
@@ -1509,12 +1508,14 @@ describe('@stamp/collision', () => {
       const init2 = jest.fn(makeInitAsyncFunction('2'));
       init2.mockName('init2');
       const Aggregate2 = Collision.collisionSetup({ initializers: { async: true } }).compose({
+        properties: { value: undefined },
         initializers: [init2],
       });
 
       const initRegular = jest.fn(makeInitAsyncFunction('R'));
       initRegular.mockName('initRegular');
       const Regular = compose({
+        properties: { value: undefined },
         initializers: [initRegular],
       });
 
@@ -1526,10 +1527,8 @@ describe('@stamp/collision', () => {
         initializers: [initRejects],
       });
 
-      const initSync = jest.fn(() => {
-        return {
-          value: 'S',
-        }
+      const initSync = jest.fn(function initSync() {
+        this.value = 'S';
       });
       initSync.mockName('initSync');
       const Sync = compose({
@@ -1537,11 +1536,22 @@ describe('@stamp/collision', () => {
       });
 
       const initSyncRejects = jest.fn(() => {
-          throw new Error('No way, man!');
+        throw new Error('No way, man!');
       });
       initSyncRejects.mockName('initSyncRejects');
       const SyncRejects = compose({
         initializers: [initSyncRejects],
+      });
+
+      const initReturnsObject = jest.fn((_options, { instance }) => {
+        const newInstance = { ...instance };
+        newInstance.foo = 'bar';
+        return newInstance;
+      });
+      initReturnsObject.mockName('initReturnsObject');
+      const InitReturnsObject = compose({
+        properties: { foo: undefined },
+        initializers: [initReturnsObject],
       });
 
       const mockList = [init1, init2, initRegular];
@@ -1764,6 +1774,54 @@ describe('@stamp/collision', () => {
             expect(initSyncRejects).toHaveBeenCalled();
             [init1, init2, initRejects].forEach(fn => fn.mockClear());
           });
+      });
+
+      it('first stamp returns object', async () => {
+        const StampCombined = compose(InitReturnsObject, Aggregate1, Aggregate2);
+
+        const myMockList = [initReturnsObject, init1, init2];
+        const aggregates = StampCombined.collisionGetAggregates('initializers');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = await StampCombined();
+
+        expect(obj).toStrictEqual({ foo: 'bar', value: '2' });
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('middle stamp returns object', async () => {
+        const StampCombined = compose(Aggregate1, InitReturnsObject, Aggregate2);
+
+        const myMockList = [init1, initReturnsObject, init2];
+        const aggregates = StampCombined.collisionGetAggregates('initializers');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = await StampCombined();
+
+        expect(obj).toStrictEqual({ foo: 'bar', value: '2' });
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
+      });
+
+      it('last stamp returns object', async () => {
+        const StampCombined = compose(Aggregate1, Aggregate2, InitReturnsObject);
+
+        const myMockList = [init1, init2, initReturnsObject];
+        const aggregates = StampCombined.collisionGetAggregates('initializers');
+        expect(aggregates).toStrictEqual(myMockList);
+
+        const obj = await StampCombined();
+
+        expect(obj).toStrictEqual({ foo: 'bar', value: '2' });
+        myMockList.forEach((fn) => {
+          expect(fn).toHaveBeenCalled();
+          fn.mockClear();
+        });
       });
     });
   });

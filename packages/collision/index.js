@@ -41,6 +41,7 @@ var SettingIndex;
     SettingIndex[SettingIndex["MapAsync"] = 4] = "MapAsync";
     SettingIndex[SettingIndex["ReduceAsync"] = 5] = "ReduceAsync";
     SettingIndex[SettingIndex["ReduceThisAsync"] = 6] = "ReduceThisAsync";
+    SettingIndex[SettingIndex["ReduceAsyncInitializer"] = 7] = "ReduceAsyncInitializer";
 })(SettingIndex || (SettingIndex = {}));
 function domainIsCollection(domain) {
     return ['methods'].includes(domain);
@@ -96,9 +97,7 @@ function makeMapSyncProxyFunction({ functions, itemName }) {
 }
 function makeReduceSyncProxyFunction({ functions, itemName }) {
     return prepareProxyFunction(functions, itemName, function reduceSyncFn(initialValue, ...args) {
-        return getDomainItemAggregates(reduceSyncFn).reduce((o, fn) => {
-            return fn(o, ...args);
-        }, initialValue);
+        return getDomainItemAggregates(reduceSyncFn).reduce((o, fn) => fn(o, ...args), initialValue);
     });
 }
 function makeReduceThisSyncProxyFunction({ functions, itemName }) {
@@ -116,9 +115,7 @@ function makeMapAsyncProxyFunction({ functions, itemName }) {
 }
 function makeReduceAsyncProxyFunction({ functions, itemName }) {
     return prepareProxyFunction(functions, itemName, async function reduceAsyncFn(initialValue, ...args) {
-        return getDomainItemAggregates(reduceAsyncFn).reduce((promise, fn) => {
-            return fn(promise, ...args);
-        }, Promise.resolve(initialValue));
+        return getDomainItemAggregates(reduceAsyncFn).reduce((promise, fn) => fn(promise, ...args), Promise.resolve(initialValue));
     });
 }
 function makeReduceThisAsyncProxyFunction({ functions, itemName }) {
@@ -130,6 +127,28 @@ function makeReduceThisAsyncProxyFunction({ functions, itemName }) {
                 });
             });
         }, Promise.resolve(this));
+    });
+}
+function makeReduceAsyncInitializerProxyFunction({ functions, itemName, }) {
+    return prepareProxyFunction(functions, itemName, async function reduceAsyncInitializerFn(...args) {
+        const [options, context, ...moreArgs] = args;
+        const newArgs = [options, ...moreArgs];
+        return getDomainItemAggregates(reduceAsyncInitializerFn).reduce((promise, fn) => promise.then((instance) => {
+            if (is_1.isFunction(fn)) {
+                const ctx = {
+                    instance,
+                    stamp: context.stamp,
+                    args: newArgs,
+                };
+                return Promise.resolve(fn.call(instance, options, ctx)).then((returnedValue) => {
+                    if (returnedValue !== undefined) {
+                        instance = returnedValue;
+                    }
+                    return instance;
+                });
+            }
+            return Promise.resolve(instance);
+        }), Promise.resolve(this));
     });
 }
 const getAllSettings = (descriptor) => { var _a; return (_a = descriptor === null || descriptor === void 0 ? void 0 : descriptor.deepConfiguration) === null || _a === void 0 ? void 0 : _a.Collision; };
@@ -163,9 +182,7 @@ const aggregateCheckers = [
     isAggregateReduceThisAsync,
 ];
 const isAggregate = (descriptor, domain, itemName) => aggregateCheckers.reduce((o, fn) => o || fn(descriptor, domain, itemName), false);
-const aggregationType = (descriptor, domain, itemName) => aggregateCheckers.reduce((o, fn, i) => {
-    return fn(descriptor, domain, itemName) ? i + 1 : o;
-}, SettingIndex.None);
+const aggregationType = (descriptor, domain, itemName) => aggregateCheckers.reduce((o, fn, i) => (fn(descriptor, domain, itemName) ? i + 1 : o), SettingIndex.None);
 const makeAggregatedProxyFunction = (descriptor, domain, functions, itemName) => {
     const type = aggregationType(descriptor, domain, itemName);
     switch (type) {
@@ -181,6 +198,8 @@ const makeAggregatedProxyFunction = (descriptor, domain, functions, itemName) =>
             return makeReduceAsyncProxyFunction({ functions, itemName });
         case SettingIndex.ReduceThisAsync:
             return makeReduceThisAsyncProxyFunction({ functions, itemName });
+        case SettingIndex.ReduceAsyncInitializer:
+            return makeReduceAsyncInitializerProxyFunction({ functions, itemName });
         default:
             return undefined;
     }
@@ -207,7 +226,7 @@ const setDomainMetadata = (opts, domain, domainMetadata) => {
         const settings = getSettings(opts.stamp.compose, domain);
         const metadata = [...domainMetadata];
         const value = settings.async
-            ? [makeReduceThisAsyncProxyFunction({ functions: metadata, itemName: 'reduceThisAsyncInits' })]
+            ? [makeReduceAsyncInitializerProxyFunction({ functions: metadata, itemName: 'reduceAsyncInits' })]
             : metadata;
         set(opts.stamp.compose, domain, value);
     }
