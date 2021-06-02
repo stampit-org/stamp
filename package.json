@@ -53,10 +53,10 @@
     "del-cli": "^3.0.1",
     "eslint": "^7.27.0",
     "eslint-config-airbnb-base": "^14.2.1",
-    "jest": "^27.0.1",
+    "jest": "^27.0.3",
     "lerna": "^3.22.1",
     "prettier": "^2.3.0",
-    "typescript": "^4.2.4",
+    "typescript": "^4.3.2",
     "xo": "^0.39.1"
   },
   "contributors": [
