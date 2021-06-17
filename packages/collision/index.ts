@@ -1,111 +1,485 @@
-import compose, { ComposeProperty, Composer, ComposerParams, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
-import { assign } from '@stamp/core';
-import { isArray, isObject, isStamp } from '@stamp/is';
+/* eslint-disable @typescript-eslint/ban-types */
 
-const { defineProperty, get, ownKeys, set } = Reflect;
+import compose, { ComposeProperty, ComposerParams, Descriptor, Initializer, PropertyMap, Stamp } from '@stamp/compose';
+import { merge } from '@stamp/core';
+import { isArray, isFunction, isObject, isStamp } from '@stamp/is';
+
+const { defineProperty, get, set } = Reflect;
 
 const dedupe = <T>(array: T[]): T[] => [...new Set(array)];
 
-interface MakeProxyFunction {
-  (functions: Function[], name: string | number | symbol): (this: object, ...args: unknown[]) => unknown[];
-}
-const makeProxyFunction: MakeProxyFunction = (functions, name) => {
-  function deferredFn(this: object, ...args: unknown[]): unknown[] {
-    return [...functions.map((func) => func.apply(this, [...args]))];
-  }
+const AGGREGATION_PROPERTY_NAME = '_aggregated';
 
-  defineProperty(deferredFn, 'name', { value: name, configurable: true });
-
-  return deferredFn;
-};
-
-interface CollisionSettings {
-  allow?: PropertyKey[];
-  defer: PropertyKey[];
-  forbid: PropertyKey[];
-  forbidAll?: boolean;
-}
-
-interface CollisionDescriptor extends Descriptor {
+export interface CollisionDescriptor extends Descriptor {
   deepConfiguration?: PropertyMap & { Collision: CollisionSettings };
 }
 
-interface CollisionStamp extends Stamp {
-  collisionSetup(this: CollisionStamp | undefined, opts: CollisionSettings | null | undefined): CollisionStamp;
+export interface CollisionStamp extends Stamp {
+  collisionSetup(this: CollisionStamp | undefined | void, opts: CollisionSettings | null | undefined): CollisionStamp;
+  collisionSettingsReset(this: CollisionStamp | undefined | void): CollisionStamp;
+  collisionProtectAnyMethod(this: CollisionStamp | undefined | void, opts?: CollisionSettings): CollisionStamp;
+  collisionHasAggregates(this: CollisionStamp, domain: string, itemName?: string): boolean;
+  collisionGetAggregates(this: CollisionStamp, domain: string, itemName?: string): Function[] | undefined;
+  collisionSetAggregates(this: CollisionStamp, aggregates: Function[], domain: string, itemName?: string): void;
   compose: ComposeProperty & CollisionDescriptor;
 }
 
-interface GetSettings {
+interface CollisionComposerParams extends ComposerParams {
+  stamp: CollisionStamp;
+}
+
+// eslint-disable-next-line no-shadow
+enum CollisionSettingKey {
+  Allow = 'allow',
+  MapSync = 'map',
+  ReduceSync = 'reduce',
+  ReduceThisSync = 'reduceThis',
+  MapAsync = 'mapAsync',
+  ReduceAsync = 'reduceAsync',
+  ReduceThisAsync = 'reduceThisAsync',
+  Forbid = 'forbid',
+  ForbidAll = 'forbidAll',
+}
+
+const AggregateSettingKeys: string[] = [
+  CollisionSettingKey.MapSync,
+  CollisionSettingKey.ReduceSync,
+  CollisionSettingKey.ReduceThisSync,
+  CollisionSettingKey.MapAsync,
+  CollisionSettingKey.ReduceAsync,
+  CollisionSettingKey.ReduceThisAsync,
+];
+
+// eslint-disable-next-line no-shadow
+enum SettingIndex {
+  None,
+  MapSync,
+  ReduceSync,
+  ReduceThisSync,
+  MapAsync,
+  ReduceAsync,
+  ReduceThisAsync,
+  ReduceAsyncInitializer,
+}
+
+interface CollisionSettingsCommon {
+  allow?: string[];
+  reduce?: string[];
+  reduceThis?: string[];
+  mapAsync?: string[];
+  reduceAsync?: string[];
+  reduceThisAsync?: string[];
+  forbid?: string[];
+  forbidAll?: boolean;
+  [key: string]: string[] | boolean | undefined;
+}
+
+interface CollisionSettingsMethods extends CollisionSettingsCommon {
+  map?: string[];
+}
+
+interface CollisionSettingsInitializers {
+  async?: boolean;
+  [key: string]: boolean | undefined;
+}
+
+type CollisionSettingsVariant = CollisionSettingsInitializers | CollisionSettingsMethods;
+
+interface CollisionSettings {
+  methods?: CollisionSettingsMethods;
+  initializers?: CollisionSettingsInitializers;
+  [key: string]: CollisionSettingsMethods | CollisionSettingsInitializers | undefined;
+}
+
+interface DeprecatedCollisionSettings {
+  defer?: string[]; // deprecated
+  [key: string]: string[] | undefined;
+}
+
+interface HasAggregatedFunctions extends Function {
+  [AGGREGATION_PROPERTY_NAME]?: Function[];
+}
+
+export interface ReducerFunction {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (accumulator: any, currentValue: any, index: number, array: any[]): any;
+}
+
+export interface ThisReducerFunction {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (this: any): any;
+}
+
+export interface ReducerAsyncFunction {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (accumulator: any, currentValue: any, index: number, array: any[]): Promise<any>;
+}
+
+export interface ThisReducerAsyncFunction {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (this: any): Promise<any>;
+}
+
+interface MakeProxyFunctionOptions {
+  functions: Function[];
+  itemName: string;
+}
+
+interface MapSyncProxyFunction extends HasAggregatedFunctions {
+  (this: object, ...args: unknown[]): unknown[];
+}
+
+interface ReduceSyncProxyFunction extends HasAggregatedFunctions {
+  (this: object, initialValue: unknown, ...args: unknown[]): unknown;
+}
+
+interface MapAsyncProxyFunction extends HasAggregatedFunctions {
+  (this: object, ...args: unknown[]): Promise<unknown[]>;
+}
+
+interface ReduceAsyncProxyFunction extends HasAggregatedFunctions {
+  (this: object, initialValue: unknown, ...args: unknown[]): Promise<unknown>;
+}
+
+interface ReduceAsyncInitializerProxyFunction extends HasAggregatedFunctions {
+  (this: object, initialValue: unknown, ...args: unknown[]): Promise<unknown>;
+}
+
+interface DomainItemCollection {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: (...args: any[]) => any;
+}
+
+function domainIsCollection(domain: string): boolean {
+  return ['methods'].includes(domain);
+}
+
+function validateDomainAndItemName(domain: string, itemName?: string): void {
+  const dio = domainIsCollection(domain);
+  if (dio && !itemName) {
+    throw new Error(`Domain ${domain} requires an item name for aggregates`);
+  }
+  if (!dio && itemName) {
+    throw new Error(`Domain ${domain} does not need an item name for aggregates`);
+  }
+}
+
+function getDomainItems(
+  descriptor: Required<CollisionDescriptor>,
+  domain: string
+): DomainItemCollection | Initializer[] {
+  if (domainIsCollection(domain)) {
+    return (get(descriptor, domain) || {}) as DomainItemCollection;
+  }
+  return (get(descriptor, domain) || []) as Initializer[];
+}
+
+function getDomainItem(
+  descriptor: Required<CollisionDescriptor>,
+  domain: string,
+  itemName?: string
+): Function | Initializer {
+  validateDomainAndItemName(domain, itemName);
+  const domainItems = getDomainItems(descriptor, domain);
+  if (!itemName) {
+    return (domainItems as Initializer[])[0];
+  }
+  return get(domainItems, itemName);
+}
+
+function isAggregateDomainItem(domainItem: Function): boolean {
+  return AGGREGATION_PROPERTY_NAME in domainItem;
+}
+
+function getDomainItemAggregates(domainItem: Function): Function[] {
+  return get(domainItem, AGGREGATION_PROPERTY_NAME) || [];
+}
+
+function setDomainItemAggregates(domainItem: Function, aggregates: Function[]): void {
+  const arr = get(domainItem, AGGREGATION_PROPERTY_NAME);
+  if (arr) {
+    arr.length = 0;
+    aggregates.forEach((f) => {
+      arr.push(f);
+    });
+  }
+}
+
+function prepareProxyFunction<T extends Function>(functions: Function[], itemName: string, proxyFn: T): T {
+  defineProperty(proxyFn, 'name', { value: itemName, configurable: true });
+  defineProperty(proxyFn, AGGREGATION_PROPERTY_NAME, { value: functions, configurable: true });
+  return proxyFn;
+}
+
+function makeMapSyncProxyFunction({ functions, itemName }: MakeProxyFunctionOptions): MapSyncProxyFunction {
+  return prepareProxyFunction(functions, itemName, function mapSyncFn(this: object, ...args: unknown[]): unknown[] {
+    const fns = getDomainItemAggregates(mapSyncFn);
+    return [...fns.map((fn) => fn.apply(this, [...args]))];
+  });
+}
+
+function makeReduceSyncProxyFunction({ functions, itemName }: MakeProxyFunctionOptions): ReduceSyncProxyFunction {
+  return prepareProxyFunction(functions, itemName, function reduceSyncFn(
+    initialValue: unknown,
+    ...args: unknown[]
+  ): unknown {
+    return getDomainItemAggregates(reduceSyncFn).reduce((o, fn) => fn(o, ...args), initialValue);
+  });
+}
+
+function makeReduceThisSyncProxyFunction({ functions, itemName }: MakeProxyFunctionOptions): ReduceSyncProxyFunction {
+  return prepareProxyFunction(functions, itemName, function reduceThisSyncFn(
+    this: object,
+    ...args: unknown[]
+  ): unknown {
+    return getDomainItemAggregates(reduceThisSyncFn).reduce((o, fn) => {
+      const result = fn.apply(o, args);
+      return result || this;
+    }, this);
+  });
+}
+
+function makeMapAsyncProxyFunction({ functions, itemName }: MakeProxyFunctionOptions): MapAsyncProxyFunction {
+  return prepareProxyFunction(functions, itemName, async function mapAsyncFn(
+    this: object,
+    ...args: unknown[]
+  ): Promise<unknown[]> {
+    return Promise.all(getDomainItemAggregates(mapAsyncFn).map((fn) => fn.apply(this, args)));
+  });
+}
+
+function makeReduceAsyncProxyFunction({ functions, itemName }: MakeProxyFunctionOptions): ReduceAsyncProxyFunction {
+  return prepareProxyFunction(functions, itemName, async function reduceAsyncFn(
+    initialValue: unknown,
+    ...args: unknown[]
+  ): Promise<unknown> {
+    return getDomainItemAggregates(reduceAsyncFn).reduce(
+      (promise, fn) => fn(promise, ...args),
+      Promise.resolve(initialValue)
+    );
+  });
+}
+
+function makeReduceThisAsyncProxyFunction({ functions, itemName }: MakeProxyFunctionOptions): ReduceAsyncProxyFunction {
+  return prepareProxyFunction(functions, itemName, async function reduceThisAsyncFn(
+    this: object,
+    ...args: unknown[]
+  ): Promise<unknown> {
+    return getDomainItemAggregates(reduceThisAsyncFn).reduce((promise, fn) => {
+      return promise.then((result) => {
+        return Promise.resolve(fn.apply(result || this, args)).then((nextResult) => {
+          return nextResult || this;
+        });
+      });
+    }, Promise.resolve(this));
+  });
+}
+
+function makeReduceAsyncInitializerProxyFunction({
+  functions,
+  itemName,
+}: MakeProxyFunctionOptions): ReduceAsyncInitializerProxyFunction {
+  return prepareProxyFunction(functions, itemName, async function reduceAsyncInitializerFn(
+    this: object,
+    ...args: unknown[]
+  ): Promise<unknown> {
+    const [options, context, ...moreArgs] = args;
+    const newArgs = [options, ...moreArgs];
+
+    return getDomainItemAggregates(reduceAsyncInitializerFn).reduce(
+      (promise, fn) =>
+        promise.then((instance) => {
+          if (isFunction<Initializer>(fn)) {
+            const ctx = {
+              instance,
+              stamp: (context as { stamp: Stamp }).stamp,
+              args: newArgs,
+            };
+            return Promise.resolve(fn.call(instance, options as PropertyMap, ctx)).then((returnedValue) => {
+              if (returnedValue !== undefined) {
+                instance = returnedValue;
+              }
+              return instance;
+            });
+          }
+          return Promise.resolve(instance);
+        }),
+      Promise.resolve(this) as Promise<object>
+    );
+  });
+}
+
+interface GetAllSettings {
   (descriptor: CollisionDescriptor): CollisionSettings | undefined;
 }
-const getSettings: GetSettings = (descriptor) => descriptor?.deepConfiguration?.Collision;
+const getAllSettings: GetAllSettings = (descriptor) => descriptor?.deepConfiguration?.Collision;
+
+interface GetSettings {
+  (descriptor: CollisionDescriptor, domain: string): CollisionSettingsVariant | undefined;
+}
+const getSettings: GetSettings = (descriptor, domain) =>
+  descriptor?.deepConfiguration?.Collision ? descriptor.deepConfiguration.Collision[domain] : undefined;
 
 interface CheckIf {
-  (descriptor: CollisionDescriptor, setting: PropertyKey, methodName: PropertyKey): boolean;
+  (descriptor: CollisionDescriptor, domain: string, setting: string, itemName: string): boolean;
 }
-const checkIf: CheckIf = (descriptor, setting, methodName: PropertyKey) => {
-  const settings = getSettings(descriptor);
+const checkIf: CheckIf = (descriptor, domain, setting, itemName: string) => {
+  const settings = getSettings(descriptor, domain);
   const settingsFor = settings && get(settings, setting);
-  return isArray(settingsFor) && settingsFor.indexOf(methodName) >= 0;
+  return isArray(settingsFor) && settingsFor.indexOf(itemName) >= 0;
 };
 
 interface IsForbidden {
-  (descriptor: CollisionDescriptor, methodName: PropertyKey): boolean;
+  (descriptor: CollisionDescriptor, domain: string, itemName: string): boolean;
 }
-const isForbidden: IsForbidden = (descriptor, methodName) =>
-  getSettings(descriptor)?.forbidAll
-    ? !checkIf(descriptor, 'allow', methodName)
-    : checkIf(descriptor, 'forbid', methodName);
+const isForbidden: IsForbidden = (descriptor, domain, itemName) => {
+  const settings = getSettings(descriptor, domain);
+  if (!settings) {
+    return false;
+  }
+  return settings[CollisionSettingKey.ForbidAll]
+    ? !checkIf(descriptor, domain, CollisionSettingKey.Allow, itemName)
+    : checkIf(descriptor, domain, CollisionSettingKey.Forbid, itemName);
+};
 
-interface IsDeferred {
-  (descriptor: CollisionDescriptor, methodName: PropertyKey): boolean;
+interface IsAggregate {
+  (descriptor: CollisionDescriptor, domain: string, itemName: string): boolean;
 }
-const isDeferred: IsDeferred = (descriptor, methodName) => checkIf(descriptor, 'defer', methodName);
 
-interface SetMethodsMetadata {
-  (opts: ComposerParams, methodsMetadata: PropertyMap): void;
+const isAggregateMapSync: IsAggregate = (descriptor, domain, itemName) =>
+  checkIf(descriptor, domain, CollisionSettingKey.MapSync, itemName);
+const isAggregateReduceSync: IsAggregate = (descriptor, domain, itemName) =>
+  checkIf(descriptor, domain, CollisionSettingKey.ReduceSync, itemName);
+const isAggregateReduceThisSync: IsAggregate = (descriptor, domain, itemName) =>
+  checkIf(descriptor, domain, CollisionSettingKey.ReduceThisSync, itemName);
+const isAggregateMapAsync: IsAggregate = (descriptor, domain, itemName) =>
+  checkIf(descriptor, domain, CollisionSettingKey.MapAsync, itemName);
+const isAggregateReduceAsync: IsAggregate = (descriptor, domain, itemName) =>
+  checkIf(descriptor, domain, CollisionSettingKey.ReduceAsync, itemName);
+const isAggregateReduceThisAsync: IsAggregate = (descriptor, domain, itemName) =>
+  checkIf(descriptor, domain, CollisionSettingKey.ReduceThisAsync, itemName);
+const aggregateCheckers: IsAggregate[] = [
+  isAggregateMapSync,
+  isAggregateReduceSync,
+  isAggregateReduceThisSync,
+  isAggregateMapAsync,
+  isAggregateReduceAsync,
+  isAggregateReduceThisAsync,
+];
+const isAggregate: IsAggregate = (descriptor, domain, itemName) =>
+  aggregateCheckers.reduce<boolean>((o, fn) => o || fn(descriptor, domain, itemName), false);
+
+interface GetSettingIndex {
+  (descriptor: CollisionDescriptor, domain: string, itemName: string): number;
 }
-const setMethodsMetadata: SetMethodsMetadata = (opts, methodsMetadata) => {
-  const { methods } = opts.stamp.compose as Required<Descriptor>;
 
-  const setMethodCallback = (key: PropertyKey): void => {
-    const metadata = get(methodsMetadata, key);
-    const value =
-      // eslint-disable-next-line no-nested-ternary
-      isArray(metadata)
-        ? metadata.length === 1
-          ? // Some collisions aggregated to a single method
-            // Mutating the resulting stamp
-            metadata[0]
-          : makeProxyFunction(metadata, key)
-        : metadata;
+const aggregationType: GetSettingIndex = (descriptor, domain, itemName) =>
+  aggregateCheckers.reduce((o, fn, i) => (fn(descriptor, domain, itemName) ? i + 1 : o), SettingIndex.None);
 
-    set(methods, key, value);
-  };
+interface MakeAggregateProxyFunction {
+  (descriptor: CollisionDescriptor, domain: string, functions: Function[], itemName: string):
+    | MapSyncProxyFunction
+    | ReduceSyncProxyFunction
+    | MapAsyncProxyFunction
+    | ReduceAsyncProxyFunction
+    | ReduceAsyncInitializerProxyFunction
+    | undefined;
+}
 
-  ownKeys(methodsMetadata).forEach(setMethodCallback);
+const makeAggregatedProxyFunction: MakeAggregateProxyFunction = (descriptor, domain, functions, itemName) => {
+  const type = aggregationType(descriptor, domain, itemName);
+
+  switch (type) {
+    case SettingIndex.MapSync:
+      return makeMapSyncProxyFunction({ functions, itemName });
+    case SettingIndex.ReduceSync:
+      return makeReduceSyncProxyFunction({ functions, itemName });
+    case SettingIndex.ReduceThisSync:
+      return makeReduceThisSyncProxyFunction({ functions, itemName });
+    case SettingIndex.MapAsync:
+      return makeMapAsyncProxyFunction({ functions, itemName });
+    case SettingIndex.ReduceAsync:
+      return makeReduceAsyncProxyFunction({ functions, itemName });
+    case SettingIndex.ReduceThisAsync:
+      return makeReduceThisAsyncProxyFunction({ functions, itemName });
+    case SettingIndex.ReduceAsyncInitializer:
+      return makeReduceAsyncInitializerProxyFunction({ functions, itemName });
+    default:
+      return undefined;
+  }
+};
+
+interface SetDomainMetadata {
+  (opts: CollisionComposerParams, domain: string, domainMetadata: PropertyMap | Function[]): void;
+}
+const setDomainMetadata: SetDomainMetadata = (opts, domain, domainMetadata) => {
+  if (isObject(domainMetadata) && !isArray(domainMetadata)) {
+    const target = get(opts.stamp.compose as Required<Descriptor>, domain);
+
+    const setDomainMetadataCallback = (key: string): void => {
+      const metadata = get(domainMetadata, key);
+      const value =
+        // eslint-disable-next-line no-nested-ternary
+        isArray(metadata)
+          ? metadata.length === 1
+            ? // Some collisions aggregated to a single method
+              // Mutating the resulting stamp
+              metadata[0]
+            : makeAggregatedProxyFunction(opts.stamp.compose, domain, metadata, key)
+          : metadata;
+
+      set(target, key, value);
+    };
+
+    Object.getOwnPropertyNames(domainMetadata).forEach(setDomainMetadataCallback);
+  } else if (isArray(domainMetadata)) {
+    const settings = getSettings(opts.stamp.compose, domain) as CollisionSettingsInitializers;
+    const metadata = [...domainMetadata];
+    const value = settings.async
+      ? [makeReduceAsyncInitializerProxyFunction({ functions: metadata, itemName: 'reduceAsyncInits' })]
+      : metadata;
+
+    set(opts.stamp.compose, domain, value);
+  }
 };
 
 interface RemoveDuplicates {
-  (settings: CollisionSettings): void;
+  (settings: CollisionSettingsVariant): void;
 }
 const removeDuplicates: RemoveDuplicates = (settings) => {
-  if (isArray(settings.defer)) set(settings, 'defer', dedupe(settings.defer));
-  if (isArray(settings.forbid)) set(settings, 'forbid', dedupe(settings.forbid));
-  if (isArray(settings.allow)) set(settings, 'allow', dedupe(settings.allow));
+  Object.values(CollisionSettingKey)
+    .filter((key) => isArray(settings[key]))
+    .forEach((key) => {
+      set(settings, key, dedupe(settings[key] as string[]));
+    });
 };
 
 interface ThrowIfAmbiguous {
-  (settings: CollisionSettings): void;
+  (settings: CollisionSettingsVariant): void;
 }
+
 const throwIfAmbiguous: ThrowIfAmbiguous = (settings) => {
-  if (isArray(settings.forbid)) {
-    const intersect = (value: PropertyKey): boolean => settings.forbid.indexOf(value) >= 0;
-    const deferredAndForbidden = isArray(settings.defer) ? settings.defer.filter(intersect) : [];
-    if (deferredAndForbidden.length > 0) {
-      throw new Error(`Ambiguous Collision settings. [${deferredAndForbidden.join(', ')}] both deferred and forbidden`);
-    }
-    const allowedAndForbidden = isArray(settings.allow) ? settings.allow.filter(intersect) : [];
+  if (isArray(settings[CollisionSettingKey.Forbid])) {
+    const intersectMapSync = (value: string): boolean =>
+      (settings[CollisionSettingKey.MapSync] as string[]).indexOf(value) >= 0;
+
+    AggregateSettingKeys.slice(1).forEach((key) => {
+      const intersected = isArray(settings[key]) ? (settings[key] as string[]).filter(intersectMapSync) : [];
+      if (intersected.length > 0) {
+        throw new Error(`Ambiguous Collision settings. [${intersected.join(', ')}] both map and ${key}`);
+      }
+    });
+
+    const intersectForbidden = (value: string): boolean =>
+      ((settings[CollisionSettingKey.Forbid] as string[]) || []).indexOf(value) >= 0;
+    AggregateSettingKeys.forEach((key) => {
+      const intersected = isArray(settings[key]) ? (settings[key] as string[]).filter(intersectForbidden) : [];
+      if (intersected.length > 0) {
+        throw new Error(`Ambiguous Collision settings. [${intersected.join(', ')}] both ${key} and forbidden`);
+      }
+    });
+
+    const allowedAndForbidden = isArray(settings.allow) ? settings.allow.filter(intersectForbidden) : [];
     if (allowedAndForbidden.length > 0) {
       throw new Error(`Ambiguous Collision settings. [${allowedAndForbidden.join(', ')}] both allowed and forbidden`);
     }
@@ -117,115 +491,259 @@ interface ThrowIfForbiddenOrAmbiguous {
     existingMetadata: unknown[],
     descriptor: CollisionDescriptor,
     composable: Required<CollisionDescriptor>,
-    methodName: PropertyKey
+    domain: string,
+    itemName: string
   ): void;
 }
+
 const throwIfForbiddenOrAmbiguous: ThrowIfForbiddenOrAmbiguous = (
   existingMetadata,
   descriptor,
   composable,
-  methodName
+  domain,
+  itemName
 ) => {
-  // Process Collision.forbid
-  if (existingMetadata && isForbidden(descriptor, methodName)) {
-    throw new Error(`Collision of method \`${String(methodName)}\` is forbidden`);
+  // Process Forbid
+  if (existingMetadata && isForbidden(descriptor, domain, itemName)) {
+    throw new Error(`Collision of \`${String(itemName)}\` ${domain.slice(0, -1)} is forbidden`);
   }
 
-  // Process Collision.defer
-  if (isDeferred(composable, methodName)) {
+  // Process Aggregate
+  if (isAggregate(descriptor, domain, itemName)) {
     if (existingMetadata && !isArray(existingMetadata)) {
-      throw new Error(`Ambiguous Collision settings. The \`${String(methodName)}\` is both deferred and regular`);
+      throw new Error(
+        `Ambiguous Collision settings. The \`${String(itemName)}\` ${domain.slice(
+          0,
+          -1
+        )} is both aggregated and regular`
+      );
     }
-    // Process no Collision settings
   } else if (isArray(existingMetadata)) {
     // TODO: update error message below
-    throw new Error(`Ambiguous Collision settings. The \`${String(methodName)}\` is both deferred and regular`);
+    throw new Error(
+      `Ambiguous Collision settings. The \`${String(itemName)}\` ${domain.slice(0, -1)} is both aggregated and regular`
+    );
   }
 };
 
-const composer: Composer = (opts) => {
-  const descriptor = opts.stamp.compose as CollisionDescriptor;
-  const settings = getSettings(descriptor);
+function collisionComposer(opts: ComposerParams): Stamp | void {
+  const descriptor = (opts.stamp as CollisionStamp).compose as CollisionDescriptor;
+  const allSettings = getAllSettings(descriptor);
 
-  if (isObject(settings)) {
-    // Deduping is an important part of the logic
-    removeDuplicates(settings);
+  if (!isObject(allSettings)) {
+    return;
+  }
 
-    // Make sure settings are not ambiguous
-    throwIfAmbiguous(settings);
+  Object.getOwnPropertyNames(allSettings).forEach((domain) => {
+    const settings = getSettings(descriptor, domain);
+    if (isObject(settings) && settings !== undefined) {
+      // Deduping is an important part of the logic
+      removeDuplicates(settings);
 
-    if (
-      settings.forbidAll ||
-      (isArray(settings.defer) && settings.defer.length > 0) ||
-      (isArray(settings.forbid) && settings.forbid.length > 0)
-    ) {
-      const methodsMetadata: PropertyMap = {}; // methods aggregation
+      // Make sure settings are not ambiguous
+      throwIfAmbiguous(settings);
 
-      const getCallbackFor = (composable: Required<CollisionDescriptor>) => (methodName: PropertyKey): void => {
-        const method = get(composable.methods, methodName);
-        const existingMetadata = get(methodsMetadata, methodName);
+      if (settings !== undefined) {
+        if (
+          domain !== 'initializers' &&
+          (settings.forbidAll ||
+            AggregateSettingKeys.reduce<boolean>(
+              (o, key) => o || (isArray(settings[key]) && (settings[key] as string[]).length > 0),
+              false
+            ) ||
+            (isArray(settings.forbid) && settings.forbid.length > 0))
+        ) {
+          const domainMetadata: PropertyMap = {}; // methods aggregation
 
-        throwIfForbiddenOrAmbiguous(existingMetadata, descriptor, composable, methodName);
+          const getCallbackFor = (composable: Required<CollisionDescriptor>) => (itemName: string): void => {
+            const domainItem = getDomainItem(composable, domain, itemName) as Function;
+            const existingMetadata = get(domainMetadata, itemName);
 
-        let value = method;
+            throwIfForbiddenOrAmbiguous(existingMetadata, descriptor, composable, domain, itemName);
 
-        // Process Collision.defer
-        if (isDeferred(composable, methodName)) {
-          const arr = existingMetadata || [];
-          arr.push(method);
+            let value = domainItem;
 
-          value = arr;
+            // Process Collision.*.(map|reduce)
+            let arr;
+            if (isAggregate(descriptor, domain, itemName)) {
+              arr = existingMetadata || [];
+            }
+
+            if (arr) {
+              if (isAggregateDomainItem(domainItem)) {
+                arr = arr.concat(getDomainItemAggregates(domainItem));
+              } else {
+                arr.push(domainItem);
+              }
+              value = arr;
+            }
+
+            set(domainMetadata, itemName, value);
+          };
+
+          opts.composables
+            .map((composable) => (isStamp<Stamp>(composable) ? composable.compose : composable))
+            .filter((composable) => isObject(get(composable, domain)))
+            .forEach((composable) => {
+              const domainItems = getDomainItems(composable as Required<CollisionDescriptor>, domain);
+              const setMethodCallback = getCallbackFor(composable as Required<CollisionDescriptor>);
+              Object.getOwnPropertyNames(domainItems)
+                .filter((itemName) => {
+                  const item = get(domainItems, itemName);
+                  const existingMetadata = get(domainMetadata, itemName);
+                  // Checking by reference if the method is already present
+                  return (
+                    item !== undefined &&
+                    (existingMetadata === undefined ||
+                      (existingMetadata !== item &&
+                        (!isArray(existingMetadata) || existingMetadata.indexOf(item) === -1)))
+                  );
+                })
+                .forEach(setMethodCallback);
+            });
+
+          setDomainMetadata(opts as CollisionComposerParams, domain, domainMetadata);
+        } else if (domain === 'initializers') {
+          let domainMetadata: Initializer[] = [];
+
+          opts.composables
+            .map((composable) => (isStamp<Stamp>(composable) ? composable.compose : composable))
+            .map((composable) => (isArray(get(composable, domain)) ? get(composable, domain) : []) as Initializer[])
+            .forEach((initializers) => {
+              initializers.forEach((domainItem) => {
+                if (isAggregateDomainItem(domainItem)) {
+                  domainMetadata = domainMetadata.concat(getDomainItemAggregates(domainItem) as Initializer[]);
+                } else {
+                  domainMetadata.push(domainItem);
+                }
+              });
+            });
+
+          if (domainMetadata.length) {
+            setDomainMetadata(opts as CollisionComposerParams, domain, dedupe(domainMetadata));
+          }
         }
-
-        set(methodsMetadata, methodName, value);
-      };
-
-      opts.composables
-        .map((composable) => (isStamp<Stamp>(composable) ? composable.compose : composable))
-        .filter((composable) => isObject(composable.methods))
-        .forEach((composable) => {
-          const { methods } = composable as Required<Descriptor>;
-          const setMethodCallback = getCallbackFor(composable as Required<CollisionDescriptor>);
-          ownKeys(methods)
-            .filter((methodName) => {
-              const method = get(methods, methodName);
-              const existingMetadata = get(methodsMetadata, methodName);
-              // Checking by reference if the method is already present
-              return (
-                method !== undefined &&
-                (existingMetadata === undefined ||
-                  (existingMetadata !== method &&
-                    (!isArray(existingMetadata) || existingMetadata.indexOf(method) === -1)))
-              );
-            })
-            .forEach(setMethodCallback);
-        });
-
-      setMethodsMetadata(opts, methodsMetadata);
+      }
     }
+  });
+}
+
+function prepareSettings(opts: CollisionSettings | DeprecatedCollisionSettings): CollisionSettings | null {
+  if (!opts) {
+    return null;
   }
-};
+  const { defer = [] } = (opts || {}) as DeprecatedCollisionSettings;
+  const defaultMethodsSettings = {
+    map: [],
+    reduce: [],
+    reduceThis: [],
+    mapAsync: [],
+    reduceAsync: [],
+    reduceThisAsync: [],
+    allow: [],
+    forbid: [],
+    forbidAll: false,
+  };
+  const defaultInitializersSettings = {};
+  const settings: CollisionSettings = {
+    methods: merge({ ...defaultMethodsSettings }, { map: defer }, opts.methods),
+    initializers: merge({ ...defaultInitializersSettings }, opts.initializers),
+  };
+
+  return settings;
+}
 
 /**
  * TODO
  */
 const Collision = compose({
-  deepConfiguration: { Collision: { defer: [], forbid: [] } },
+  deepConfiguration: { Collision: {} },
   staticProperties: {
-    collisionSetup(this: Stamp | undefined, opts: CollisionSettings): CollisionStamp {
+    collisionSetup(this: Stamp | undefined, opts: CollisionSettings | DeprecatedCollisionSettings): CollisionStamp {
       return (this?.compose ? this : Collision).compose({
-        deepConfiguration: { Collision: opts },
+        deepConfiguration: { Collision: prepareSettings(opts) },
       }) as CollisionStamp;
     },
     collisionSettingsReset(this: CollisionStamp): CollisionStamp {
+      const settings = getSettings(this.compose, 'initializers') as CollisionSettingsInitializers;
+
+      // Resetting asynchronous initializers will break everything.
+      // Workaround: Use a composer
+      if (settings.async) {
+        throw new Error(
+          'An attempt was made to reset collision settings when the stamp has asynchronous initializers enabled. Use a composer to reset collision settings and properly handle these initializers.'
+        );
+      }
+
       return this.collisionSetup(null);
     },
     collisionProtectAnyMethod(this: CollisionStamp, opts: CollisionSettings): CollisionStamp {
-      return this.collisionSetup(assign({}, opts, { forbidAll: true }) as CollisionSettings);
+      return this.collisionSetup(merge({}, opts, { methods: { forbidAll: true } }) as CollisionSettings);
+    },
+    collisionHasAggregates(this: CollisionStamp, domain: string, itemName?: string): boolean {
+      validateDomainAndItemName(domain, itemName);
+
+      return this.collisionGetAggregates.call(this, domain, itemName) !== undefined;
+    },
+    collisionGetAggregates(
+      this: CollisionStamp | CollisionDescriptor,
+      domain: string,
+      itemName?: string
+    ): Function[] | undefined {
+      validateDomainAndItemName(domain, itemName);
+
+      const descriptor = ('compose' in this ? this.compose : this) as Required<Descriptor>;
+
+      const targetDomain = get(descriptor, domain);
+      if (!targetDomain) {
+        return undefined;
+      }
+
+      const target = isArray(targetDomain) ? targetDomain[0] : get(targetDomain, itemName as string);
+      if (!target) {
+        return undefined;
+      }
+
+      return isArray(target[AGGREGATION_PROPERTY_NAME]) && target[AGGREGATION_PROPERTY_NAME].length > 0
+        ? [...target[AGGREGATION_PROPERTY_NAME]]
+        : undefined;
+    },
+    collisionSetAggregates(
+      this: CollisionStamp | CollisionDescriptor,
+      aggregates: Function[],
+      domain: string,
+      itemName?: string
+    ): void {
+      validateDomainAndItemName(domain, itemName);
+
+      const descriptor = 'compose' in this ? this.compose : this;
+      const settings = getSettings(descriptor, domain);
+      if (!settings) {
+        throw new Error(`Stamp has no collision settings for domain "${domain}"`);
+      }
+      if (itemName && !isAggregate(descriptor, domain, itemName)) {
+        throw new Error(`Stamp has no collision settings for ${domain} item with name ${itemName}`);
+      }
+
+      const targetDomain = get(descriptor as Required<Descriptor>, domain);
+      if (!targetDomain) {
+        throw new Error('Domain does not exist');
+      }
+      const domainItem = isArray(targetDomain) ? targetDomain[0] : get(targetDomain, itemName as string);
+      // const currentAggregates = getDomainItemAggregates(domainItem);
+      // const isSubset = aggregates.filter((a) => !currentAggregates.includes(a)).length === 0;
+
+      // if (!isSubset) {
+      //   throw new Error(`New aggregates for ${domain} must be a subset of existing aggregates`);
+      // }
+
+      if (isAggregateDomainItem(domainItem)) {
+        setDomainItemAggregates(domainItem, aggregates);
+      }
     },
   },
-  composers: [composer],
-});
+  composers: [collisionComposer],
+}) as CollisionStamp;
 
 export default Collision;
 

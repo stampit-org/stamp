@@ -1,7 +1,7 @@
 /* eslint @typescript-eslint/no-use-before-define: ["error", { "variables": false }] */
 import compose, { Composable, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
 import { assign } from '@stamp/core';
-import { isObject } from '@stamp/is';
+import { isObject, isStamp } from '@stamp/is';
 
 const { freeze } = Object;
 const { get, ownKeys } = Reflect;
@@ -14,7 +14,7 @@ interface StampMethodRequired {
   (this: Stamp, settings: Composable): Stamp;
 }
 export const required: StampMethodRequired = function required(settings): Stamp {
-  const localStamp = this?.compose ? this : Required;
+  const localStamp = isStamp(this) ? this : Required;
   const { deepConfiguration } = localStamp.compose as RequiredDescriptor;
   const prevSettings = deepConfiguration?.Required;
 
