@@ -411,7 +411,8 @@ const Collision = compose_1.default({
         },
         collisionGetAggregates(domain, itemName) {
             validateDomainAndItemName(domain, itemName);
-            const targetDomain = get(this.compose, domain);
+            const descriptor = ('compose' in this ? this.compose : this);
+            const targetDomain = get(descriptor, domain);
             if (!targetDomain) {
                 return undefined;
             }
@@ -425,23 +426,24 @@ const Collision = compose_1.default({
         },
         collisionSetAggregates(aggregates, domain, itemName) {
             validateDomainAndItemName(domain, itemName);
-            const settings = getSettings(this.compose, domain);
+            const descriptor = 'compose' in this ? this.compose : this;
+            const settings = getSettings(descriptor, domain);
             if (!settings) {
                 throw new Error(`Stamp has no collision settings for domain "${domain}"`);
             }
-            if (itemName && !isAggregate(this.compose, domain, itemName)) {
+            if (itemName && !isAggregate(descriptor, domain, itemName)) {
                 throw new Error(`Stamp has no collision settings for ${domain} item with name ${itemName}`);
             }
-            const targetDomain = get(this.compose, domain);
+            const targetDomain = get(descriptor, domain);
             if (!targetDomain) {
                 throw new Error('Domain does not exist');
             }
             const domainItem = is_1.isArray(targetDomain) ? targetDomain[0] : get(targetDomain, itemName);
-            const currentAggregates = getDomainItemAggregates(domainItem);
-            const isSubset = aggregates.filter((a) => !currentAggregates.includes(a)).length === 0;
-            if (!isSubset) {
-                throw new Error(`New aggregates for ${domain} must be a subset of existing aggregates`);
-            }
+            // const currentAggregates = getDomainItemAggregates(domainItem);
+            // const isSubset = aggregates.filter((a) => !currentAggregates.includes(a)).length === 0;
+            // if (!isSubset) {
+            //   throw new Error(`New aggregates for ${domain} must be a subset of existing aggregates`);
+            // }
             if (isAggregateDomainItem(domainItem)) {
                 setDomainItemAggregates(domainItem, aggregates);
             }

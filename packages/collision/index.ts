@@ -685,10 +685,16 @@ const Collision = compose({
 
       return this.collisionGetAggregates.call(this, domain, itemName) !== undefined;
     },
-    collisionGetAggregates(this: CollisionStamp, domain: string, itemName?: string): Function[] | undefined {
+    collisionGetAggregates(
+      this: CollisionStamp | CollisionDescriptor,
+      domain: string,
+      itemName?: string
+    ): Function[] | undefined {
       validateDomainAndItemName(domain, itemName);
 
-      const targetDomain = get(this.compose as Required<Descriptor>, domain);
+      const descriptor = ('compose' in this ? this.compose : this) as Required<Descriptor>;
+
+      const targetDomain = get(descriptor, domain);
       if (!targetDomain) {
         return undefined;
       }
@@ -702,28 +708,34 @@ const Collision = compose({
         ? [...target[AGGREGATION_PROPERTY_NAME]]
         : undefined;
     },
-    collisionSetAggregates(this: CollisionStamp, aggregates: Function[], domain: string, itemName?: string): void {
+    collisionSetAggregates(
+      this: CollisionStamp | CollisionDescriptor,
+      aggregates: Function[],
+      domain: string,
+      itemName?: string
+    ): void {
       validateDomainAndItemName(domain, itemName);
 
-      const settings = getSettings(this.compose, domain);
+      const descriptor = 'compose' in this ? this.compose : this;
+      const settings = getSettings(descriptor, domain);
       if (!settings) {
         throw new Error(`Stamp has no collision settings for domain "${domain}"`);
       }
-      if (itemName && !isAggregate(this.compose, domain, itemName)) {
+      if (itemName && !isAggregate(descriptor, domain, itemName)) {
         throw new Error(`Stamp has no collision settings for ${domain} item with name ${itemName}`);
       }
 
-      const targetDomain = get(this.compose as Required<Descriptor>, domain);
+      const targetDomain = get(descriptor as Required<Descriptor>, domain);
       if (!targetDomain) {
         throw new Error('Domain does not exist');
       }
       const domainItem = isArray(targetDomain) ? targetDomain[0] : get(targetDomain, itemName as string);
-      const currentAggregates = getDomainItemAggregates(domainItem);
-      const isSubset = aggregates.filter((a) => !currentAggregates.includes(a)).length === 0;
+      // const currentAggregates = getDomainItemAggregates(domainItem);
+      // const isSubset = aggregates.filter((a) => !currentAggregates.includes(a)).length === 0;
 
-      if (!isSubset) {
-        throw new Error(`New aggregates for ${domain} must be a subset of existing aggregates`);
-      }
+      // if (!isSubset) {
+      //   throw new Error(`New aggregates for ${domain} must be a subset of existing aggregates`);
+      // }
 
       if (isAggregateDomainItem(domainItem)) {
         setDomainItemAggregates(domainItem, aggregates);

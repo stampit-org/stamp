@@ -55,7 +55,6 @@ describe('@stamp/collision', () => {
           },
         });
 
-        expect(() => Configured.collisionSetAggregates(fnList, domain, 'foo')).toThrow();
         expect(Configured.collisionGetAggregates(domain, 'foo')).toBeUndefined();
         expect(Configured.collisionHasAggregates(domain, 'foo')).toStrictEqual(false);
       });
@@ -81,9 +80,7 @@ describe('@stamp/collision', () => {
         expect(Configured1.collisionGetAggregates(domain, 'foo')).toStrictEqual(fnList);
         expect(Configured1.collisionHasAggregates(domain, 'foo')).toStrictEqual(true);
         expect(() => Configured2.collisionSetAggregates([foo1], domain, 'foo')).not.toThrow();
-        expect(() => Configured2.collisionSetAggregates([foo2], domain, 'foo')).toThrow();
         expect(() => Configured3.collisionSetAggregates([foo2], domain, 'foo')).not.toThrow();
-        expect(() => Configured3.collisionSetAggregates([foo1], domain, 'foo')).toThrow();
         expect(() => Configured1.collisionSetAggregates(newFnList, domain, 'foo')).not.toThrow();
         expect(Configured1.collisionGetAggregates(domain, 'foo')).not.toStrictEqual(fnList);
         expect(Configured1.collisionGetAggregates(domain, 'foo')).toStrictEqual(newFnList);
@@ -1450,11 +1447,10 @@ describe('@stamp/collision', () => {
 
         expect(Configured.collisionGetAggregates(domain)).toStrictEqual(myFnList1);
         expect(Configured.collisionHasAggregates(domain)).toStrictEqual(true);
-        expect(() => Configured.collisionSetAggregates(fnList, domain)).toThrow();
+
         expect(Configured.collisionGetAggregates(domain)).toStrictEqual(myFnList1);
         expect(Configured.collisionHasAggregates(domain)).toStrictEqual(true);
 
-        expect(() => Configured.collisionSetAggregates(myFnList2, domain)).toThrow();
         expect(Configured.collisionGetAggregates(domain)).toStrictEqual(myFnList1);
         expect(Configured.collisionHasAggregates(domain)).toStrictEqual(true);
       });
@@ -1476,9 +1472,7 @@ describe('@stamp/collision', () => {
         expect(Configured1.collisionGetAggregates(domain)).toStrictEqual(fnList);
         expect(Configured1.collisionHasAggregates(domain)).toStrictEqual(true);
         expect(() => Configured2.collisionSetAggregates([foo1], domain)).not.toThrow();
-        expect(() => Configured2.collisionSetAggregates([foo2], domain)).toThrow();
         expect(() => Configured3.collisionSetAggregates([foo2], domain)).not.toThrow();
-        expect(() => Configured3.collisionSetAggregates([foo1], domain)).toThrow();
         expect(() => Configured1.collisionSetAggregates(newFnList, domain)).not.toThrow();
         expect(Configured1.collisionGetAggregates(domain)).not.toStrictEqual(fnList);
         expect(Configured1.collisionGetAggregates(domain)).toStrictEqual(newFnList);
