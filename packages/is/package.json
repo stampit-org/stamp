@@ -35,15 +35,9 @@
     "link": "npm run build && lerna link"
   },
   "devDependencies": {
-    "@stamp/types": "1.6.0",
-    "xo": "^0.39.1"
+    "@stamp/types": "1.6.0"
   },
   "xo": {
-    "ignores": [
-      "**.js",
-      "**.d.ts",
-      "__tests__"
-    ],
     "space": 2,
     "rules": {
       "capitalized-comments": "warn",

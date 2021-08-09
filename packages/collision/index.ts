@@ -181,7 +181,7 @@ const composer: Composer<unknown, any> = (parameters) => {
         // Process Collision.defer
         if (isDeferred(composable, methodName)) {
           const array = existingMetadata || [];
-          array.push(method);
+          array.push(method as unknown);
 
           value = array;
         }

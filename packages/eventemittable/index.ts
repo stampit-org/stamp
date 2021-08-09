@@ -1,6 +1,5 @@
-import compose from '@stamp/compose';
 import { EventEmitter } from 'events';
-
+import compose from '@stamp/compose';
 import type { PropertyMap, Stamp } from '@stamp/compose';
 
 /**

@@ -24,14 +24,8 @@
     "@stamp/privatize": "^1.0.3"
   },
   "devDependencies": {
-    "xo": "^0.39.1"
   },
   "xo": {
-    "ignores": [
-      "**.js",
-      "**.d.ts",
-      "__tests__"
-    ],
     "space": 2,
     "rules": {
       "capitalized-comments": "warn",

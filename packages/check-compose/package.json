@@ -28,17 +28,14 @@
   "dependencies": {
     "lodash": "^4.17.21",
     "prettyjson": "^1.2.1",
-    "tape": "^5.3.0"
+    "tape": "^5.3.1"
   },
   "devDependencies": {
-    "xo": "^0.39.1"
   },
   "xo": {
-    "ignores": [
-      "**.js",
-      "bin"
-    ],
     "space": 2,
+    "rules": {
+    },
     "prettier": true
   }
 }

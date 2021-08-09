@@ -57,7 +57,7 @@
     "lerna": "^3.22.1",
     "prettier": "^2.3.2",
     "typescript": "^4.3.5",
-    "xo": "^0.39.1"
+    "xo": "^0.44.0"
   },
   "contributors": [
     "Vasyl Boroviak <kore.sar@gmail.com> (https://twitter.com/kore_sar)",
@@ -73,5 +73,16 @@
       "html",
       "text"
     ]
+  },
+  "xo": {
+    "ignores": [
+      "**.js",
+      "**.d.ts",
+      "__tests__"
+    ],
+    "space": 2,
+    "rules": {
+    },
+    "prettier": true
   }
 }

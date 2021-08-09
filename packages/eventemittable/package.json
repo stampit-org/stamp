@@ -22,15 +22,9 @@
     "@stamp/compose": "^1.0.2"
   },
   "devDependencies": {
-    "@types/node": "^10.17.60",
-    "xo": "^0.39.1"
+    "@types/node": "^10.17.60"
   },
   "xo": {
-    "ignores": [
-      "**.js",
-      "**.d.ts",
-      "__tests__"
-    ],
     "space": 2,
     "rules": {
       "capitalized-comments": "warn",

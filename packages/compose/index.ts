@@ -36,8 +36,8 @@ const { get, set } = Reflect;
  * @returns {Function} The new factory function.
  */
 // ! weak types
-const createFactory = (): Stamp<unknown> => {
-  return function Stamp(options: PropertyMap = {}, ...arguments_): unknown {
+const createFactory = (): Stamp<unknown> =>
+  function Stamp(options: PropertyMap = {}, ...arguments_): unknown {
     // ! weak types
     const descriptor = ((Stamp as Stamp<unknown>).compose || {}) as Descriptor<unknown, unknown>;
     const { methods, properties, deepProperties, propertyDescriptors, initializers } = descriptor;
@@ -68,7 +68,6 @@ const createFactory = (): Stamp<unknown> => {
     return instance;
     // ! weak types
   } as Stamp<unknown>;
-};
 
 /**
  * @internal Returns a new stamp given a descriptor and a compose function implementation.

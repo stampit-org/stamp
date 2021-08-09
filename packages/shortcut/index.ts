@@ -1,5 +1,4 @@
 import compose from '@stamp/compose';
-
 import type { Composable, ComposeFunction, DefineStamp, Descriptor } from '@stamp/compose';
 
 /** @internal */
@@ -73,12 +72,11 @@ type ShortcutMethod<Instance, FinalStamp, ComposingStamp> = (
 /** @internal createShortcut */
 const createShortcut = <Instance, FinalStamp, ComposingStamp>(
   propertyKey: PropertyKey
-): ShortcutMethod<Instance, FinalStamp, ComposingStamp> => {
-  return function (this: ShortcutStamp<Instance, FinalStamp, ComposingStamp>, argument: unknown) {
+): ShortcutMethod<Instance, FinalStamp, ComposingStamp> =>
+  function (this: ShortcutStamp<Instance, FinalStamp, ComposingStamp>, argument: unknown) {
     const parameter = { [propertyKey]: argument };
     return this?.compose ? this.compose(parameter) : compose(parameter);
   };
-};
 
 const methods = createShortcut('methods');
 const properties = createShortcut('properties');

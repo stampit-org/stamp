@@ -1,6 +1,5 @@
-import isObject from './object';
-
 import type { Descriptor } from '@stamp/types';
+import isObject from './object';
 
 /**
  * Checks if passed argument is considered a descriptor.

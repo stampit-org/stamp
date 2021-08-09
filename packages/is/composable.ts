@@ -1,6 +1,5 @@
-import isObject from './object';
-
 import type { Composable } from '@stamp/types';
+import isObject from './object';
 
 /**
  * Checks if passed argument is considered as composable (i.e. stamp or descriptor).

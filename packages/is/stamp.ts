@@ -1,6 +1,5 @@
-import isFunction from './function';
-
 import type { Stamp } from '@stamp/types';
+import isFunction from './function';
 
 /**
  * Checks if passed argument is a function and has a `.compose()` method.

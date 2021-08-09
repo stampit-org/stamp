@@ -21,14 +21,8 @@
     "@stamp/is": "^1.0.0"
   },
   "devDependencies": {
-    "xo": "^0.39.1"
   },
   "xo": {
-    "ignores": [
-      "**.js",
-      "**.d.ts",
-      "__tests__"
-    ],
     "space": 2,
     "rules": {
       "capitalized-comments": "warn",

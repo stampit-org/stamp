@@ -20,15 +20,9 @@
     "@stamp/compose": "^1.0.2"
   },
   "devDependencies": {
-    "@stamp/instanceof": "^1.0.1",
-    "xo": "^0.39.1"
+    "@stamp/instanceof": "^1.0.1"
   },
   "xo": {
-    "ignores": [
-      "**.js",
-      "**.d.ts",
-      "__tests__"
-    ],
     "space": 2,
     "rules": {
       "capitalized-comments": "warn",
