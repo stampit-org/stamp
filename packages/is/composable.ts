@@ -1,3 +1,4 @@
+import type { Composable } from '@stamp/types';
 import isObject from './object';
 
 /**
@@ -6,8 +7,8 @@ import isObject from './object';
 // More proper implementation would be
 // isDescriptor(obj) || isStamp(obj)
 // but there is no sense since stamp is function and function is object.
-// TODO: finer type guard
-const isComposable = isObject;
+// ! weak types
+const isComposable: (value: unknown) => value is Composable<unknown, unknown> = isObject;
 
 export default isComposable;
 

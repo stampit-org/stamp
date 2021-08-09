@@ -1,8 +1,9 @@
 /**
- * @internal Checks if passed argument is considered a `string`.
+ * @internal Checks if passed argument is a `string`.
  */
 const isString = (value: unknown): value is string => typeof value === 'string';
 
+// For Typescript .d.ts
 export default isString;
 
 // For CommonJS default export support

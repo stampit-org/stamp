@@ -3,6 +3,9 @@
   "version": "1.0.3",
   "description": "Protect private properties",
   "main": "index.js",
+  "files": [
+    "index.d.ts"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/privatize"
@@ -18,5 +21,13 @@
   },
   "devDependencies": {
     "@stamp/instanceof": "^1.0.1"
+  },
+  "xo": {
+    "space": 2,
+    "rules": {
+      "capitalized-comments": "warn",
+      "import/extensions": "warn"
+    },
+    "prettier": true
   }
 }

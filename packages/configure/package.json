@@ -3,6 +3,10 @@
   "version": "1.0.2",
   "license": "MIT",
   "description": "Access configuration of your stamps anywhere",
+  "main": "index.js",
+  "files": [
+    "index.d.ts"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/configure"
@@ -18,5 +22,15 @@
   "dependencies": {
     "@stamp/compose": "^1.0.2",
     "@stamp/privatize": "^1.0.3"
+  },
+  "devDependencies": {
+  },
+  "xo": {
+    "space": 2,
+    "rules": {
+      "capitalized-comments": "warn",
+      "import/extensions": "warn"
+    },
+    "prettier": true
   }
 }

@@ -1,31 +1,55 @@
-import compose, { Stamp, Initializer, PropertyMap } from '@stamp/compose';
+import compose from '@stamp/compose';
 import Privatize from '@stamp/privatize';
 
-interface HasConfig {
+import type { Composable, Initializer, PropertyMap, Stamp } from '@stamp/compose';
+
+/** An object instance with `config` property */
+// TODO: HasConfig should support generics like <ObjectInstance>
+export interface HasConfig {
   config: PropertyMap;
 }
-const configure: Initializer = function configure(_, options) {
-  const { configuration } = options.stamp.compose;
-  const { deepConfiguration } = options.stamp.compose;
-  (this as HasConfig).config = Object.freeze({ ...deepConfiguration, ...configuration });
+
+/** @internal `Configure` initializer function */
+// ! weak types
+const initializer: Initializer<HasConfig, any> = function (_options, context) {
+  const { configuration } = context.stamp.compose;
+  const { deepConfiguration } = context.stamp.compose;
+  this.config = Object.freeze({ ...deepConfiguration, ...configuration });
 };
 
-interface ConfigureStamp extends Stamp {
-  noPrivatize: () => ConfigureStamp;
+/**
+ * A Stamp with the `noPrivatize` static method
+ */
+// TODO: ConfigureStamp should support generics like <ObjectInstance, OriginalStamp>
+export interface ConfigureStamp extends Stamp<unknown> {
+  /**
+   * Configure stamp without `@stamp/privatize`
+   */
+  // ! weak types
+  noPrivatize: () => Stamp<unknown>;
 }
-const ConfigurePublic: ConfigureStamp = compose({
-  initializers: [configure],
-}) as ConfigureStamp;
 
 /**
- * TODO
+ * Access configuration of your stamps anywhere
  */
-const ConfigurePrivate = ConfigurePublic.compose(Privatize) as ConfigureStamp;
+// TODO: ConfigurePublic should support generics like <ObjectInstance, OriginalStamp>
+// ! weak types
+const ConfigurePublic: Stamp<unknown> = compose(({ initializers: [initializer] } as unknown) as Composable<
+  unknown,
+  unknown
+  // ! weak types
+>) as Stamp<unknown>;
 
-ConfigurePrivate.noPrivatize = (): ConfigureStamp => ConfigurePublic;
+/**
+ * Access configuration of your stamps anywhere
+ */
+// TODO: Configure should support generics like <ObjectInstance, OriginalStamp>
+const Configure = ConfigurePublic.compose(Privatize) as ConfigureStamp;
+// ! type should be ConfigureStamp, renamed as Configure
+Configure.noPrivatize = () => ConfigurePublic;
 
-export default ConfigurePrivate;
+export default Configure;
 
 // For CommonJS default export support
-module.exports = ConfigurePrivate;
-Object.defineProperty(module.exports, 'default', { enumerable: false, value: ConfigurePrivate });
+module.exports = Configure;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: Configure });

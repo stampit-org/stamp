@@ -3,16 +3,33 @@
   "version": "1.0.2",
   "license": "MIT",
   "description": "Node.js' EventEmitter as a stamp",
+  "main": "index.js",
+  "files": [
+    "index.d.ts"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/eventemittable"
+  },
+  "engines": {
+    "node": ">= 10.18.0"
   },
   "scripts": {
     "build": "tsc",
     "link": "npm run build && lerna link"
   },
   "dependencies": {
-    "@stamp/compose": "^1.0.2",
-    "events": "^3.0.0"
+    "@stamp/compose": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^10.17.60"
+  },
+  "xo": {
+    "space": 2,
+    "rules": {
+      "capitalized-comments": "warn",
+      "import/extensions": "warn"
+    },
+    "prettier": true
   }
 }

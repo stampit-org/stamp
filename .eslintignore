@@ -1,3 +1,4 @@
 node_modules
-packages/check-compose
-*.d.ts
+packages/*
+!packages/check-compose
+packages/*/__test__/*

@@ -1,12 +1,14 @@
+import type { Stamp } from '@stamp/types';
 import isFunction from './function';
 
 /**
- * Checks if passed argument is a function and has a `.compose()` property.
+ * Checks if passed argument is a function and has a `.compose()` method.
  */
-// TODO: finer type guard
-const isStamp = <T extends object = object>(value: unknown): value is T =>
+// ! weak types
+const isStamp = <T extends Stamp<unknown> = Stamp<unknown>>(value: unknown): value is T =>
   isFunction(value) && isFunction(value.compose);
 
+// For Typescript .d.ts
 export default isStamp;
 
 // For CommonJS default export support

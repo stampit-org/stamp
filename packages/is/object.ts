@@ -1,11 +1,18 @@
+/** Workaround for `object` type */
+// ! weak types
+type anyObject = Record<string, unknown>;
+
 /**
  * @internal Checks if passed argument is considered an `object`.
+ *
+ * > Note that functions are `object`s too.
  */
-const isObject = (value: unknown): value is object => {
+const isObject = (value: unknown): value is anyObject => {
   const type = typeof value;
-  return !!value && (type === 'object' || type === 'function');
+  return Boolean(value) && (type === 'object' || type === 'function');
 };
 
+// For Typescript .d.ts
 export default isObject;
 
 // For CommonJS default export support

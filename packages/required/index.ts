@@ -1,47 +1,55 @@
 /* eslint @typescript-eslint/no-use-before-define: ["error", { "variables": false }] */
-import compose, { Composable, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
+import compose from '@stamp/compose';
 import { assign } from '@stamp/core';
 import { isObject } from '@stamp/is';
+
+import type { Composable, Descriptor, PropertyMap, Stamp } from '@stamp/compose';
 
 const { freeze } = Object;
 const { get, ownKeys } = Reflect;
 
-interface RequiredDescriptor extends Descriptor {
-  deepConfiguration?: PropertyMap & { Required: Descriptor };
+/** @internal */
+// ! weak types
+interface OwnDescriptor extends Descriptor<unknown, unknown> {
+  deepConfiguration?: PropertyMap & { Required: Descriptor<unknown, unknown> };
 }
 
-interface StampMethodRequired {
-  (this: Stamp, settings: Composable): Stamp;
-}
-export const required: StampMethodRequired = function required(settings): Stamp {
+/** @internal */
+// ! weak types
+function required(this: Stamp<unknown> | undefined, settings: Composable<unknown, unknown>): Stamp<unknown> {
   const localStamp = this?.compose ? this : Required;
-  const { deepConfiguration } = localStamp.compose as RequiredDescriptor;
-  const prevSettings = deepConfiguration?.Required;
+  const { deepConfiguration } = localStamp.compose as OwnDescriptor;
+  // ! weak types
+  const previousSettings = deepConfiguration?.Required as Composable<unknown, unknown>;
 
-  // filter out non stamp things
-  const newSettings = assign<Descriptor>({}, compose(prevSettings, settings).compose);
+  // Filter out non stamp things
+  // ! weak types
+  const newSettings = assign<Descriptor<unknown, unknown>>(
+    {},
+    (compose(previousSettings, settings) as Stamp<unknown>).compose
+  );
 
   return localStamp.compose({ deepConfiguration: { Required: newSettings } });
-};
+}
 
 freeze(required);
 
-interface CheckDescriptorHaveThese {
-  (descriptor: Descriptor, settings: Descriptor | undefined): void;
-}
-const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings) => {
+/** @internal */
+const checkDescriptorHaveThese = (
+  descriptor: Descriptor<unknown, unknown>,
+  settings: Descriptor<unknown, unknown> | undefined
+): void => {
+  /* eslint-disable max-depth */
   if (descriptor && settings) {
     // Traverse settings and find if there is anything required.
-    const settingsKeys = ownKeys(settings);
-    for (const settingsKey of settingsKeys) {
+    for (const settingsKey of ownKeys(settings)) {
       const settingsValue = get(settings, settingsKey);
       if (isObject(settingsValue)) {
-        const metadataKeys = ownKeys(settingsValue);
-        for (const metadataKey of metadataKeys) {
+        for (const metadataKey of ownKeys(settingsValue)) {
           const metadataValue = get(settingsValue, metadataKey);
           if (metadataValue === Required || metadataValue === required) {
             // We found one thing which have to be provided. Let's check if it exists.
-            const descValue = get(descriptor, settingsKey);
+            const descValue: Descriptor<unknown, unknown> = get(descriptor, settingsKey);
             if (!descValue || get(descValue, metadataKey) === undefined) {
               throw new Error(`Required: There must be ${String(metadataKey)} in this stamp ${String(settingsKey)}`);
             }
@@ -50,15 +58,17 @@ const checkDescriptorHaveThese: CheckDescriptorHaveThese = (descriptor, settings
       }
     }
   }
+  /* eslint-enable max-depth */
 };
 
 /**
- * TODO
+ * Insist on a method/property/staticProperty/configuration presence
  */
-const Required = compose({
+// TODO: Required should support generics like <ObjectInstance, OriginalStamp>
+const Required: Stamp<unknown> = compose({
   initializers: [
-    (_, opts): void => {
-      const descriptor = opts.stamp.compose as RequiredDescriptor;
+    (_, options): void => {
+      const descriptor = options.stamp.compose as OwnDescriptor;
       const { deepConfiguration } = descriptor;
       const settings = deepConfiguration?.Required;
       checkDescriptorHaveThese(descriptor, settings);
@@ -67,6 +77,7 @@ const Required = compose({
   staticProperties: {
     required,
   },
+  // ! type should be RequiredStamp, renamed as Required
 });
 
 export default Required;

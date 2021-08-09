@@ -1,12 +1,22 @@
-const { prototype } = Object;
-const { getPrototypeOf } = Reflect;
+/** Workaround for `object` type */
+// ! weak types
+type anyObject = Record<string, unknown>;
+
+const { getPrototypeOf, prototype } = Object;
 
 /**
- * @internal Checks if passed argument is a plain old javascrip object (POJO).
+ * @internal Checks if passed argument is a plain old javascript object (POJO).
  */
-const isPlainObject = (value: unknown): value is {} =>
-  !!value && typeof value === 'object' && getPrototypeOf(value as {}) === prototype;
+const isPlainObject = (value: unknown): value is anyObject => {
+  if (prototype.toString.call(value) !== '[object Object]') {
+    return false;
+  }
 
+  const unknownPrototype = getPrototypeOf(value);
+  return unknownPrototype === null || unknownPrototype === prototype;
+};
+
+// For Typescript .d.ts
 export default isPlainObject;
 
 // For CommonJS default export support

@@ -1,0 +1,46 @@
+{
+  "name": "@stamp/types",
+  "version": "1.6.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Typescript definition of the Stamp specification",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stampit-org/stamp/tree/master/packages/types"
+  },
+  "author": "",
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "files": [
+    "index.d.ts"
+  ],
+  "keywords": [
+    "compose",
+    "object",
+    "object oriented",
+    "prototype",
+    "inheritance",
+    "oop",
+    "node",
+    "factory",
+    "class",
+    "stamp",
+    "typescript",
+    "types"
+  ],
+  "devDependencies": {
+    "tsd": "^0.17.0",
+    "type-fest": "^2.0.0"
+  },
+  "xo": {
+    "space": 2,
+    "rules": {
+      "capitalized-comments": "warn",
+      "import/extensions": "warn"
+    },
+    "prettier": true
+  }
+}

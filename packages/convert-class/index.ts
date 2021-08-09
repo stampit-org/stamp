@@ -1,54 +1,83 @@
-import compose, { Initializer, PropertyMap, Stamp } from '@stamp/compose';
+import compose from '@stamp/compose';
 
-const { prototype: functionPrototype } = Function;
+import type { Initializer, PropertyMap, Stamp } from '@stamp/compose';
+
+type FunctionPrototype = typeof Function.prototype;
+type ObjectPrototype = typeof Object.prototype;
+
 const { assign } = Object;
 const { construct, get, getPrototypeOf, ownKeys, set } = Reflect;
 
-const isClass = (value: unknown): unknown => typeof value === 'function' && /^\s*class\s/.test(value.toString());
-
-const isFunction = (value: unknown): value is Function => value === functionPrototype;
-
-const copyPropertiesFrom = (srcObj: object) => (destObj: PropertyMap, key: PropertyKey): PropertyMap => {
-  if (key !== 'length' && key !== 'name' && key !== 'prototype') set(destObj, key, get(srcObj, key));
-  return destObj;
-};
-
-const classStaticProperties = (ctor: object): PropertyMap =>
-  isFunction(ctor) ? {} : ownKeys(ctor).reduce(copyPropertiesFrom(ctor), classStaticProperties(getPrototypeOf(ctor)));
-
+/** @internal */
 interface ObjectWithPrototype extends PropertyMap {
-  prototype: object;
+  prototype: ObjectPrototype;
 }
-const copyMethodsFrom = (srcObj: object) => (destObj: object, key: PropertyKey): object => {
-  if (key !== 'constructor') set(destObj, key, get(srcObj, key));
-  return destObj;
+
+/** @internal is an object constructor */
+const isClass = (value: unknown): value is ObjectConstructor =>
+  typeof value === 'function' && /^\s*class\s/.test(value.toString());
+
+/** @internal is a function */
+const isFunction = (value: unknown): value is FunctionPrototype => value === Function.prototype;
+
+/** @internal factory for a reducer */
+const copyPropertiesFrom = (sourceObject: ObjectPrototype) => (
+  previousValue: PropertyMap,
+  currentValue: PropertyKey
+): PropertyMap => {
+  if (currentValue !== 'length' && currentValue !== 'name' && currentValue !== 'prototype') {
+    set(previousValue, currentValue, get(sourceObject, currentValue));
+  }
+
+  return previousValue;
 };
 
-const classMethods = (ctor: ObjectConstructor | ObjectWithPrototype): ObjectWithPrototype =>
-  (isFunction(ctor)
+/** @internal */
+const classStaticProperties = (ctor: ObjectConstructor | any): PropertyMap =>
+  isFunction(ctor)
     ? {}
-    : ownKeys(ctor.prototype).reduce(
+    : ownKeys(ctor as ObjectConstructor).reduce(
+        copyPropertiesFrom(ctor as ObjectConstructor),
+        classStaticProperties(getPrototypeOf(ctor as ObjectConstructor) as ObjectConstructor)
+      );
+
+/** @internal factory for a reducer */
+const copyMethodsFrom = (sourceObject: ObjectPrototype) => (
+  previousValue: ObjectPrototype,
+  currentValue: PropertyKey
+): ObjectPrototype => {
+  if (currentValue !== 'constructor') set(previousValue, currentValue, get(sourceObject, currentValue));
+  return previousValue;
+};
+
+/** @internal */
+const classMethods = (ctor: FunctionPrototype | ObjectWithPrototype): ObjectPrototype =>
+  ((isFunction(ctor)
+    ? {}
+    : ownKeys(ctor.prototype).reduce<ObjectPrototype>(
         copyMethodsFrom(ctor.prototype),
         classMethods(getPrototypeOf(ctor) as ObjectWithPrototype)
-      )) as ObjectWithPrototype;
+      )) as unknown) as ObjectConstructor;
 
-const init = (ctor: ObjectConstructor): Initializer =>
-  // eslint-disable-next-line func-names,,@typescript-eslint/no-unused-vars
-  function(_, { instance, args }) {
+/** @internal */
+const initializerFactory = (ctor: ObjectConstructor): Initializer<unknown, unknown> =>
+  function (_options, { args }) {
     if (this) assign(this, construct(ctor, args));
-  } as Initializer;
+  } as Initializer<unknown, unknown>;
 
 /**
- * TODO
+ * Converts an ES6 class to a stamp respecting the class's inheritance chain. The prototype chain is squashed into the methods of a stamp
  */
-const convertClass = (ctor: ObjectConstructor): Stamp =>
+// TODO: convertClass should support generics like <ObjectInstance, OriginalStamp>
+// TODO: ObjectInstance = InstanceType<ObjectConstructor>
+const convertClass = (ctor: ObjectConstructor): Stamp<unknown> =>
   isClass(ctor)
-    ? compose({
-        initializers: [init(ctor)],
-        methods: classMethods(ctor),
+    ? (compose({
+        initializers: [initializerFactory(ctor)],
+        methods: (classMethods(ctor) as unknown) as Record<string, unknown>,
         staticProperties: classStaticProperties(ctor),
         staticPropertyDescriptors: { name: { value: ctor.name } },
-      })
+      }) as Stamp<unknown>)
     : compose();
 
 export default convertClass;

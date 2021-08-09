@@ -1,11 +1,15 @@
-import compose, { Stamp } from '@stamp/compose';
+import compose from '@stamp/compose';
+
+import type { Stamp } from '@stamp/compose';
 
 /**
- * @deprecated This feature is now available from the `@stamp/it` package which is prefered.
+ * @deprecated This feature is now available from the `@stamp/it` package which is preferred.
  */
-const Named = compose({
+// TODO: Named should support generics like <ObjectInstance, OriginalStamp>
+// ! weak types
+const Named: Stamp<unknown> = compose({
   staticProperties: {
-    setName(this: Stamp, name: string): Stamp {
+    setName(this: Stamp<unknown> | undefined, name: string): Stamp<unknown> {
       return (this?.compose ? this : Named).compose({
         staticPropertyDescriptors: {
           name: { value: name },
@@ -13,6 +17,7 @@ const Named = compose({
       });
     },
   },
+  // ! type should be NamedStamp, renamed as Named
 });
 
 export default Named;

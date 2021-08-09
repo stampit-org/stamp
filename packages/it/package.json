@@ -2,19 +2,22 @@
   "name": "@stamp/it",
   "version": "1.1.0",
   "description": "A nice, handy API implementation of the compose standard",
-  "main": "index.js",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/it"
   },
   "author": "",
-  "license": "MIT",
+  "main": "index.js",
+  "files": [
+    "index.d.ts"
+  ],
+  "engines": {
+    "node": ">= 10.18.0"
+  },
   "scripts": {
     "build": "tsc",
     "link": "npm run build && lerna link"
-  },
-  "engines": {
-    "node": ">= 10.18.0"
   },
   "dependencies": {
     "@stamp/compose": "^1.0.2",
@@ -24,6 +27,14 @@
   },
   "devDependencies": {
     "@stamp/check-compose": "^1.0.3",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.21"
+  },
+  "xo": {
+    "space": 2,
+    "rules": {
+      "capitalized-comments": "warn",
+      "import/extensions": "warn"
+    },
+    "prettier": true
   }
 }

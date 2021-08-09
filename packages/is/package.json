@@ -7,11 +7,42 @@
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/is"
   },
+  "main": "index.js",
+  "files": [
+    "array.js",
+    "composable.js",
+    "descriptor.js",
+    "function.js",
+    "object.js",
+    "plain-object.js",
+    "stamp.js",
+    "string.js",
+    "array.d.ts",
+    "composable.d.ts",
+    "descriptor.d.ts",
+    "function.d.ts",
+    "index.d.ts",
+    "object.d.ts",
+    "plain-object.d.ts",
+    "stamp.d.ts",
+    "string.d.ts"
+  ],
+  "engines": {
+    "node": ">= 10.18.0"
+  },
   "scripts": {
     "build": "tsc",
     "link": "npm run build && lerna link"
   },
-  "engines": {
-    "node": ">= 10.18.0"
+  "devDependencies": {
+    "@stamp/types": "1.6.0"
+  },
+  "xo": {
+    "space": 2,
+    "rules": {
+      "capitalized-comments": "warn",
+      "import/extensions": "warn"
+    },
+    "prettier": true
   }
 }

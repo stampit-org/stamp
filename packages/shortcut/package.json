@@ -1,19 +1,50 @@
 {
   "name": "@stamp/shortcut",
   "version": "1.0.2",
-  "description": "Adds handy shortcuts for stamp composition",
-  "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Adds handy static methods for simpler Stamp composition",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/stampit-org/stamp/tree/master/packages/shortcut"
   },
   "author": "",
-  "license": "MIT",
+  "main": "index.js",
   "scripts": {
     "build": "tsc",
     "link": "npm run build && lerna link"
   },
+  "files": [
+    "index.d.ts"
+  ],
+  "keywords": [
+    "class",
+    "compose",
+    "factory",
+    "inheritance",
+    "node",
+    "object",
+    "object oriented",
+    "oop",
+    "prototype",
+    "shortcut",
+    "stamp",
+    "types",
+    "typescript"
+  ],
   "dependencies": {
     "@stamp/compose": "^1.0.2"
+  },
+  "devDependencies": {
+  },
+  "xo": {
+    "space": 2,
+    "rules": {
+      "capitalized-comments": "warn",
+      "import/extensions": "warn"
+    },
+    "prettier": true
   }
 }
