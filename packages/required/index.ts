@@ -14,7 +14,7 @@ interface StampMethodRequired {
   (this: Stamp, settings: Composable): Stamp;
 }
 export const required: StampMethodRequired = function required(settings): Stamp {
-  const localStamp = this?.compose ? this : Required;
+  const localStamp = (this && 'compose' in this) ? this : Required;
   const { deepConfiguration } = localStamp.compose as RequiredDescriptor;
   const prevSettings = deepConfiguration?.Required;
 

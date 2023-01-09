@@ -14,7 +14,7 @@ const copyPropertiesFrom = (srcObj: object) => (destObj: PropertyMap, key: Prope
 };
 
 const classStaticProperties = (ctor: object): PropertyMap =>
-  isFunction(ctor) ? {} : ownKeys(ctor).reduce(copyPropertiesFrom(ctor), classStaticProperties(getPrototypeOf(ctor)));
+  isFunction(ctor) ? {} : ownKeys(ctor).reduce(copyPropertiesFrom(ctor), classStaticProperties(getPrototypeOf(ctor) || {}));
 
 interface ObjectWithPrototype extends PropertyMap {
   prototype: object;
@@ -28,13 +28,13 @@ const classMethods = (ctor: ObjectConstructor | ObjectWithPrototype): ObjectWith
   (isFunction(ctor)
     ? {}
     : ownKeys(ctor.prototype).reduce(
-        copyMethodsFrom(ctor.prototype),
-        classMethods(getPrototypeOf(ctor) as ObjectWithPrototype)
-      )) as ObjectWithPrototype;
+      copyMethodsFrom(ctor.prototype),
+      classMethods(getPrototypeOf(ctor) as ObjectWithPrototype)
+    )) as ObjectWithPrototype;
 
 const init = (ctor: ObjectConstructor): Initializer =>
   // eslint-disable-next-line func-names,,@typescript-eslint/no-unused-vars
-  function(_, { instance, args }) {
+  function (_, { instance, args }) {
     if (this) assign(this, construct(ctor, args));
   } as Initializer;
 
@@ -44,11 +44,11 @@ const init = (ctor: ObjectConstructor): Initializer =>
 const convertClass = (ctor: ObjectConstructor): Stamp =>
   isClass(ctor)
     ? compose({
-        initializers: [init(ctor)],
-        methods: classMethods(ctor),
-        staticProperties: classStaticProperties(ctor),
-        staticPropertyDescriptors: { name: { value: ctor.name } },
-      })
+      initializers: [init(ctor)],
+      methods: classMethods(ctor),
+      staticProperties: classStaticProperties(ctor),
+      staticPropertyDescriptors: { name: { value: ctor.name } },
+    })
     : compose();
 
 export default convertClass;

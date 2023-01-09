@@ -1,20 +1,5 @@
 {
-  "version": "independent",
-  "command": {
-    "publish": {
-      "access": "public",
-      "ignoreChanges": [
-        "__tests__/"
-      ],
-      "npmClientArgs": [
-        "--access public"
-      ]
-    }
-  },
-  "npmClientArgs": [
-    "--access public"
-  ],
-  "packages": [
-    "packages/*"
-  ]
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json",
+  "useWorkspaces": true,
+  "version": "0.0.0"
 }
