@@ -1,67 +1,71 @@
-'use strict';
-
-const compose = require('@stamp/compose');
-const isArray = require('@stamp/is/array');
-const isObject = require('@stamp/is/object');
-const isString = require('@stamp/is/string');
-const assign = require('@stamp/core/assign');
-
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const compose_1 = __importDefault(require("@stamp/compose"));
+const core_1 = require("@stamp/core");
+const is_1 = require("@stamp/is");
 const { get, ownKeys, set } = Reflect;
-
-function initializer(opts, ref) {
-  if (isObject(opts)) {
-    const conf = ref.stamp.compose.deepConfiguration;
-    const keysToAssign = conf && conf.ArgOverProp;
-    if (keysToAssign && keysToAssign.length) {
-      keysToAssign.forEach((key) => {
-        const incomingValue = get(opts, key);
-        if (incomingValue !== undefined) {
-          set(this, key, incomingValue);
+const initializer = function initializer(opts, ref) {
+    if ((0, is_1.isObject)(opts)) {
+        const { deepConfiguration } = ref.stamp.compose;
+        const keysToAssign = deepConfiguration === null || deepConfiguration === void 0 ? void 0 : deepConfiguration.ArgOverProp;
+        if (keysToAssign === null || keysToAssign === void 0 ? void 0 : keysToAssign.length) {
+            keysToAssign.forEach((key) => {
+                const incomingValue = get(opts, key);
+                if (incomingValue !== undefined) {
+                    set(this, key, incomingValue);
+                }
+            });
         }
-      });
     }
-  }
-}
-
+};
 const dedupe = (array) => [...new Set(array)];
-
-const ArgOverProp = compose({
-  staticProperties: {
-    argOverProp(...args) {
-      let propNames = [];
-      let defaultProps;
-      args.forEach((arg) => {
-        if (isString(arg)) {
-          propNames.push(arg);
-        } else if (isArray(arg)) {
-          propNames = [...propNames, ...arg.filter(isString)];
-        } else if (isObject(arg)) {
-          defaultProps = assign(defaultProps || {}, arg);
-          propNames = [...propNames, ...ownKeys(arg)];
-        }
-      });
-
-      const Stamp = this && this.compose ? this : ArgOverProp;
-      return Stamp.compose({
-        deepConfiguration: { ArgOverProp: propNames },
-        properties: defaultProps, // default property values
-      });
+/**
+ * TODO
+ */
+const ArgOverProp = (0, compose_1.default)({
+    staticProperties: {
+        argOverProp(...args) {
+            let propNames = [];
+            let defaultProps;
+            args.forEach((arg) => {
+                if ((0, is_1.isString)(arg)) {
+                    propNames.push(arg);
+                }
+                else if ((0, is_1.isArray)(arg)) {
+                    propNames = [...propNames, ...arg.filter(is_1.isString)];
+                }
+                else if ((0, is_1.isObject)(arg)) {
+                    defaultProps = (0, core_1.assign)(defaultProps || {}, arg);
+                    propNames = [...propNames, ...ownKeys(arg)];
+                }
+            });
+            const localStamp = ((this === null || this === void 0 ? void 0 : this.compose) ? this : ArgOverProp);
+            return localStamp.compose({
+                deepConfiguration: { ArgOverProp: propNames },
+                properties: defaultProps, // default property values
+            });
+        },
     },
-  },
-  initializers: [initializer],
-  composers: [
-    (opts) => {
-      const descriptor = opts.stamp.compose;
-      const { initializers } = descriptor;
-      // Always keep our initializer the first
-      initializers.splice(initializers.indexOf(initializer), 1);
-      initializers.unshift(initializer);
-
-      const conf = descriptor.deepConfiguration;
-      const propNames = conf && conf.ArgOverProp;
-      if (isArray(propNames)) conf.ArgOverProp = dedupe(propNames);
-    },
-  ],
+    initializers: [initializer],
+    composers: [
+        ((opts) => {
+            const descriptor = opts.stamp.compose;
+            const { initializers } = descriptor;
+            // Always keep our initializer the first
+            initializers.splice(initializers.indexOf(initializer), 1);
+            initializers.unshift(initializer);
+            const { deepConfiguration } = descriptor;
+            const propNames = deepConfiguration === null || deepConfiguration === void 0 ? void 0 : deepConfiguration.ArgOverProp;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            if ((0, is_1.isArray)(propNames))
+                deepConfiguration.ArgOverProp = dedupe(propNames);
+        }),
+    ],
 });
-
+exports.default = ArgOverProp;
+// For CommonJS default export support
 module.exports = ArgOverProp;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: ArgOverProp });

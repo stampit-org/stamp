@@ -1,4 +1,4 @@
-import compose, { Composer } from '@stamp/compose';
+import compose, { Composer, Stamp } from '@stamp/compose';
 
 const { get } = Reflect;
 
@@ -8,7 +8,7 @@ const { get } = Reflect;
 const FpConstructor = compose({
   composers: [
     ((opts) => {
-      const optsStamp = get(opts, 'stamp');
+      const optsStamp = get(opts, 'stamp') as (Stamp & { of: Stamp });
       optsStamp.of = optsStamp;
       optsStamp.constructor = optsStamp;
       optsStamp.compose.methods = optsStamp.compose.methods ?? {};

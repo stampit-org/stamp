@@ -32,8 +32,12 @@ Documentation: https://stampit.js.org
 
 Run `npm install` as usual followed by `npm run bootstrap` which creates local references to modules that require each other.
 
+1. `npx lerna init`
+2. `npm install`
+3. `npx lerna run build`
+
 ## Tests
 
-The `npm test` will execute [Jest](https://github.com/facebook/jest) tests, and then [JSHint](https://github.com/jshint/jshint).
+The `npm test` command will execute [Jest](https://github.com/facebook/jest) tests, and then [JSHint](https://github.com/jshint/jshint).
 
-The `npm test -- --watch` will watch file changes and execute tests as needed.
+The `npm test -- --watch` command will watch file changes and execute tests as needed.
