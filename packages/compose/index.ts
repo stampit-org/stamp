@@ -30,7 +30,7 @@ export type ComposableFactoryParams = Parameters<ComposableFactory>;
  * @param {...(Composable)} [arguments] The list of composables.
  * @returns {Stamp} A new stamp (aka composable factory function)
  */
-interface ComposeMethod {
+export interface ComposeMethod {
   (this: Stamp | unknown, ...args: (Composable | undefined)[]): Stamp;
 }
 

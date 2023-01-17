@@ -7,9 +7,16 @@
   "bin": {
     "check-compose": "./bin/check-compose.js"
   },
+  "scripts": {
+    "build": "tsc",
+    "link": "npm run build && lerna link"
+  },
   "dependencies": {
     "lodash": "^4.17.15",
     "prettyjson": "^1.2.1",
     "tape": "^4.11.0"
+  },
+  "devDependencies": {
+    "@types/tape": "^4.13.2"
   }
 }

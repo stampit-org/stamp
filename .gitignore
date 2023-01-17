@@ -107,3 +107,6 @@ Session.vim
 
 # Typescript
 *.tsbuildinfo
+
+##### VS Code
+*.code-workspace
