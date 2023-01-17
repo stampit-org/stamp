@@ -1,4 +1,5 @@
 node_modules
 packages/*
 !packages/check-compose
+packages/check-compose/index.js
 packages/*/__test__/*

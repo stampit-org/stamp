@@ -3,18 +3,18 @@
 
 'use strict';
 
-const fs = require('fs');
-const test = require('tape');
+import fs from 'fs';
+import ttest from 'tape';
 
-module.exports = (compose) => {
+function checkCompose<CM>(compose: CM) {
   if (typeof compose !== 'function') throw new Error('"compose" must be a function');
 
   const files = fs.readdirSync(__dirname).filter(RegExp.prototype.test.bind(/.+-tests\.js$/));
 
-  const failures = [];
+  const failures: any[] = [];
 
   return new Promise((resolve) => {
-    test
+    ttest
       .createStream({ objectMode: true })
       .on('data', (assert) => {
         if (assert.error) failures.push(assert);
@@ -28,3 +28,8 @@ module.exports = (compose) => {
     });
   });
 };
+
+export default checkCompose;
+
+module.exports = checkCompose;
+Object.defineProperty(module.exports, 'default', { enumerable: false, value: checkCompose });
